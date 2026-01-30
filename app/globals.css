@@ -3,6 +3,14 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  --highsoft-cinza: #A4A5A6;
+  --highsoft-primario: #094A73;
+  --highsoft-secundario: #048ABF;
+  --highsoft-terciario: #04B2D9;
+  --highsoft-sucesso: #10B981;
+  --highsoft-erro: #EF4444;
+  --highsoft-aviso: #F59E0B;
 }
 
 @theme inline {
@@ -10,17 +18,73 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-highsoft-cinza: var(--highsoft-cinza);
+  --color-highsoft-primario: var(--highsoft-primario);
+  --color-highsoft-secundario: var(--highsoft-secundario);
+  --color-highsoft-terciario: var(--highsoft-terciario);
+  --color-highsoft-sucesso: var(--highsoft-sucesso);
+  --color-highsoft-erro: var(--highsoft-erro);
+  --color-highsoft-aviso: var(--highsoft-aviso);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+@keyframes blob {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+}
+
+.animate-blob {
+  animation: blob 7s infinite;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+@keyframes shake {
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-5px);
+  }
+
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(5px);
+  }
+}
+
+.animate-shake {
+  animation: shake 0.5s;
 }
