@@ -47,21 +47,21 @@ export default function PaginaFinanceiro(): React.JSX.Element {
       titulo: "Emissão",
       ordenavel: true,
       alinhamento: "esquerda",
-      renderizar: (valor) => formatarData(valor),
+      renderizar: (valor) => formatarData(valor as Date | string | null | undefined),
     },
     {
       chave: "DAT_ENTRADA",
       titulo: "Entrada",
       ordenavel: true,
       alinhamento: "esquerda",
-      renderizar: (valor) => formatarData(valor),
+      renderizar: (valor) => formatarData(valor as Date | string | null | undefined),
     },
     {
       chave: "VCT_ORIGINAL",
       titulo: "Vencimento",
       ordenavel: true,
       alinhamento: "esquerda",
-      renderizar: (valor) => formatarData(valor),
+      renderizar: (valor) => formatarData(valor as Date | string | null | undefined),
     },
     {
       chave: "VLR_ORIGINAL",
@@ -121,7 +121,7 @@ export default function PaginaFinanceiro(): React.JSX.Element {
       titulo: "Vencimento",
       ordenavel: true,
       alinhamento: "esquerda",
-      renderizar: (valor) => formatarData(valor),
+      renderizar: (valor) => formatarData(valor as Date | string | null | undefined),
     },
     {
       chave: "VLR_ORIGINAL",
