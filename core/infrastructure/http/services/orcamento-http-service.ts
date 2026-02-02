@@ -30,7 +30,8 @@ export class OrcamentoHttpService extends BaseHttpService<
 
     this.validateResponse(response, 'aprovar');
 
-    return this.transformDates(response.data!);
+    const data = response.data as Orcamento;
+    return this.transformDates(data) as Orcamento;
   }
 
   /**
@@ -43,6 +44,7 @@ export class OrcamentoHttpService extends BaseHttpService<
 
     this.validateResponse(response, 'processar ordem de serviço');
 
-    return this.transformDates(response.data!);
+    const data = response.data as Orcamento;
+    return this.transformDates(data) as Orcamento;
   }
 }

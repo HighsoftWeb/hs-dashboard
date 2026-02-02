@@ -2,7 +2,7 @@ import { clienteHttp } from "../http/cliente-http";
 import { ProdutoHttpService, FiltrosProduto, RespostaListagemProdutos } from "../infrastructure/http/services/produto-http-service";
 import { ProdutoServicoDB } from "../tipos/produto-db";
 
-export { FiltrosProduto, RespostaListagemProdutos };
+export type { FiltrosProduto, RespostaListagemProdutos };
 
 class ServicoProduto {
   private readonly produtoService: ProdutoHttpService;
