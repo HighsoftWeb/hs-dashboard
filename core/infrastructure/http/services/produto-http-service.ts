@@ -1,6 +1,7 @@
 import { BaseHttpService } from './base-http-service';
 import { HttpClient } from '../client/http-client';
 import { ProdutoServicoDB } from '@/core/tipos/produto-db';
+import { PAGINACAO_PADRAO } from '@/core/constants/paginacao';
 
 export interface FiltrosProduto {
   page?: number;
@@ -61,7 +62,7 @@ export class ProdutoHttpService extends BaseHttpService<
       produtos: response.data,
       total: meta?.total || response.data.length,
       page: meta?.page || filtros?.page || 1,
-      pageSize: meta?.pageSize || filtros?.pageSize || 10,
+      pageSize: meta?.pageSize || filtros?.pageSize || PAGINACAO_PADRAO.PAGE_SIZE,
       totalPages: meta?.totalPages || 1,
     };
   }

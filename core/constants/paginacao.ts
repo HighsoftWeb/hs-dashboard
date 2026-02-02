@@ -1,10 +1,10 @@
 export const PAGINACAO_PADRAO = {
-  PAGE_SIZE: 10,
+  PAGE_SIZE: 25,
   PAGE_SIZE_MAX: 100,
   PAGE_DEFAULT: 1,
 } as const;
 
 export const DASHBOARD_PADRAO = {
-  LIMITE_ORCAMENTOS: 10,
+  LIMITE_ORCAMENTOS: 25,
   DIAS_VENCIMENTO: 30,
 } as const;

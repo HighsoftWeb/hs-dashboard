@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import { clienteHttp } from "@/core/http/cliente-http";
+import { PAGINACAO_PADRAO } from "@/core/constants/paginacao";
 
 export interface ColunaDataTable<T> {
   chave: keyof T | string;
@@ -55,7 +56,7 @@ export function DataTable<T extends Record<string, unknown>>({
   const [carregando, setCarregando] = useState<boolean>(true);
   const [erro, setErro] = useState<string>("");
   const [pagina, setPagina] = useState<number>(1);
-  const [tamanhoPagina, setTamanhoPagina] = useState<number>(10);
+  const [tamanhoPagina, setTamanhoPagina] = useState<number>(PAGINACAO_PADRAO.PAGE_SIZE);
   const [total, setTotal] = useState<number>(0);
   const [ordenacao, setOrdenacao] = useState<{
     campo: string;

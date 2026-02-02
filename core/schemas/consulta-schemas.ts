@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { PAGINACAO_PADRAO } from "../constants/paginacao";
 
 export const schemaParametrosConsulta = z.object({
   page: z
@@ -17,7 +18,7 @@ export const schemaParametrosConsulta = z.object({
         const num = typeof val === "string" ? parseInt(val, 10) : Number(val);
         return isNaN(num) ? undefined : num;
       },
-      z.number().int().positive().max(100).default(10).optional()
+      z.number().int().positive().max(100).default(PAGINACAO_PADRAO.PAGE_SIZE).optional()
     ),
   sort: z.preprocess((val) => (val === null || val === "" ? undefined : val), z.string().optional()),
   order: z.preprocess(
