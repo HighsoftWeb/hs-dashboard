@@ -90,11 +90,11 @@ export async function PUT(
     const empresa: EmpresaConfigInput = {
       cnpj: cnpjLimpo,
       nomeEmpresa: body.nomeEmpresa || "",
-      host: body.host,
+      host: body.host || "",
       porta,
-      nomeBase: body.nomeBase,
-      usuario: body.usuario,
-      senha: body.senha,
+      nomeBase: body.nomeBase || "",
+      usuario: body.usuario || "",
+      senha: body.senha || "",
       codigosUsuariosPermitidos: body.codigosUsuariosPermitidos || undefined,
     };
 
@@ -144,7 +144,7 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
   try {
