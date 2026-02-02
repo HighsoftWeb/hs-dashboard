@@ -10,6 +10,7 @@ import {
   EstoqueCompletoDB,
   TabelaPrecoProdutoDB,
 } from "@/core/repository/detalhes-repository";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 
 export default function PaginaDetalhesProduto(): React.JSX.Element {
   const params = useParams();
@@ -222,14 +223,7 @@ export default function PaginaDetalhesProduto(): React.JSX.Element {
                           className="p-2 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border border-gray-300 flex-shrink-0 h-[34px]"
                           title="Derivação anterior"
                         >
-                          <svg
-                            className="w-4 h-4 text-gray-600"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                          </svg>
+                          <ArrowLeft className="w-4 h-4 text-gray-600" />
                         </button>
 
                         <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
@@ -277,14 +271,7 @@ export default function PaginaDetalhesProduto(): React.JSX.Element {
                           className="p-2 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border border-gray-300 flex-shrink-0 h-[34px]"
                           title="Próxima derivação"
                         >
-                          <svg
-                            className="w-4 h-4 text-gray-600"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                          </svg>
+                          <ArrowRight className="w-4 h-4 text-gray-600" />
                         </button>
                       </div>
 

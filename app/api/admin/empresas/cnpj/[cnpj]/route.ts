@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { empresaConfigRepository } from "@/core/repository/empresa-config-repository";
+import { filtrarEmpresaSegura } from "@/core/utils/filtrar-empresa-segura";
 
 export async function GET(
   _request: NextRequest,
@@ -48,11 +49,11 @@ export async function GET(
       );
     }
 
-    const { senha: _senha, ...empresaSemSenha } = empresa;
+    const empresaSegura = filtrarEmpresaSegura(empresa);
 
     return NextResponse.json({
       success: true,
-      data: empresaSemSenha,
+      data: empresaSegura,
     });
   } catch (erro) {
     return NextResponse.json(

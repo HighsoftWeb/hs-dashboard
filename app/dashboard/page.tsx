@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { Building2, Package, FileText, User } from "lucide-react";
 import { LayoutDashboard } from "@/core/layouts/layout-dashboard";
 import { Orcamento } from "@/core/tipos";
 import { servicoDashboard, ContaVencendo } from "@/core/dashboard/servico-dashboard";
@@ -157,7 +158,7 @@ export default function PaginaDashboard(): React.JSX.Element {
                 </p>
               </div>
               <div className="w-12 h-12 bg-[#094A73]/10 rounded-lg flex items-center justify-center">
-                <span className="text-2xl">👥</span>
+                <User className="w-6 h-6 text-[#094A73]" />
               </div>
             </div>
           </div>
@@ -173,7 +174,7 @@ export default function PaginaDashboard(): React.JSX.Element {
                 </p>
               </div>
               <div className="w-12 h-12 bg-[#048ABF]/10 rounded-lg flex items-center justify-center">
-                <span className="text-2xl">🏢</span>
+                <Building2 className="w-6 h-6 text-[#048ABF]" />
               </div>
             </div>
           </div>
@@ -189,7 +190,7 @@ export default function PaginaDashboard(): React.JSX.Element {
                 </p>
               </div>
               <div className="w-12 h-12 bg-[#04B2D9]/10 rounded-lg flex items-center justify-center">
-                <span className="text-2xl">📦</span>
+                <Package className="w-6 h-6 text-[#04B2D9]" />
               </div>
             </div>
           </div>
@@ -205,7 +206,7 @@ export default function PaginaDashboard(): React.JSX.Element {
                 </p>
               </div>
               <div className="w-12 h-12 bg-[#A4A5A6]/10 rounded-lg flex items-center justify-center">
-                <span className="text-2xl">📋</span>
+                <FileText className="w-6 h-6 text-[#A4A5A6]" />
               </div>
             </div>
           </div>

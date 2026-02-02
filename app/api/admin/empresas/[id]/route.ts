@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { empresaConfigRepository } from "@/core/repository/empresa-config-repository";
 import { EmpresaConfigInput } from "@/core/entities/EmpresaConfig";
+import { filtrarEmpresaSegura } from "@/core/utils/filtrar-empresa-segura";
 
 interface EmpresaRequestBody {
   cnpj?: string;
@@ -124,9 +125,10 @@ export async function PUT(
     }
 
     const empresaAtualizada = empresaConfigRepository.atualizar(id, empresa);
+    const empresaSegura = filtrarEmpresaSegura(empresaAtualizada);
     return NextResponse.json({
       success: true,
-      data: empresaAtualizada,
+      data: empresaSegura,
     });
   } catch (erro) {
     return NextResponse.json(

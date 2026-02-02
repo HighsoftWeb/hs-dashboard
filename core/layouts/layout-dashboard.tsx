@@ -3,9 +3,26 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
+import { 
+  LayoutDashboard as IconDashboard, 
+  FileText, 
+  TrendingUp, 
+  DollarSign,
+  ChevronDown,
+  ChevronRight,
+  Building2,
+  User,
+  LogOut
+} from "lucide-react";
 import { servicoAutenticacao } from "../autenticacao/servico-autenticacao";
-import { Botao } from "../componentes/botao/botao";
 import { Usuario } from "../tipos/usuario";
+import { clienteHttp } from "../http/cliente-http";
+
+interface EmpresaAtual {
+  COD_EMPRESA: number;
+  NOM_EMPRESA: string;
+  FAN_EMPRESA: string | null;
+}
 
 interface PropsLayoutDashboard {
   children: React.ReactNode;
@@ -14,7 +31,7 @@ interface PropsLayoutDashboard {
 interface MenuItem {
   label: string;
   href?: string;
-  icone?: string;
+  icone?: React.ComponentType<{ className?: string }>;
   submenus?: MenuItem[];
 }
 
@@ -22,11 +39,11 @@ const menuItems: MenuItem[] = [
   {
     label: "Dashboard",
     href: "/dashboard",
-    icone: "📊",
+    icone: IconDashboard,
   },
   {
     label: "Cadastros",
-    icone: "📋",
+    icone: FileText,
     submenus: [
       {
         label: "Gerais",
@@ -46,7 +63,7 @@ const menuItems: MenuItem[] = [
   },
   {
     label: "Comercial",
-    icone: "📊",
+    icone: TrendingUp,
     submenus: [
       {
         label: "Saídas",
@@ -58,7 +75,7 @@ const menuItems: MenuItem[] = [
   },
   {
     label: "Financeiro",
-    icone: "💰",
+    icone: DollarSign,
     submenus: [
       { label: "Contas a Receber", href: "/dashboard/financeiro/contas-receber" },
       { label: "Contas a Pagar", href: "/dashboard/financeiro/contas-pagar" },
@@ -72,14 +89,34 @@ export function LayoutDashboard({
   const router = useRouter();
   const pathname = usePathname();
   const [usuario, setUsuario] = useState<Usuario | null>(null);
+  const [empresaAtual, setEmpresaAtual] = useState<EmpresaAtual | null>(null);
   const [carregandoUsuario, setCarregandoUsuario] = useState<boolean>(true);
   const [menuAberto, setMenuAberto] = useState<string | null>(null);
   const [submenuAberto, setSubmenuAberto] = useState<string | null>(null);
 
   useEffect(() => {
-    const usuarioAtual = servicoAutenticacao.obterUsuarioAtual();
-    setUsuario(usuarioAtual);
-    setCarregandoUsuario(false);
+    const carregarDados = async (): Promise<void> => {
+      const usuarioAtual = servicoAutenticacao.obterUsuarioAtual();
+      setUsuario(usuarioAtual);
+      
+      if (usuarioAtual?.codEmpresa) {
+        try {
+          const resposta = await clienteHttp.get<EmpresaAtual>(
+            "/dashboard/empresa-atual"
+          );
+          
+          if (resposta.success && resposta.data) {
+            setEmpresaAtual(resposta.data);
+          }
+        } catch (erro) {
+          console.error("Erro ao carregar empresa atual:", erro);
+        }
+      }
+      
+      setCarregandoUsuario(false);
+    };
+
+    carregarDados();
   }, []);
 
   useEffect(() => {
@@ -97,6 +134,8 @@ export function LayoutDashboard({
         document.removeEventListener("click", handleClickOutside);
       };
     }
+
+    return undefined;
   }, [menuAberto]);
 
   const handleLogout = async (): Promise<void> => {
@@ -168,16 +207,9 @@ export function LayoutDashboard({
                               }
                             `}
                           >
-                            <span className="text-base">{item.icone}</span>
+                            {item.icone && <item.icone className="w-4 h-4" />}
                             <span>{item.label}</span>
-                            <svg
-                              className={`w-3.5 h-3.5 transition-transform ${estaAberto ? "rotate-180" : ""}`}
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                            </svg>
+                            <ChevronDown className={`w-3.5 h-3.5 transition-transform ${estaAberto ? "rotate-180" : ""}`} />
                           </button>
                           {estaAberto && (
                             <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-xl z-50 min-w-[200px]">
@@ -201,14 +233,7 @@ export function LayoutDashboard({
                                           `}
                                         >
                                           <span>{submenu.label}</span>
-                                          <svg
-                                            className={`w-4 h-4 transition-transform ${submenuEstaAberto ? "rotate-90" : ""}`}
-                                            fill="none"
-                                            stroke="currentColor"
-                                            viewBox="0 0 24 24"
-                                          >
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                          </svg>
+                                          <ChevronRight className={`w-4 h-4 transition-transform ${submenuEstaAberto ? "rotate-90" : ""}`} />
                                         </button>
                                         {submenuEstaAberto && (
                                           <div className="absolute left-full top-0 ml-0.5 bg-white border border-gray-200 rounded-md shadow-xl z-50 min-w-[180px]">
@@ -271,7 +296,7 @@ export function LayoutDashboard({
                             }
                           `}
                         >
-                          <span className="text-base">{item.icone}</span>
+                          {item.icone && <item.icone className="w-4 h-4" />}
                           <span>{item.label}</span>
                         </a>
                       )}
@@ -282,26 +307,56 @@ export function LayoutDashboard({
             </div>
             <div className="flex items-center gap-3">
               {!carregandoUsuario && usuario && (
-                <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-lg">
-                  <div className="w-5 h-5 bg-[#094A73] rounded-full flex items-center justify-center">
-                    <span className="text-white text-sm font-medium">
-                      {usuario.nome.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                  <div className="hidden md:block">
-                    <p className="text-sm font-medium text-gray-900">
-                      {usuario.nome}
-                    </p>
+                <div className="hidden sm:flex items-center gap-2">
+                  {empresaAtual && (
+                    <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 bg-gradient-to-r from-gray-50 to-gray-100 rounded-md border border-gray-200 shadow-sm h-9">
+                      <div className="w-5 h-5 bg-[#094A73] rounded flex items-center justify-center flex-shrink-0">
+                        <Building2 className="w-3 h-3 text-white" />
+                      </div>
+                      <div className="hidden md:flex flex-col min-w-0 justify-center">
+                        <span className="text-[10px] font-medium text-gray-600 uppercase tracking-wide leading-tight">
+                          Empresa
+                        </span>
+                        <span className="text-xs font-semibold text-gray-900 truncate leading-tight">
+                          {empresaAtual.COD_EMPRESA} - {empresaAtual.FAN_EMPRESA || empresaAtual.NOM_EMPRESA}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-gradient-to-r from-gray-50 to-gray-100 rounded-md border border-gray-200 shadow-sm h-9">
+                    <div className="w-5 h-5 bg-[#094A73] rounded flex items-center justify-center flex-shrink-0">
+                      <User className="w-3 h-3 text-white" />
+                    </div>
+                    <div className="hidden md:flex flex-col min-w-0 justify-center">
+                      <span className="text-[10px] font-medium text-gray-600 uppercase tracking-wide leading-tight">
+                        Usuário
+                      </span>
+                      <span className="text-xs font-semibold text-gray-900 truncate leading-tight">
+                        {usuario.codUsuario} - {usuario.nome}
+                      </span>
+                    </div>
+                    <div className="md:hidden">
+                      <span className="text-xs font-semibold text-gray-900">
+                        {usuario.nome}
+                      </span>
+                    </div>
                   </div>
                 </div>
               )}
-              <Botao
-                variante="secundario"
-                tamanho="pequeno"
+              {!carregandoUsuario && usuario && (
+                <div className="hidden sm:block h-6 w-px bg-gray-300"></div>
+              )}
+              <button
                 onClick={handleLogout}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 bg-gradient-to-r from-gray-50 to-gray-100 rounded-md border border-gray-200 shadow-sm hover:bg-gradient-to-r hover:from-gray-100 hover:to-gray-200 transition-colors h-9"
               >
-                Sair
-              </Botao>
+                <div className="w-5 h-5 bg-red-500 rounded flex items-center justify-center flex-shrink-0">
+                  <LogOut className="w-3 h-3 text-white" />
+                </div>
+                <span className="text-xs font-semibold text-gray-900 hidden md:inline">
+                  Sair
+                </span>
+              </button>
             </div>
           </div>
         </div>

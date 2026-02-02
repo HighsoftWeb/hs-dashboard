@@ -5,42 +5,63 @@ import {
   DadosAutenticacao,
   Usuario,
 } from "../tipos/usuario";
-import { salvarCnpjNoCookie } from "../utils/cnpj-cookie";
+import { removerCodEmpresaDoCookie } from "../utils/cod-empresa-cookie";
 
 class ServicoAutenticacao {
   async fazerLogin(
     credenciais: CredenciaisLogin
   ): Promise<DadosAutenticacao> {
-    const resposta = await clienteHttp.post<DadosAutenticacao>(
-      "/auth/login",
-      {
-        login: credenciais.login,
-        senha: credenciais.senha,
-        codEmpresa: credenciais.codEmpresa,
-        cnpj: credenciais.cnpj,
-      }
-    );
+    const dadosLogin: Record<string, string | number> = {
+      login: credenciais.login,
+      senha: credenciais.senha,
+    };
 
-    if (!resposta.success || !resposta.data) {
-      const errorMessage = resposta.error?.message || "Erro ao fazer login";
-      throw new Error(errorMessage);
+    if (credenciais.codEmpresa !== undefined) {
+      dadosLogin.codEmpresa = credenciais.codEmpresa;
     }
 
-    const { usuario, token, permissoes } = resposta.data;
+    if (credenciais.cnpj !== undefined) {
+      dadosLogin.cnpj = credenciais.cnpj;
+    }
 
-    Cookies.set("token", token, { expires: 7, sameSite: "strict" });
-    Cookies.set("usuario", JSON.stringify(usuario), {
-      expires: 7,
-      sameSite: "strict",
-    });
-    Cookies.set("permissoes", JSON.stringify(permissoes || []), {
-      expires: 7,
-      sameSite: "strict",
-    });
+    try {
+      const resposta = await clienteHttp.post<DadosAutenticacao>(
+        "/auth/login",
+        dadosLogin
+      );
 
-    return resposta.data;
+      if (!resposta.success || !resposta.data) {
+        const errorMessage = resposta.error?.message || "Erro ao fazer login";
+        throw new Error(errorMessage);
+      }
+
+      const { usuario, token, permissoes } = resposta.data;
+
+      Cookies.set("token", token, { expires: 7, sameSite: "strict" });
+      Cookies.set("usuario", JSON.stringify(usuario), {
+        expires: 7,
+        sameSite: "strict",
+      });
+      Cookies.set("permissoes", JSON.stringify(permissoes || []), {
+        expires: 7,
+        sameSite: "strict",
+      });
+
+      return resposta.data;
+    } catch (erro) {
+      if (erro instanceof Error && erro.message) {
+        throw erro;
+      }
+      
+      throw new Error("Erro ao fazer login. Verifique suas credenciais.");
+    }
+
   }
 
+  /**
+   * Realiza logout do usuário, removendo apenas dados de autenticação e código da empresa.
+   * O CNPJ da empresa é mantido para facilitar novo login.
+   */
   async fazerLogout(): Promise<void> {
     try {
     } catch {
@@ -48,6 +69,7 @@ class ServicoAutenticacao {
       Cookies.remove("token");
       Cookies.remove("usuario");
       Cookies.remove("permissoes");
+      removerCodEmpresaDoCookie();
     }
   }
 

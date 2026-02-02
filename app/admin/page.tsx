@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { EmpresaConfig } from "@/core/entities/EmpresaConfig";
 import { Botao } from "@/core/componentes/botao/botao";
+import { clienteHttp } from "@/core/http/cliente-http";
+import { validarELimparCnpj } from "@/core/utils/cnpj-utils";
 
 const ADMIN_PASSWORD = "hs@010896@hs";
 
 export default function PaginaAdmin(): React.JSX.Element {
-  const router = useRouter();
   const [autenticado, setAutenticado] = useState(false);
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState("");
@@ -34,10 +34,13 @@ export default function PaginaAdmin(): React.JSX.Element {
 
   const carregarEmpresas = async () => {
     try {
-      const resposta = await fetch("/api/admin/empresas");
-      if (resposta.ok) {
-        const dados = await resposta.json();
-        setEmpresas(dados.data || []);
+      const resposta = await clienteHttp.get<EmpresaConfig[]>("/admin/empresas/completo", {
+        headers: {
+          "X-Admin-Password": ADMIN_PASSWORD,
+        },
+      });
+      if (resposta.success && resposta.data) {
+        setEmpresas(resposta.data);
       }
     } catch (erro) {
       console.error("Erro ao carregar empresas:", erro);
@@ -59,29 +62,28 @@ export default function PaginaAdmin(): React.JSX.Element {
     setErro("");
 
     try {
-      const url = empresaEditando
-        ? `/api/admin/empresas/${empresaEditando.id}`
-        : "/api/admin/empresas";
-      const metodo = empresaEditando ? "PUT" : "POST";
+      const cnpjLimpo = validarELimparCnpj(formulario.cnpj);
+      if (!cnpjLimpo) {
+        throw new Error("CNPJ inválido");
+      }
 
-      const resposta = await fetch(url, {
-        method: metodo,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          cnpj: formulario.cnpj.replace(/\D/g, ""),
-          nomeEmpresa: formulario.nomeEmpresa,
-          host: formulario.host,
-          porta: formulario.porta,
-          nomeBase: formulario.nomeBase,
-          usuario: formulario.usuario,
-          senha: formulario.senha,
-          codigosUsuariosPermitidos: formulario.codigosUsuariosPermitidos || null,
-        }),
-      });
+      const dadosEmpresa = {
+        cnpj: cnpjLimpo,
+        nomeEmpresa: formulario.nomeEmpresa,
+        host: formulario.host,
+        porta: formulario.porta,
+        nomeBase: formulario.nomeBase,
+        usuario: formulario.usuario,
+        senha: formulario.senha,
+        codigosUsuariosPermitidos: formulario.codigosUsuariosPermitidos || null,
+      };
 
-      if (!resposta.ok) {
-        const dados = await resposta.json();
-        throw new Error(dados.error?.message || "Erro ao salvar empresa");
+      const resposta = empresaEditando
+        ? await clienteHttp.put<EmpresaConfig>(`/admin/empresas/${empresaEditando.id}`, dadosEmpresa)
+        : await clienteHttp.post<EmpresaConfig>("/admin/empresas", dadosEmpresa);
+
+      if (!resposta.success || !resposta.data) {
+        throw new Error(resposta.error?.message || "Erro ao salvar empresa");
       }
 
       setMostrarFormulario(false);
@@ -125,12 +127,10 @@ export default function PaginaAdmin(): React.JSX.Element {
     }
 
     try {
-      const resposta = await fetch(`/api/admin/empresas/${id}`, {
-        method: "DELETE",
-      });
+      const resposta = await clienteHttp.delete(`/admin/empresas/${id}`);
 
-      if (!resposta.ok) {
-        throw new Error("Erro ao excluir empresa");
+      if (!resposta.success) {
+        throw new Error(resposta.error?.message || "Erro ao excluir empresa");
       }
 
       carregarEmpresas();
@@ -201,6 +201,7 @@ export default function PaginaAdmin(): React.JSX.Element {
                 setEmpresaEditando(null);
                 setFormulario({
                   cnpj: "",
+                  nomeEmpresa: "",
                   host: "",
                   porta: 1433,
                   nomeBase: "",

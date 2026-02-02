@@ -368,14 +368,18 @@ export class DetalhesRepository {
     try {
       const query = `
         SELECT DISTINCT
-          civ.COD_EMPRESA, civ.COD_TABELA_PRECO, civ.COD_PRODUTO, civ.COD_DERIVACAO,
-          v.DAT_INICIAL, v.DAT_FINAL,
-          NULL AS VLR_PRECO_UNITARIO,
-          v.PER_DESCONTO,
+          civ.COD_EMPRESA, 
+          civ.COD_TABELA_PRECO, 
+          civ.COD_PRODUTO, 
+          civ.COD_DERIVACAO,
+          civ.DAT_INICIAL, 
+          v.DAT_FINAL,
+          civ.VLR_PRECO_BASE AS VLR_PRECO_UNITARIO,
+          COALESCE(civ.PER_DESCONTO, v.PER_DESCONTO) AS PER_DESCONTO,
           NULL AS PER_ACRESCIMO,
           tp.DES_TABELA_PRECO,
           d.DES_DERIVACAO
-        FROM dbo.CLIENTES_ITENS_VAL_TAB_PR civ
+        FROM dbo.ITENS_VALIDADE_TAB_PR civ
         LEFT JOIN dbo.VALIDADES_TABELAS_PRECOS v ON v.COD_EMPRESA = civ.COD_EMPRESA 
           AND v.COD_TABELA_PRECO = civ.COD_TABELA_PRECO 
           AND v.DAT_INICIAL = civ.DAT_INICIAL
@@ -386,7 +390,7 @@ export class DetalhesRepository {
           AND d.COD_DERIVACAO = civ.COD_DERIVACAO
         WHERE civ.COD_EMPRESA = @codEmpresa
           AND civ.COD_PRODUTO = @codProduto
-        ORDER BY civ.COD_TABELA_PRECO, civ.COD_DERIVACAO, v.DAT_INICIAL
+        ORDER BY civ.COD_TABELA_PRECO, civ.COD_DERIVACAO, civ.DAT_INICIAL
       `;
 
       return await poolBanco.executarConsulta<TabelaPrecoProdutoDB>(

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { empresaConfigRepository } from "@/core/repository/empresa-config-repository";
 import { EmpresaConfigInput } from "@/core/entities/EmpresaConfig";
+import { filtrarEmpresaSegura } from "@/core/utils/filtrar-empresa-segura";
 
 interface EmpresaRequestBody {
   cnpj?: string;
@@ -28,9 +29,10 @@ function validarBodyEmpresa(body: unknown): body is EmpresaRequestBody {
 export async function GET(): Promise<NextResponse> {
   try {
     const empresas = empresaConfigRepository.listarTodas();
+    const empresasSeguras = empresas.map(filtrarEmpresaSegura);
     return NextResponse.json({
       success: true,
-      data: empresas,
+      data: empresasSeguras,
     });
   } catch (erro) {
     return NextResponse.json(
@@ -114,9 +116,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     const novaEmpresa = empresaConfigRepository.criar(empresa);
+    const empresaSegura = filtrarEmpresaSegura(novaEmpresa);
     return NextResponse.json({
       success: true,
-      data: novaEmpresa,
+      data: empresaSegura,
     });
   } catch (erro) {
     return NextResponse.json(

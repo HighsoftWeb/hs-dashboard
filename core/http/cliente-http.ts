@@ -1,6 +1,7 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 import Cookies from "js-cookie";
 import { RespostaApi } from "../tipos/resposta-api";
+import { removerCodEmpresaDoCookie } from "../utils/cod-empresa-cookie";
 
 
 class ClienteHttp {
@@ -22,6 +23,10 @@ class ClienteHttp {
   private configurarInterceptores(): void {
     this.instancia.interceptors.request.use(
       (config) => {
+        if (!config) {
+          return Promise.reject(new Error("Configuração de requisição inválida"));
+        }
+        
         const token = Cookies.get("token");
         if (token && config.headers) {
           config.headers.Authorization = `Bearer ${token}`;
@@ -34,15 +39,41 @@ class ClienteHttp {
     );
 
     this.instancia.interceptors.response.use(
-      (resposta: AxiosResponse<RespostaApi>) => {
+      (resposta: AxiosResponse<RespostaApi<unknown>>) => {
         return resposta;
       },
-      (erro) => {
-        if (erro.response?.status === 401) {
+      (erro: unknown) => {
+        const axiosError = erro as AxiosError<RespostaApi<unknown>>;
+        
+        if (axiosError.response?.data?.error?.message) {
+          const mensagemErro = axiosError.response.data.error.message;
+          const erroComMensagem = new Error(mensagemErro);
+          Object.assign(erroComMensagem, { 
+            response: axiosError.response,
+            isAxiosError: true 
+          });
+          
+          if (axiosError.response.status === 401) {
+            Cookies.remove("token");
+            Cookies.remove("usuario");
+            Cookies.remove("permissoes");
+            removerCodEmpresaDoCookie();
+            
+            if (typeof window !== "undefined" && !window.location.pathname.includes("/login")) {
+              window.location.href = "/login";
+            }
+          }
+          
+          return Promise.reject(erroComMensagem);
+        }
+
+        if (axiosError.response?.status === 401) {
           Cookies.remove("token");
           Cookies.remove("usuario");
           Cookies.remove("permissoes");
-          if (typeof window !== "undefined") {
+          removerCodEmpresaDoCookie();
+          
+          if (typeof window !== "undefined" && !window.location.pathname.includes("/login")) {
             window.location.href = "/login";
           }
         }
