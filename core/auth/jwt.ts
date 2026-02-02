@@ -13,7 +13,7 @@ export function gerarToken(payload: PayloadJWT): string {
     throw new Error("JWT_SECRET não definido");
   }
 
-  const expiresIn: string = process.env.JWT_EXPIRES_IN || "8h";
+  const expiresIn: string | number = process.env.JWT_EXPIRES_IN || "8h";
 
   const options: SignOptions = { expiresIn };
   return jwt.sign(payload, secret, options);
