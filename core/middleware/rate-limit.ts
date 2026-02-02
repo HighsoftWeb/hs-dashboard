@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
 interface RateLimitStore {
   [key: string]: {
@@ -14,7 +14,7 @@ const RATE_LIMIT_MAX_REQUESTS = 100;
 
 function getClientId(request: NextRequest): string {
   const forwarded = request.headers.get("x-forwarded-for");
-  const ip = forwarded ? forwarded.split(",")[0] : request.ip || "unknown";
+  const ip = forwarded ? forwarded.split(",")[0] : request.headers.get("x-real-ip") || "unknown";
   return ip;
 }
 
