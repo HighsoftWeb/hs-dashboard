@@ -7,12 +7,12 @@ import { Usuario } from '@/core/tipos/usuario';
  */
 export class UsuarioHttpService extends BaseHttpService<
   Usuario,
-  Omit<Usuario, 'id' | 'criadoEm' | 'atualizadoEm'>,
-  Partial<Omit<Usuario, 'id' | 'criadoEm' | 'atualizadoEm'>>
+  Omit<Usuario, 'codUsuario'>,
+  Partial<Omit<Usuario, 'codUsuario'>>
 > {
   constructor(httpClient: HttpClient) {
     super(httpClient, '/usuarios', {
-      dateFields: ['criadoEm', 'atualizadoEm'],
+      dateFields: [],
     });
   }
 

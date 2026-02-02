@@ -91,22 +91,22 @@ export default function PaginaUsuarios(): React.JSX.Element {
                 </tr>
               ) : (
                 usuarios.map((usuario) => (
-                  <tr key={usuario.id}>
+                  <tr key={usuario.codUsuario}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       {usuario.nome}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {usuario.email}
+                      {usuario.login}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span
                         className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          usuario.ativo
+                          usuario.codGrupoUsuario !== null
                             ? "bg-green-100 text-green-800"
                             : "bg-red-100 text-red-800"
                         }`}
                       >
-                        {usuario.ativo ? "Ativo" : "Inativo"}
+                        {usuario.codGrupoUsuario !== null ? "Ativo" : "Inativo"}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
