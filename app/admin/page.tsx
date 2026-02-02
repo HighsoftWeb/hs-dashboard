@@ -5,6 +5,7 @@ import { EmpresaConfig } from "@/core/entities/EmpresaConfig";
 import { Botao } from "@/core/componentes/botao/botao";
 import { clienteHttp } from "@/core/http/cliente-http";
 import { validarELimparCnpj } from "@/core/utils/cnpj-utils";
+import { logger } from "@/core/utils/logger";
 
 const ADMIN_PASSWORD = "hs@010896@hs";
 
@@ -43,7 +44,10 @@ export default function PaginaAdmin(): React.JSX.Element {
         setEmpresas(resposta.data);
       }
     } catch (erro) {
-      console.error("Erro ao carregar empresas:", erro);
+      logger.error("Erro ao carregar empresas", erro, {
+        endpoint: "/admin",
+        method: "carregarEmpresas",
+      });
     }
   };
 

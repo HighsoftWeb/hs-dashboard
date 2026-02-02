@@ -20,6 +20,7 @@ import { formatarCnpj, validarELimparCnpj } from "@/core/utils/cnpj-utils";
 import { clienteHttp } from "@/core/http/cliente-http";
 import { ArrowDown, Building2, Lock, User, Loader2 } from "lucide-react";
 import type { EmpresaBanco } from "@/core/tipos/empresa-banco";
+import { logger } from "@/core/utils/logger";
 
 export default function PaginaLogin(): React.JSX.Element {
   const router = useRouter();
@@ -113,7 +114,10 @@ export default function PaginaLogin(): React.JSX.Element {
       setCnpjValidado(true);
       await carregarEmpresasBanco(cnpjLimpo);
     } catch (erro) {
-      console.error("Erro ao validar CNPJ:", erro);
+      logger.error("Erro ao validar CNPJ", erro, {
+        endpoint: "/login",
+        method: "validarCnpj",
+      });
       limparEstadoLogin();
       setCarregandoInicial(false);
       setErro(erro instanceof Error ? erro.message : "Erro ao validar CNPJ");
