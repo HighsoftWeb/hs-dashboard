@@ -15,7 +15,11 @@ export function gerarToken(payload: PayloadJWT): string {
 
   const expiresIn = process.env.JWT_EXPIRES_IN || "8h";
 
-  return jwt.sign(payload, secret, { expiresIn });
+  return jwt.sign(
+    payload,
+    secret,
+    { expiresIn } as Parameters<typeof jwt.sign>[2]
+  );
 }
 
 export function verificarToken(token: string): PayloadJWT {
