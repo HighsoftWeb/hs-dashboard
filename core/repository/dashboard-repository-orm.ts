@@ -14,7 +14,6 @@ import {
 } from "../tipos/dashboard-db";
 import { Between } from "typeorm";
 import { logger } from "../utils/logger";
-import { DASHBOARD_PADRAO } from "../constants/paginacao";
 import type { EmpresaConfig } from "../entities/EmpresaConfig";
 
 export class DashboardRepositoryORM {

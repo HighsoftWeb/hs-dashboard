@@ -26,7 +26,7 @@ export class ConsultaRepository {
     );
     const offset = (page - 1) * pageSize;
 
-    let whereConditions: string[] = [];
+    const whereConditions: string[] = [];
     const params: Record<string, unknown> = {};
 
     if (codEmpresa) {
@@ -113,8 +113,8 @@ export class ConsultaRepository {
     params.pageSize = pageSize;
 
     const [resultadoCount, resultadoData] = await Promise.all([
-      poolBanco.executarConsulta<{ total: number }>(queryCount, params, empresaConfig),
-      poolBanco.executarConsulta<T>(queryData, params, empresaConfig),
+      poolBanco.executarConsulta<{ total: number }>(queryCount, params as Record<string, string | number | boolean | Date | null>, empresaConfig),
+      poolBanco.executarConsulta<T>(queryData, params as Record<string, string | number | boolean | Date | null>, empresaConfig),
     ]);
 
     return {

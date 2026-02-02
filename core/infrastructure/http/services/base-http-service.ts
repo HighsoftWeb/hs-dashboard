@@ -102,19 +102,19 @@ export abstract class BaseHttpService<
    */
   protected transformDates(data: TEntity | TEntity[]): TEntity | TEntity[] {
     if (Array.isArray(data)) {
-      return data.map((item) => this.transformSingleDate(item)) as TEntity[];
+      return data.map((item) => this.transformSingleDate(item as Record<string, unknown>)) as TEntity[];
     }
-    return this.transformSingleDate(data);
+    return this.transformSingleDate(data as Record<string, unknown>);
   }
 
   /**
    * Transforma datas de um único objeto
    */
-  protected transformSingleDate(item: any): TEntity {
+  protected transformSingleDate(item: Record<string, unknown>): TEntity {
     const transformed = { ...item };
     this.dateFields.forEach((field) => {
       if (transformed[field] && typeof transformed[field] === 'string') {
-        transformed[field] = new Date(transformed[field]);
+        transformed[field] = new Date(transformed[field] as string);
       }
     });
     return transformed as TEntity;
@@ -124,7 +124,7 @@ export abstract class BaseHttpService<
    * Valida resposta HTTP
    */
   protected validateResponse(
-    response: RespostaApi<any>,
+    response: RespostaApi<unknown>,
     action: string
   ): void {
     if (!response.success || !response.data) {

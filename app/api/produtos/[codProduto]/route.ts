@@ -98,7 +98,7 @@ export async function PUT(
           success: false,
           error: {
             code: "VALIDATION_ERROR",
-            message: validacao.error.errors.map((e) => e.message).join(", "),
+            message: validacao.error.issues.map((e) => e.message).join(", "),
           },
         },
         { status: 400 }

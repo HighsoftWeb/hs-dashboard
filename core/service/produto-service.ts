@@ -157,7 +157,7 @@ export class ProdutoService {
       throw new Error("Produto não encontrado");
     }
 
-    const [derivacoes, estoques] = await Promise.all([
+    await Promise.all([
       produtoRepository.listarDerivacoes(codEmpresa, codProduto, empresaConfig),
       produtoRepository.listarEstoques(codEmpresa, codProduto, empresaConfig),
     ]);
