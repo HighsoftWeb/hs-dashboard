@@ -5,11 +5,11 @@ class ServicoCliente {
   async listarClientes(): Promise<Cliente[]> {
     const resposta = await clienteHttp.get<Cliente[]>("/comercial/clientes");
 
-    if (!resposta.sucesso || !resposta.dados) {
-      throw new Error(resposta.mensagem || "Erro ao listar clientes");
+    if (!resposta.success || !resposta.data) {
+      throw new Error(resposta.error?.message || "Erro ao listar clientes");
     }
 
-    return resposta.dados.map((cliente) => ({
+    return resposta.data?.map((cliente) => ({
       ...cliente,
       criadoEm: new Date(cliente.criadoEm),
       atualizadoEm: new Date(cliente.atualizadoEm),
@@ -19,14 +19,14 @@ class ServicoCliente {
   async obterClientePorId(id: string): Promise<Cliente> {
     const resposta = await clienteHttp.get<Cliente>(`/comercial/clientes/${id}`);
 
-    if (!resposta.sucesso || !resposta.dados) {
-      throw new Error(resposta.mensagem || "Erro ao obter cliente");
+    if (!resposta.success || !resposta.data) {
+      throw new Error(resposta.error?.message || "Erro ao obter cliente");
     }
 
     return {
-      ...resposta.dados,
-      criadoEm: new Date(resposta.dados.criadoEm),
-      atualizadoEm: new Date(resposta.dados.atualizadoEm),
+      ...resposta.data,
+      criadoEm: new Date(resposta.data.criadoEm),
+      atualizadoEm: new Date(resposta.data.atualizadoEm),
     };
   }
 
@@ -35,14 +35,14 @@ class ServicoCliente {
   ): Promise<Cliente> {
     const resposta = await clienteHttp.post<Cliente>("/comercial/clientes", dados);
 
-    if (!resposta.sucesso || !resposta.dados) {
-      throw new Error(resposta.mensagem || "Erro ao criar cliente");
+    if (!resposta.success || !resposta.data) {
+      throw new Error(resposta.error?.message || "Erro ao criar cliente");
     }
 
     return {
-      ...resposta.dados,
-      criadoEm: new Date(resposta.dados.criadoEm),
-      atualizadoEm: new Date(resposta.dados.atualizadoEm),
+      ...resposta.data,
+      criadoEm: new Date(resposta.data.criadoEm),
+      atualizadoEm: new Date(resposta.data.atualizadoEm),
     };
   }
 
@@ -55,22 +55,22 @@ class ServicoCliente {
       dados
     );
 
-    if (!resposta.sucesso || !resposta.dados) {
-      throw new Error(resposta.mensagem || "Erro ao atualizar cliente");
+    if (!resposta.success || !resposta.data) {
+      throw new Error(resposta.error?.message || "Erro ao atualizar cliente");
     }
 
     return {
-      ...resposta.dados,
-      criadoEm: new Date(resposta.dados.criadoEm),
-      atualizadoEm: new Date(resposta.dados.atualizadoEm),
+      ...resposta.data,
+      criadoEm: new Date(resposta.data.criadoEm),
+      atualizadoEm: new Date(resposta.data.atualizadoEm),
     };
   }
 
   async excluirCliente(id: string): Promise<void> {
     const resposta = await clienteHttp.delete(`/comercial/clientes/${id}`);
 
-    if (!resposta.sucesso) {
-      throw new Error(resposta.mensagem || "Erro ao excluir cliente");
+    if (!resposta.success) {
+      throw new Error(resposta.error?.message || "Erro ao excluir cliente");
     }
   }
 }

@@ -16,8 +16,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     if (!token) {
       return NextResponse.json(
         {
-          sucesso: false,
-          mensagem: "Não autenticado",
+          success: false,
+          error: {
+            code: "UNAUTHORIZED",
+            message: "Não autenticado",
+          },
         },
         { status: 401 }
       );
@@ -34,9 +37,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     if (!queryValidacao.success) {
       return NextResponse.json(
         {
-          sucesso: false,
-          mensagem: "Parâmetros de consulta inválidos",
-          erros: queryValidacao.error.issues,
+          success: false,
+          error: {
+            code: "VALIDATION_ERROR",
+            message: "Parâmetros de consulta inválidos",
+            errors: queryValidacao.error.issues,
+          },
         },
         { status: 400 }
       );
@@ -56,8 +62,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     if (!resposta.ok) {
       return NextResponse.json(
         {
-          sucesso: false,
-          mensagem: "Erro ao buscar usuários",
+          success: false,
+          error: {
+            code: "FETCH_ERROR",
+            message: "Erro ao buscar usuários",
+          },
         },
         { status: resposta.status }
       );
@@ -66,8 +75,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const dados = (await resposta.json()) as Usuario[];
 
     return NextResponse.json({
-      sucesso: true,
-      dados,
+      success: true,
+      data: dados,
     });
   } catch (erro) {
     logger.error("Erro ao listar usuários", erro, {
@@ -77,9 +86,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     return NextResponse.json(
       {
-        sucesso: false,
-        mensagem: "Erro ao processar requisição",
-        erro: erro instanceof Error ? erro.message : "Erro desconhecido",
+        success: false,
+        error: {
+          code: "INTERNAL_ERROR",
+          message: erro instanceof Error ? erro.message : "Erro desconhecido",
+        },
       },
       { status: 500 }
     );
@@ -93,8 +104,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (!token) {
       return NextResponse.json(
         {
-          sucesso: false,
-          mensagem: "Não autenticado",
+          success: false,
+          error: {
+            code: "UNAUTHORIZED",
+            message: "Não autenticado",
+          },
         },
         { status: 401 }
       );
@@ -106,9 +120,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (!validacao.success) {
       return NextResponse.json(
         {
-          sucesso: false,
-          mensagem: "Dados inválidos",
-          erros: validacao.error.issues,
+          success: false,
+          error: {
+            code: "VALIDATION_ERROR",
+            message: "Dados inválidos",
+            errors: validacao.error.issues,
+          },
         },
         { status: 400 }
       );
@@ -132,8 +149,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (!resposta.ok) {
       return NextResponse.json(
         {
-          sucesso: false,
-          mensagem: "Erro ao criar usuário",
+          success: false,
+          error: {
+            code: "CREATE_ERROR",
+            message: "Erro ao criar usuário",
+          },
         },
         { status: resposta.status }
       );
@@ -142,8 +162,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const dados = (await resposta.json()) as Usuario;
 
     return NextResponse.json({
-      sucesso: true,
-      dados,
+      success: true,
+      data: dados,
     });
   } catch (erro) {
     logger.error("Erro ao criar usuário", erro, {
@@ -153,9 +173,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     return NextResponse.json(
       {
-        sucesso: false,
-        mensagem: "Erro ao processar requisição",
-        erro: erro instanceof Error ? erro.message : "Erro desconhecido",
+        success: false,
+        error: {
+          code: "INTERNAL_ERROR",
+          message: erro instanceof Error ? erro.message : "Erro desconhecido",
+        },
       },
       { status: 500 }
     );
