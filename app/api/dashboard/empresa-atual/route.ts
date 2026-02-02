@@ -33,7 +33,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    poolBanco.configurar(empresaConfig);
+    await poolBanco.configurar(empresaConfig);
 
     const empresas = await poolBanco.executarConsulta<EmpresaAtual>(
       QUERY_EMPRESA,

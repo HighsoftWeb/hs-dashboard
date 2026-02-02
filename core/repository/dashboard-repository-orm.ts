@@ -1,4 +1,4 @@
-import { AppDataSource, inicializarDataSource } from "../orm/data-source";
+import { getAppDataSource, inicializarDataSource } from "../orm/data-source";
 import { poolBanco } from "../db/pool-banco";
 import { OrcamentoOS } from "../entities/OrcamentoOS";
 import { TituloReceber } from "../entities/TituloReceber";
@@ -22,14 +22,15 @@ export class DashboardRepositoryORM {
     empresaConfig: EmpresaConfig
   ): Promise<EstatisticasDashboard> {
     try {
-      await inicializarDataSource();
+      await inicializarDataSource(empresaConfig);
 
-      const usuarioRepo = AppDataSource.getRepository(Usuario);
-      const produtoRepo = AppDataSource.getRepository(ProdutoServico);
-      const clienteRepo = AppDataSource.getRepository(ClienteFornecedor);
-      const orcamentoRepo = AppDataSource.getRepository(OrcamentoOS);
-      const tituloReceberRepo = AppDataSource.getRepository(TituloReceber);
-      const tituloPagarRepo = AppDataSource.getRepository(TituloPagar);
+      const dataSource = getAppDataSource();
+      const usuarioRepo = dataSource.getRepository(Usuario);
+      const produtoRepo = dataSource.getRepository(ProdutoServico);
+      const clienteRepo = dataSource.getRepository(ClienteFornecedor);
+      const orcamentoRepo = dataSource.getRepository(OrcamentoOS);
+      const tituloReceberRepo = dataSource.getRepository(TituloReceber);
+      const tituloPagarRepo = dataSource.getRepository(TituloPagar);
 
       const hoje = new Date();
       hoje.setHours(0, 0, 0, 0);
@@ -160,8 +161,9 @@ export class DashboardRepositoryORM {
     empresaConfig: EmpresaConfig
   ): Promise<OrcamentoOSDB[]> {
     try {
-      await inicializarDataSource();
-      const repository = AppDataSource.getRepository(OrcamentoOS);
+      await inicializarDataSource(empresaConfig);
+      const dataSource = getAppDataSource();
+      const repository = dataSource.getRepository(OrcamentoOS);
 
       const orcamentos = await repository.find({
         where: { COD_EMPRESA: codEmpresa },
@@ -169,7 +171,7 @@ export class DashboardRepositoryORM {
         take: limite,
       });
 
-      const clienteRepo = AppDataSource.getRepository(ClienteFornecedor);
+      const clienteRepo = dataSource.getRepository(ClienteFornecedor);
       const codigosClientes = [
         ...new Set(orcamentos.map((o) => o.COD_CLI_FOR)),
       ];
@@ -237,8 +239,9 @@ export class DashboardRepositoryORM {
     empresaConfig: EmpresaConfig
   ): Promise<TituloReceberDB[]> {
     try {
-      await inicializarDataSource();
-      const repository = AppDataSource.getRepository(TituloReceber);
+      await inicializarDataSource(empresaConfig);
+      const dataSource = getAppDataSource();
+      const repository = dataSource.getRepository(TituloReceber);
 
       const hoje = new Date();
       hoje.setHours(0, 0, 0, 0);
@@ -255,7 +258,7 @@ export class DashboardRepositoryORM {
         take: 10,
       });
 
-      const clienteRepo = AppDataSource.getRepository(ClienteFornecedor);
+      const clienteRepo = dataSource.getRepository(ClienteFornecedor);
       const codigosClientes = [
         ...new Set(titulos.map((t) => t.COD_CLI_FOR)),
       ];
@@ -323,8 +326,9 @@ export class DashboardRepositoryORM {
     empresaConfig: EmpresaConfig
   ): Promise<TituloPagarDB[]> {
     try {
-      await inicializarDataSource();
-      const repository = AppDataSource.getRepository(TituloPagar);
+      await inicializarDataSource(empresaConfig);
+      const dataSource = getAppDataSource();
+      const repository = dataSource.getRepository(TituloPagar);
 
       const hoje = new Date();
       hoje.setHours(0, 0, 0, 0);
@@ -341,7 +345,7 @@ export class DashboardRepositoryORM {
         take: 10,
       });
 
-      const clienteRepo = AppDataSource.getRepository(ClienteFornecedor);
+      const clienteRepo = dataSource.getRepository(ClienteFornecedor);
       const codigosClientes = [
         ...new Set(titulos.map((t) => t.COD_CLI_FOR)),
       ];

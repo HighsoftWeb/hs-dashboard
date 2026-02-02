@@ -1,4 +1,4 @@
-import { AppDataSource, inicializarDataSource } from "../orm/data-source";
+import { getAppDataSource, inicializarDataSource } from "../orm/data-source";
 import { poolBanco } from "../db/pool-banco";
 import { ProdutoServico } from "../entities/ProdutoServico";
 import { Derivacao } from "../entities/Derivacao";
@@ -22,8 +22,9 @@ export class ProdutoRepositoryORM {
     empresaConfig: EmpresaConfig
   ): Promise<{ produtos: ProdutoServicoDB[]; total: number }> {
     try {
-      await inicializarDataSource();
-      const repository = AppDataSource.getRepository(ProdutoServico);
+      await inicializarDataSource(empresaConfig);
+      const dataSource = getAppDataSource();
+      const repository = dataSource.getRepository(ProdutoServico);
 
       const page = filtros.page || PAGINACAO_PADRAO.PAGE_DEFAULT;
       const pageSizeRaw = filtros.pageSize || PAGINACAO_PADRAO.PAGE_SIZE;
@@ -153,8 +154,9 @@ export class ProdutoRepositoryORM {
     empresaConfig: EmpresaConfig
   ): Promise<ProdutoServicoDB | null> {
     try {
-      await inicializarDataSource();
-      const repository = AppDataSource.getRepository(ProdutoServico);
+      await inicializarDataSource(empresaConfig);
+      const dataSource = getAppDataSource();
+      const repository = dataSource.getRepository(ProdutoServico);
 
       const produto = await repository.findOne({
         where: {
@@ -206,8 +208,9 @@ export class ProdutoRepositoryORM {
     empresaConfig: EmpresaConfig
   ): Promise<number> {
     try {
-      await inicializarDataSource();
-      const repository = AppDataSource.getRepository(ProdutoServico);
+      await inicializarDataSource(empresaConfig);
+      const dataSource = getAppDataSource();
+      const repository = dataSource.getRepository(ProdutoServico);
 
       const maxResult = await repository
         .createQueryBuilder("produto")
@@ -308,8 +311,9 @@ export class ProdutoRepositoryORM {
     empresaConfig: EmpresaConfig
   ): Promise<void> {
     try {
-      await inicializarDataSource();
-      const repository = AppDataSource.getRepository(ProdutoServico);
+      await inicializarDataSource(empresaConfig);
+      const dataSource = getAppDataSource();
+      const repository = dataSource.getRepository(ProdutoServico);
 
       const updateData: Partial<ProdutoServico> = {
         DAT_ALTERACAO: new Date(),
@@ -411,8 +415,9 @@ export class ProdutoRepositoryORM {
     empresaConfig: EmpresaConfig
   ): Promise<void> {
     try {
-      await inicializarDataSource();
-      const repository = AppDataSource.getRepository(ProdutoServico);
+      await inicializarDataSource(empresaConfig);
+      const dataSource = getAppDataSource();
+      const repository = dataSource.getRepository(ProdutoServico);
 
       await repository.update(
         {
@@ -447,8 +452,9 @@ export class ProdutoRepositoryORM {
     empresaConfig: EmpresaConfig
   ): Promise<DerivacaoDB[]> {
     try {
-      await inicializarDataSource();
-      const repository = AppDataSource.getRepository(Derivacao);
+      await inicializarDataSource(empresaConfig);
+      const dataSource = getAppDataSource();
+      const repository = dataSource.getRepository(Derivacao);
 
       const derivacoes = await repository.find({
         where: {
@@ -510,8 +516,9 @@ export class ProdutoRepositoryORM {
     empresaConfig: EmpresaConfig
   ): Promise<EstoqueDB[]> {
     try {
-      await inicializarDataSource();
-      const repository = AppDataSource.getRepository(Estoque);
+      await inicializarDataSource(empresaConfig);
+      const dataSource = getAppDataSource();
+      const repository = dataSource.getRepository(Estoque);
 
       const estoques = await repository.find({
         where: {

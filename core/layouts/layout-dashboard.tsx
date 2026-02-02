@@ -183,8 +183,8 @@ export function LayoutDashboard({
                 <Image
                   src="/logo.png"
                   alt="HighSoft Sistemas"
-                  width={150}
-                  height={40}
+                  width={100}
+                  height={50}
                   className="h-10 w-auto object-contain"
                   unoptimized
                 />
