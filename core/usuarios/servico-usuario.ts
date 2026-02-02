@@ -17,13 +17,13 @@ class ServicoUsuario {
     return this.usuarioService.obterPorId(id);
   }
 
-  async criarUsuario(dados: Omit<Usuario, "id" | "criadoEm" | "atualizadoEm">): Promise<Usuario> {
+  async criarUsuario(dados: Omit<Usuario, "codUsuario">): Promise<Usuario> {
     return this.usuarioService.criar(dados);
   }
 
   async atualizarUsuario(
     id: string,
-    dados: Partial<Omit<Usuario, "id" | "criadoEm" | "atualizadoEm">>
+    dados: Partial<Omit<Usuario, "codUsuario">>
   ): Promise<Usuario> {
     return this.usuarioService.atualizar(id, dados);
   }
