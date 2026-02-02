@@ -36,7 +36,8 @@ export abstract class BaseHttpService<
 
     this.validateResponse(response, 'listar');
 
-    return this.transformDates(response.data!);
+    const data = response.data as TEntity[];
+    return this.transformDates(data) as TEntity[];
   }
 
   /**
@@ -49,7 +50,8 @@ export abstract class BaseHttpService<
 
     this.validateResponse(response, 'obter');
 
-    return this.transformDates(response.data!);
+    const data = response.data as TEntity;
+    return this.transformDates(data) as TEntity;
   }
 
   /**
@@ -63,7 +65,8 @@ export abstract class BaseHttpService<
 
     this.validateResponse(response, 'criar');
 
-    return this.transformDates(response.data!);
+    const data = response.data as TEntity;
+    return this.transformDates(data) as TEntity;
   }
 
   /**
@@ -77,7 +80,8 @@ export abstract class BaseHttpService<
 
     this.validateResponse(response, 'atualizar');
 
-    return this.transformDates(response.data!);
+    const data = response.data as TEntity;
+    return this.transformDates(data) as TEntity;
   }
 
   /**
