@@ -10,6 +10,7 @@ import {
   ItemApontamentoOSDB,
   ItemTrocaOrcamentoDB,
 } from "@/core/repository/orcamento-repository";
+import { formatarData, formatarDataHora } from "@/core/utils/formatar-data";
 
 export default function PaginaDetalhesOrcamento(): React.JSX.Element {
   const params = useParams();
@@ -69,29 +70,6 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
     }).format(valor);
   };
 
-  const formatarData = (data: Date | string | null | undefined): string => {
-    if (!data) return "-";
-    const dataObj = data instanceof Date ? data : new Date(data);
-    if (isNaN(dataObj.getTime())) return "-";
-    return dataObj.toLocaleDateString("pt-BR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-  };
-
-  const formatarDataHora = (data: Date | string | null | undefined): string => {
-    if (!data) return "-";
-    const dataObj = data instanceof Date ? data : new Date(data);
-    if (isNaN(dataObj.getTime())) return "-";
-    return dataObj.toLocaleString("pt-BR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
 
   const obterTipoDocumento = (ind: string): string => {
     return ind === "OR" ? "Orçamento" : ind === "OS" ? "Ordem de Serviço" : ind;
@@ -202,9 +180,7 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
               <label className="block text-xs font-medium text-gray-700 mb-0.5">Emissão</label>
               <input
                 type="text"
-                value={orcamento.HOR_EMISSAO
-                  ? `${formatarData(orcamento.DAT_EMISSAO)} (${formatarDataHora(orcamento.HOR_EMISSAO)})`
-                  : formatarData(orcamento.DAT_EMISSAO)}
+                value={formatarDataHora(orcamento.HOR_EMISSAO)}
                 readOnly
                 className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
               />
@@ -294,7 +270,7 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
               <label className="block text-xs font-medium text-gray-700 mb-0.5">CIF/FOB</label>
               <input
                 type="text"
-                value={orcamento.CIF_FOB || "-"}
+                value={orcamento.CIF_FOB === "C" ? "CIF" : "FOB"}
                 readOnly
                 className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
               />
@@ -376,27 +352,26 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
                   ) : (
                     itens.map((item) => (
                       <tr key={item.SEQ_ITEM_ORCAMENTO_OS} className="hover:bg-gray-50 border-b border-gray-100">
-                        <td className="px-2 py-1 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-2 py-1 whitespace-nowrap text-right text-sm text-gray-900">
                           {item.SEQ_ITEM_ORCAMENTO_OS}
                         </td>
-                        <td className="px-2 py-1 whitespace-nowrap text-sm text-gray-900">
-                          {item.COD_PRODUTO || "-"}
-                          {item.COD_DERIVACAO && ` / ${item.COD_DERIVACAO}`}
+                        <td className="px-2 py-1 whitespace-nowrap text-right text-sm text-gray-900">
+                          {item.COD_PRODUTO}.{item.COD_DERIVACAO}
                         </td>
                         <td className="px-2 py-1 text-sm text-gray-900">
                           {item.DES_ITEM || item.DES_PRODUTO || "-"}
                         </td>
                         <td className="px-2 py-1 text-sm text-gray-900">
-                          {item.DES_DEPOSITO || item.COD_DEPOSITO || "-"}
+                        {item.COD_DEPOSITO} - {item.DES_DEPOSITO}
                         </td>
                         <td className="px-2 py-1 text-sm text-gray-900">
-                          {item.DES_TABELA_PRECO || item.COD_TABELA_PRECO || "-"}
+                          {item.COD_TABELA_PRECO} - {item.DES_TABELA_PRECO}
                         </td>
                         <td className="px-2 py-1 whitespace-nowrap text-sm text-right text-gray-900">
                           {item.QTD_PEDIDA?.toFixed(4) || "-"}
                         </td>
                         <td className="px-2 py-1 whitespace-nowrap text-sm text-gray-900">
-                          {item.DES_UNIDADE_MEDIDA || item.COD_UNIDADE_MEDIDA}
+                        {item.COD_UNIDADE_MEDIDA}
                         </td>
                         <td className="px-2 py-1 whitespace-nowrap text-sm text-right text-gray-900">
                           {formatarMoeda(item.VLR_PRECO_UNITARIO)}
@@ -553,7 +528,7 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
                 type="text"
                 value={formatarMoeda(orcamento.VLR_BRUTO)}
                 readOnly
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white text-right"
               />
             </div>
             <div className="flex flex-col">
@@ -564,7 +539,7 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
                   ? formatarMoeda(-Math.abs(Number(orcamento.VLR_DESCONTO)))
                   : formatarMoeda(0)}
                 readOnly
-                className={`w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white ${
+                className={`w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white text-right ${
                   orcamento.VLR_DESCONTO && Number(orcamento.VLR_DESCONTO) !== 0 ? "text-red-600 font-semibold" : ""
                 }`}
               />
@@ -575,7 +550,7 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
                 type="text"
                 value={formatarMoeda(orcamento.VLR_PRODUTOS)}
                 readOnly
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white text-right"
               />
             </div>
             <div className="flex flex-col">
@@ -584,7 +559,7 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
                 type="text"
                 value={formatarMoeda(orcamento.VLR_SERVICOS)}
                 readOnly
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white text-right"
               />
             </div>
             <div className="flex flex-col">
@@ -593,7 +568,7 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
                 type="text"
                 value={formatarMoeda(orcamento.VLR_FRETE)}
                 readOnly
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white text-right"
               />
             </div>
             <div className="flex flex-col">
@@ -602,7 +577,7 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
                 type="text"
                 value={formatarMoeda(orcamento.VLR_SEGURO)}
                 readOnly
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white text-right"
               />
             </div>
             <div className="flex flex-col">
@@ -611,7 +586,7 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
                 type="text"
                 value={formatarMoeda(orcamento.VLR_OUTROS)}
                 readOnly
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white text-right"
               />
             </div>
             <div className="flex flex-col">
@@ -620,7 +595,7 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
                 type="text"
                 value={formatarMoeda(orcamento.VLR_IPI)}
                 readOnly
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white text-right"
               />
             </div>
             <div className="flex flex-col">
@@ -629,7 +604,7 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
                 type="text"
                 value={formatarMoeda(orcamento.VLR_ICMS)}
                 readOnly
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white text-right"
               />
             </div>
             <div className="flex flex-col">
@@ -638,7 +613,7 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
                 type="text"
                 value={formatarMoeda(orcamento.VLR_ISS)}
                 readOnly
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white text-right"
               />
             </div>
             <div className="flex flex-col md:col-span-2 lg:col-span-3 xl:col-span-4 2xl:col-span-5">
@@ -647,7 +622,7 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
                 type="text"
                 value={formatarMoeda(orcamento.VLR_LIQUIDO)}
                 readOnly
-                className="w-full px-2 py-1.5 text-base font-bold border-2 border-[#094A73] rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-[#094A73] text-white"
+                className="w-full px-2 py-1.5 text-base font-bold border-2 border-[#094A73] rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-[#094A73] text-white text-right"
               />
             </div>
           </div>

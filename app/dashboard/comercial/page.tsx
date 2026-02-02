@@ -49,12 +49,7 @@ export default function PaginaComercial(): React.JSX.Element {
       titulo: "Data Emissão",
       ordenavel: true,
       alinhamento: "esquerda",
-      renderizar: (valor) => {
-        if (!valor) return "-";
-        const data = valor instanceof Date ? valor : new Date(String(valor));
-        if (isNaN(data.getTime())) return "-";
-        return data.toLocaleDateString("pt-BR");
-      },
+      renderizar: (valor) => formatarData(valor),
     },
     {
       chave: "VLR_LIQUIDO",

@@ -10,7 +10,6 @@ interface UsuarioDB extends Record<string, unknown> {
   ABR_USUARIO: string | null;
   SIT_USUARIO: string | null;
   COD_GRUPO_USUARIO: number | null;
-  IND_CRIPTOGRAFADO: string | null;
 }
 
 export default function PaginaUsuarios(): React.JSX.Element {
@@ -19,15 +18,6 @@ export default function PaginaUsuarios(): React.JSX.Element {
     { chave: "NOM_USUARIO", titulo: "Nome", ordenavel: true, alinhamento: "esquerda" },
     { chave: "ABR_USUARIO", titulo: "Abreviação", ordenavel: true, alinhamento: "esquerda" },
     { chave: "COD_GRUPO_USUARIO", titulo: "Grupo", ordenavel: true, alinhamento: "direita" },
-    {
-      chave: "IND_CRIPTOGRAFADO",
-      titulo: "Criptografado",
-      ordenavel: true,
-      renderizar: (valor) => {
-        const ind = String(valor || "");
-        return ind === "S" ? "Sim" : "Não";
-      },
-    },
     {
       chave: "SIT_USUARIO",
       titulo: "Status",

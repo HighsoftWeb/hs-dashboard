@@ -4,6 +4,7 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { LayoutDashboard } from "@/core/layouts/layout-dashboard";
 import { DataTable, ColunaDataTable, FiltroDataTable } from "@/core/componentes/data-table/data-table";
+import { formatarData } from "@/core/utils/formatar-data";
 
 interface TituloReceberDB extends Record<string, unknown> {
   COD_EMPRESA: number;
@@ -34,36 +35,21 @@ export default function PaginaContasReceber(): React.JSX.Element {
       titulo: "Emissão",
       ordenavel: true,
       alinhamento: "esquerda",
-      renderizar: (valor) => {
-        if (!valor) return "-";
-        const data = valor instanceof Date ? valor : new Date(String(valor));
-        if (isNaN(data.getTime())) return "-";
-        return data.toLocaleDateString("pt-BR");
-      },
+      renderizar: (valor) => formatarData(valor),
     },
     {
       chave: "DAT_ENTRADA",
       titulo: "Entrada",
       ordenavel: true,
       alinhamento: "esquerda",
-      renderizar: (valor) => {
-        if (!valor) return "-";
-        const data = valor instanceof Date ? valor : new Date(String(valor));
-        if (isNaN(data.getTime())) return "-";
-        return data.toLocaleDateString("pt-BR");
-      },
+      renderizar: (valor) => formatarData(valor),
     },
     {
       chave: "VCT_ORIGINAL",
       titulo: "Vencimento",
       ordenavel: true,
       alinhamento: "esquerda",
-      renderizar: (valor) => {
-        if (!valor) return "-";
-        const data = valor instanceof Date ? valor : new Date(String(valor));
-        if (isNaN(data.getTime())) return "-";
-        return data.toLocaleDateString("pt-BR");
-      },
+      renderizar: (valor) => formatarData(valor),
     },
     {
       chave: "VLR_ORIGINAL",

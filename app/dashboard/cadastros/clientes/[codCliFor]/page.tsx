@@ -79,7 +79,7 @@ export default function PaginaDetalhesCliente(): React.JSX.Element {
             <div className="mt-1 flex items-center gap-3 text-xs text-gray-600">
               <span>Código: <strong>{cliente.COD_CLI_FOR}</strong></span>
               {cliente.TIP_CLI_FOR && (
-                <span>Tipo: <strong>{cliente.TIP_CLI_FOR === "C" ? "Cliente" : cliente.TIP_CLI_FOR === "F" ? "Fornecedor" : cliente.TIP_CLI_FOR}</strong></span>
+                <span>Tipo: <strong>{cliente.TIP_CLI_FOR === "J" ? "Jurídica" : cliente.TIP_CLI_FOR === "F" ? "Física" : cliente.TIP_CLI_FOR}</strong></span>
               )}
             </div>
           </div>
@@ -121,15 +121,6 @@ export default function PaginaDetalhesCliente(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Tipo</label>
-              <input
-                type="text"
-                value={cliente.TIP_CLI_FOR === "C" ? "Cliente" : cliente.TIP_CLI_FOR === "F" ? "Fornecedor" : cliente.TIP_CLI_FOR || "-"}
-                readOnly
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
-              />
-            </div>
-            <div className="flex flex-col">
               <label className="block text-xs font-medium text-gray-700 mb-0.5">Endereço</label>
               <input
                 type="text"
@@ -144,7 +135,7 @@ export default function PaginaDetalhesCliente(): React.JSX.Element {
                 type="text"
                 value={cliente.NUM_END_CLI_FOR || "-"}
                 readOnly
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white text-right"
               />
             </div>
             <div className="flex flex-col">

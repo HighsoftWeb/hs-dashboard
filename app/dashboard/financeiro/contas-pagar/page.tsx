@@ -28,12 +28,7 @@ export default function PaginaContasPagar(): React.JSX.Element {
       titulo: "Vencimento",
       ordenavel: true,
       alinhamento: "esquerda",
-      renderizar: (valor) => {
-        if (!valor) return "-";
-        const data = valor instanceof Date ? valor : new Date(String(valor));
-        if (isNaN(data.getTime())) return "-";
-        return data.toLocaleDateString("pt-BR");
-      },
+      renderizar: (valor) => formatarData(valor),
     },
     {
       chave: "VLR_ORIGINAL",

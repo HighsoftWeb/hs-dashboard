@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { LayoutDashboard } from "@/core/layouts/layout-dashboard";
 import { clienteHttp } from "@/core/http/cliente-http";
 import { TituloReceberCompletoDB } from "@/core/repository/detalhes-repository";
+import { formatarData } from "@/core/utils/formatar-data";
 
 export default function PaginaDetalhesTituloReceber(): React.JSX.Element {
   const params = useParams();
@@ -54,16 +55,6 @@ export default function PaginaDetalhesTituloReceber(): React.JSX.Element {
     }).format(valor);
   };
 
-  const formatarData = (data: Date | string | null | undefined): string => {
-    if (!data) return "-";
-    const dataObj = data instanceof Date ? data : new Date(data);
-    if (isNaN(dataObj.getTime())) return "-";
-    return dataObj.toLocaleDateString("pt-BR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-  };
 
   if (carregando) {
     return (

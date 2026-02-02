@@ -255,7 +255,7 @@ export class DashboardRepositoryORM {
           VCT_ORIGINAL: Between(hoje, dataLimite),
         },
         order: { VCT_ORIGINAL: "ASC" },
-        take: 10,
+        take: 25,
       });
 
       const clienteRepo = dataSource.getRepository(ClienteFornecedor);
@@ -294,7 +294,7 @@ export class DashboardRepositoryORM {
       });
 
       const query = `
-        SELECT TOP (10)
+        SELECT TOP (25)
           T.COD_EMPRESA,
           T.COD_CLI_FOR,
           T.COD_TIPO_TITULO,
@@ -342,7 +342,7 @@ export class DashboardRepositoryORM {
           VCT_ORIGINAL: Between(hoje, dataLimite),
         },
         order: { VCT_ORIGINAL: "ASC" },
-        take: 10,
+        take: 25,
       });
 
       const clienteRepo = dataSource.getRepository(ClienteFornecedor);
@@ -380,7 +380,7 @@ export class DashboardRepositoryORM {
       });
 
       const query = `
-        SELECT TOP (10)
+        SELECT TOP (25)
           T.COD_EMPRESA,
           T.NUM_INTERNO,
           T.NUM_PARCELA,
