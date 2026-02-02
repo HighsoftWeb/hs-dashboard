@@ -4,6 +4,7 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { LayoutDashboard } from "@/core/layouts/layout-dashboard";
 import { DataTable, ColunaDataTable, FiltroDataTable } from "@/core/componentes/data-table/data-table";
+import { formatarData } from "@/core/utils/formatar-data";
 
 interface TituloPagarDB extends Record<string, unknown> {
   COD_EMPRESA: number;
@@ -28,7 +29,7 @@ export default function PaginaContasPagar(): React.JSX.Element {
       titulo: "Vencimento",
       ordenavel: true,
       alinhamento: "esquerda",
-      renderizar: (valor) => formatarData(valor),
+      renderizar: (valor) => formatarData(valor as Date | string | null | undefined),
     },
     {
       chave: "VLR_ORIGINAL",

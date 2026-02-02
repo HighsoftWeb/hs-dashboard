@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { LayoutDashboard } from "@/core/layouts/layout-dashboard";
 import { DataTable, ColunaDataTable, FiltroDataTable } from "@/core/componentes/data-table/data-table";
+import { formatarData } from "@/core/utils/formatar-data";
 
 interface OrcamentoOSDB extends Record<string, unknown> {
   COD_EMPRESA: number;
@@ -49,7 +50,7 @@ export default function PaginaComercial(): React.JSX.Element {
       titulo: "Data Emissão",
       ordenavel: true,
       alinhamento: "esquerda",
-      renderizar: (valor) => formatarData(valor),
+      renderizar: (valor) => formatarData(valor as Date | string | null | undefined),
     },
     {
       chave: "VLR_LIQUIDO",
