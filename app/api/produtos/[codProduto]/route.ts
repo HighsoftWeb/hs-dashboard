@@ -4,6 +4,7 @@ import { produtoService } from "@/core/service/produto-service";
 import { ProdutoServicoDB } from "@/core/tipos/produto-db";
 import { AtualizarProdutoSchema } from "@/core/schemas/produto-schemas";
 import { logger } from "@/core/utils/logger";
+import { obterEmpresaConfigDoCookie } from "@/core/utils/obter-empresa-cookie";
 
 export async function GET(
   request: NextRequest,
@@ -11,6 +12,7 @@ export async function GET(
 ): Promise<NextResponse> {
   try {
     const payload = validarAutenticacao(request);
+    const empresaConfig = obterEmpresaConfigDoCookie(request);
     const { codProduto } = await params;
 
     const codProdutoNum = parseInt(codProduto, 10);
@@ -29,7 +31,8 @@ export async function GET(
 
     const produto = await produtoService.obterPorCodigo(
       payload.codEmpresa,
-      codProdutoNum
+      codProdutoNum,
+      empresaConfig
     );
 
     return NextResponse.json({
@@ -139,6 +142,7 @@ export async function PUT(
       payload.codEmpresa,
       codProdutoNum,
       dados,
+      empresaConfig,
       payload.codUsuario
     );
 
@@ -182,6 +186,7 @@ export async function DELETE(
 ): Promise<NextResponse> {
   try {
     const payload = validarAutenticacao(request);
+    const empresaConfig = obterEmpresaConfigDoCookie(request);
     const { codProduto } = await params;
 
     const codProdutoNum = parseInt(codProduto, 10);
@@ -198,7 +203,7 @@ export async function DELETE(
       );
     }
 
-    await produtoService.excluir(payload.codEmpresa, codProdutoNum);
+    await produtoService.excluir(payload.codEmpresa, codProdutoNum, empresaConfig);
 
     return NextResponse.json({
       success: true,

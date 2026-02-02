@@ -5,6 +5,7 @@ import {
   DadosAutenticacao,
   Usuario,
 } from "../tipos/usuario";
+import { salvarCnpjNoCookie } from "../utils/cnpj-cookie";
 
 class ServicoAutenticacao {
   async fazerLogin(
@@ -16,13 +17,12 @@ class ServicoAutenticacao {
         login: credenciais.login,
         senha: credenciais.senha,
         codEmpresa: credenciais.codEmpresa,
+        cnpj: credenciais.cnpj,
       }
     );
 
     if (!resposta.success || !resposta.data) {
-      const errorMessage =
-        (resposta.error as { message?: string })?.message ||
-        "Erro ao fazer login";
+      const errorMessage = resposta.error?.message || "Erro ao fazer login";
       throw new Error(errorMessage);
     }
 

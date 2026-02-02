@@ -1,10 +1,5 @@
 const variaveisObrigatorias = [
-  "DB_HOST",
-  "DB_NAME",
-  "DB_USER",
-  "DB_PASSWORD",
   "JWT_SECRET",
-  "DEFAULT_COD_EMPRESA",
 ] as const;
 
 export function validarVariaveisAmbiente(): void {

@@ -1,5 +1,6 @@
 import { poolBanco } from "../db/pool-banco";
 import { logger } from "../utils/logger";
+import type { EmpresaConfig } from "../entities/EmpresaConfig";
 
 export interface ClienteCompletoDB {
   COD_CLI_FOR: number;
@@ -103,7 +104,7 @@ export interface TituloPagarCompletoDB {
 }
 
 export class DetalhesRepository {
-  async obterClienteCompleto(codCliFor: number): Promise<ClienteCompletoDB> {
+  async obterClienteCompleto(codCliFor: number, empresaConfig: EmpresaConfig): Promise<ClienteCompletoDB> {
     try {
       const query = `
         SELECT 
@@ -118,9 +119,11 @@ export class DetalhesRepository {
         WHERE c.COD_CLI_FOR = @codCliFor
       `;
 
-      const resultado = await poolBanco.executarConsulta<ClienteCompletoDB>(query, {
-        codCliFor,
-      });
+      const resultado = await poolBanco.executarConsulta<ClienteCompletoDB>(
+        query,
+        { codCliFor },
+        empresaConfig
+      );
 
       if (!resultado || resultado.length === 0) {
         throw new Error("Cliente não encontrado");
@@ -133,7 +136,7 @@ export class DetalhesRepository {
     }
   }
 
-  async obterEmpresaCompleto(codEmpresa: number): Promise<EmpresaCompletoDB> {
+  async obterEmpresaCompleto(codEmpresa: number, empresaConfig: EmpresaConfig): Promise<EmpresaCompletoDB> {
     try {
       const query = `
         SELECT 
@@ -151,9 +154,11 @@ export class DetalhesRepository {
         WHERE e.COD_EMPRESA = @codEmpresa
       `;
 
-      const resultado = await poolBanco.executarConsulta<EmpresaCompletoDB>(query, {
-        codEmpresa,
-      });
+      const resultado = await poolBanco.executarConsulta<EmpresaCompletoDB>(
+        query,
+        { codEmpresa },
+        empresaConfig
+      );
 
       if (!resultado || resultado.length === 0) {
         throw new Error("Empresa não encontrada");
@@ -171,7 +176,8 @@ export class DetalhesRepository {
     codCliFor: number,
     codTipoTitulo: string,
     numTitulo: string,
-    seqTitulo: number
+    seqTitulo: number,
+    empresaConfig: EmpresaConfig
   ): Promise<TituloReceberCompletoDB> {
     try {
       const query = `
@@ -196,13 +202,11 @@ export class DetalhesRepository {
           AND t.SEQ_TITULO = @seqTitulo
       `;
 
-      const resultado = await poolBanco.executarConsulta<TituloReceberCompletoDB>(query, {
-        codEmpresa,
-        codCliFor,
-        codTipoTitulo,
-        numTitulo,
-        seqTitulo,
-      });
+      const resultado = await poolBanco.executarConsulta<TituloReceberCompletoDB>(
+        query,
+        { codEmpresa, codCliFor, codTipoTitulo, numTitulo, seqTitulo },
+        empresaConfig
+      );
 
       if (!resultado || resultado.length === 0) {
         throw new Error("Título a receber não encontrado");
@@ -224,7 +228,8 @@ export class DetalhesRepository {
   async obterTituloPagarCompleto(
     codEmpresa: number,
     numInterno: number,
-    numParcela: number
+    numParcela: number,
+    empresaConfig: EmpresaConfig
   ): Promise<TituloPagarCompletoDB> {
     try {
       const query = `
@@ -252,11 +257,11 @@ export class DetalhesRepository {
           AND t.NUM_PARCELA = @numParcela
       `;
 
-      const resultado = await poolBanco.executarConsulta<TituloPagarCompletoDB>(query, {
-        codEmpresa,
-        numInterno,
-        numParcela,
-      });
+      const resultado = await poolBanco.executarConsulta<TituloPagarCompletoDB>(
+        query,
+        { codEmpresa, numInterno, numParcela },
+        empresaConfig
+      );
 
       if (!resultado || resultado.length === 0) {
         throw new Error("Título a pagar não encontrado");
@@ -273,7 +278,7 @@ export class DetalhesRepository {
     }
   }
 
-  async obterProdutoCompleto(codEmpresa: number, codProduto: number): Promise<ProdutoCompletoDB> {
+  async obterProdutoCompleto(codEmpresa: number, codProduto: number, empresaConfig: EmpresaConfig): Promise<ProdutoCompletoDB> {
     try {
       const query = `
         SELECT 
@@ -287,10 +292,11 @@ export class DetalhesRepository {
           AND p.COD_PRODUTO = @codProduto
       `;
 
-      const resultado = await poolBanco.executarConsulta<ProdutoCompletoDB>(query, {
-        codEmpresa,
-        codProduto,
-      });
+      const resultado = await poolBanco.executarConsulta<ProdutoCompletoDB>(
+        query,
+        { codEmpresa, codProduto },
+        empresaConfig
+      );
 
       if (!resultado || resultado.length === 0) {
         throw new Error("Produto não encontrado");
@@ -303,7 +309,7 @@ export class DetalhesRepository {
     }
   }
 
-  async obterDerivacoesProduto(codEmpresa: number, codProduto: number): Promise<DerivacaoCompletaDB[]> {
+  async obterDerivacoesProduto(codEmpresa: number, codProduto: number, empresaConfig: EmpresaConfig): Promise<DerivacaoCompletaDB[]> {
     try {
       const query = `
         SELECT 
@@ -317,17 +323,18 @@ export class DetalhesRepository {
         ORDER BY d.COD_DERIVACAO
       `;
 
-      return await poolBanco.executarConsulta<DerivacaoCompletaDB>(query, {
-        codEmpresa,
-        codProduto,
-      });
+      return await poolBanco.executarConsulta<DerivacaoCompletaDB>(
+        query,
+        { codEmpresa, codProduto },
+        empresaConfig
+      );
     } catch (erro) {
       logger.error("Erro ao obter derivações do produto", erro, { codEmpresa, codProduto });
       throw erro;
     }
   }
 
-  async obterEstoquesProduto(codEmpresa: number, codProduto: number): Promise<EstoqueCompletoDB[]> {
+  async obterEstoquesProduto(codEmpresa: number, codProduto: number, empresaConfig: EmpresaConfig): Promise<EstoqueCompletoDB[]> {
     try {
       const query = `
         SELECT 
@@ -346,17 +353,18 @@ export class DetalhesRepository {
         ORDER BY e.COD_DERIVACAO, e.COD_DEPOSITO
       `;
 
-      return await poolBanco.executarConsulta<EstoqueCompletoDB>(query, {
-        codEmpresa,
-        codProduto,
-      });
+      return await poolBanco.executarConsulta<EstoqueCompletoDB>(
+        query,
+        { codEmpresa, codProduto },
+        empresaConfig
+      );
     } catch (erro) {
       logger.error("Erro ao obter estoques do produto", erro, { codEmpresa, codProduto });
       throw erro;
     }
   }
 
-  async obterTabelasPrecoProduto(codEmpresa: number, codProduto: number): Promise<TabelaPrecoProdutoDB[]> {
+  async obterTabelasPrecoProduto(codEmpresa: number, codProduto: number, empresaConfig: EmpresaConfig): Promise<TabelaPrecoProdutoDB[]> {
     try {
       const query = `
         SELECT DISTINCT
@@ -381,10 +389,11 @@ export class DetalhesRepository {
         ORDER BY civ.COD_TABELA_PRECO, civ.COD_DERIVACAO, v.DAT_INICIAL
       `;
 
-      return await poolBanco.executarConsulta<TabelaPrecoProdutoDB>(query, {
-        codEmpresa,
-        codProduto,
-      });
+      return await poolBanco.executarConsulta<TabelaPrecoProdutoDB>(
+        query,
+        { codEmpresa, codProduto },
+        empresaConfig
+      );
     } catch (erro) {
       logger.error("Erro ao obter tabelas de preço do produto", erro, { codEmpresa, codProduto });
       return [];

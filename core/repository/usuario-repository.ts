@@ -1,8 +1,9 @@
 import { poolBanco } from "../db/pool-banco";
 import { UsuarioDB, GrupoUsuarioDB, MenuGrupoUsuarioDB } from "../tipos/usuario-db";
+import { EmpresaConfig } from "../entities/EmpresaConfig";
 
 export class UsuarioRepository {
-  async obterPorLogin(login: string): Promise<UsuarioDB | null> {
+  async obterPorLogin(login: string, empresaConfig: EmpresaConfig): Promise<UsuarioDB | null> {
     const query = `
       SELECT 
         COD_USUARIO,
@@ -23,14 +24,16 @@ export class UsuarioRepository {
         AND SIT_USUARIO = 'A'
     `;
 
-    const resultados = await poolBanco.executarConsulta<UsuarioDB>(query, {
-      login,
-    });
+    const resultados = await poolBanco.executarConsulta<UsuarioDB>(
+      query,
+      { login },
+      empresaConfig
+    );
 
     return resultados[0] || null;
   }
 
-  async obterPorCodigo(codUsuario: number): Promise<UsuarioDB | null> {
+  async obterPorCodigo(codUsuario: number, empresaConfig: EmpresaConfig): Promise<UsuarioDB | null> {
     const query = `
       SELECT 
         COD_USUARIO,
@@ -50,15 +53,18 @@ export class UsuarioRepository {
       WHERE COD_USUARIO = @codUsuario
     `;
 
-    const resultados = await poolBanco.executarConsulta<UsuarioDB>(query, {
-      codUsuario,
-    });
+    const resultados = await poolBanco.executarConsulta<UsuarioDB>(
+      query,
+      { codUsuario },
+      empresaConfig
+    );
 
     return resultados[0] || null;
   }
 
   async obterGrupoUsuario(
-    codGrupoUsuario: number
+    codGrupoUsuario: number,
+    empresaConfig: EmpresaConfig
   ): Promise<GrupoUsuarioDB | null> {
     const query = `
       SELECT 
@@ -71,15 +77,18 @@ export class UsuarioRepository {
       WHERE COD_GRUPO_USUARIO = @codGrupoUsuario
     `;
 
-    const resultados = await poolBanco.executarConsulta<GrupoUsuarioDB>(query, {
-      codGrupoUsuario,
-    });
+    const resultados = await poolBanco.executarConsulta<GrupoUsuarioDB>(
+      query,
+      { codGrupoUsuario },
+      empresaConfig
+    );
 
     return resultados[0] || null;
   }
 
   async obterMenusGrupoUsuario(
-    codGrupoUsuario: number
+    codGrupoUsuario: number,
+    empresaConfig: EmpresaConfig
   ): Promise<MenuGrupoUsuarioDB[]> {
     const query = `
       SELECT 
@@ -95,9 +104,11 @@ export class UsuarioRepository {
       WHERE COD_GRUPO_USUARIO = @codGrupoUsuario
     `;
 
-    return poolBanco.executarConsulta<MenuGrupoUsuarioDB>(query, {
-      codGrupoUsuario,
-    });
+    return poolBanco.executarConsulta<MenuGrupoUsuarioDB>(
+      query,
+      { codGrupoUsuario },
+      empresaConfig
+    );
   }
 }
 

@@ -28,7 +28,7 @@ export const OrcamentoOSSchema = z.object({
 export const TituloReceberSchema = z.object({
   COD_EMPRESA: z.number().int().positive(),
   COD_CLI_FOR: z.number().int().positive(),
-  COD_TIPO_TITULO: z.string().length(3),
+  COD_TIPO_TITULO: z.string().min(1).max(3),
   NUM_TITULO: z.string().max(15),
   SEQ_TITULO: z.number().int().positive(),
   VCT_ORIGINAL: z.date(),

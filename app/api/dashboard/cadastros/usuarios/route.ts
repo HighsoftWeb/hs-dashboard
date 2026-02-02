@@ -3,10 +3,12 @@ import { validarAutenticacao } from "@/core/middleware/auth-middleware";
 import { tratarErroAPI } from "@/core/utils/tratar-erro";
 import { schemaParametrosConsulta } from "@/core/schemas/consulta-schemas";
 import { consultaRepository } from "@/core/repository/consulta-repository";
+import { obterEmpresaConfigDoCookie } from "@/core/utils/obter-empresa-cookie";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     validarAutenticacao(request);
+    const empresaConfig = obterEmpresaConfigDoCookie(request);
 
     const { searchParams } = new URL(request.url);
     const parametros = schemaParametrosConsulta.parse({
@@ -29,7 +31,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const resultado = await consultaRepository.consultar(
       "USUARIOS",
       colunas,
-      parametros
+      parametros,
+      empresaConfig
     );
 
     return NextResponse.json({

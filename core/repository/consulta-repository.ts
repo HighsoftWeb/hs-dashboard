@@ -1,6 +1,7 @@
 import { poolBanco } from "../db/pool-banco";
 import { ParametrosConsulta } from "../schemas/consulta-schemas";
 import { PAGINACAO_PADRAO } from "../constants/paginacao";
+import type { EmpresaConfig } from "../entities/EmpresaConfig";
 
 interface ResultadoConsulta<T> {
   dados: T[];
@@ -14,6 +15,7 @@ export class ConsultaRepository {
     tabela: string,
     colunas: string[],
     parametros: ParametrosConsulta,
+    empresaConfig: EmpresaConfig,
     codEmpresa?: number,
     filtrosAdicionais?: Record<string, unknown>
   ): Promise<ResultadoConsulta<T>> {
@@ -111,8 +113,8 @@ export class ConsultaRepository {
     params.pageSize = pageSize;
 
     const [resultadoCount, resultadoData] = await Promise.all([
-      poolBanco.executarConsulta<{ total: number }>(queryCount, params),
-      poolBanco.executarConsulta<T>(queryData, params),
+      poolBanco.executarConsulta<{ total: number }>(queryCount, params, empresaConfig),
+      poolBanco.executarConsulta<T>(queryData, params, empresaConfig),
     ]);
 
     return {

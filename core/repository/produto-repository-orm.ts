@@ -7,6 +7,7 @@ import { ProdutoServicoDB, DerivacaoDB, EstoqueDB } from "../tipos/produto-db";
 import { FindOptionsWhere } from "typeorm";
 import { logger } from "../utils/logger";
 import { PAGINACAO_PADRAO } from "../constants/paginacao";
+import type { EmpresaConfig } from "../entities/EmpresaConfig";
 
 export class ProdutoRepositoryORM {
   async listar(
@@ -17,7 +18,8 @@ export class ProdutoRepositoryORM {
       search?: string;
       sit?: string;
       ind?: string;
-    }
+    },
+    empresaConfig: EmpresaConfig
   ): Promise<{ produtos: ProdutoServicoDB[]; total: number }> {
     try {
       await inicializarDataSource();
@@ -134,8 +136,8 @@ export class ProdutoRepositoryORM {
       `;
 
       const [totalResult, produtos] = await Promise.all([
-        poolBanco.executarConsulta<{ total: number }>(queryCount, parametros),
-        poolBanco.executarConsulta<ProdutoServicoDB>(queryList, parametros),
+        poolBanco.executarConsulta<{ total: number }>(queryCount, parametros, empresaConfig),
+        poolBanco.executarConsulta<ProdutoServicoDB>(queryList, parametros, empresaConfig),
       ]);
 
       return {
@@ -147,7 +149,8 @@ export class ProdutoRepositoryORM {
 
   async obterPorCodigo(
     codEmpresa: number,
-    codProduto: number
+    codProduto: number,
+    empresaConfig: EmpresaConfig
   ): Promise<ProdutoServicoDB | null> {
     try {
       await inicializarDataSource();
@@ -186,7 +189,8 @@ export class ProdutoRepositoryORM {
 
       const resultados = await poolBanco.executarConsulta<ProdutoServicoDB>(
         query,
-        { codEmpresa, codProduto }
+        { codEmpresa, codProduto },
+        empresaConfig
       );
 
       return resultados[0] || null;
@@ -198,7 +202,8 @@ export class ProdutoRepositoryORM {
     dados: Omit<
       ProdutoServicoDB,
       "COD_EMPRESA" | "COD_PRODUTO" | "DAT_CADASTRO" | "DAT_ALTERACAO"
-    >
+    >,
+    empresaConfig: EmpresaConfig
   ): Promise<number> {
     try {
       await inicializarDataSource();
@@ -241,7 +246,8 @@ export class ProdutoRepositoryORM {
 
       const maxResult = await poolBanco.executarConsulta<{ proximo_cod: number }>(
         queryMax,
-        { codEmpresa }
+        { codEmpresa },
+        empresaConfig
       );
 
       const codProduto = maxResult[0]?.proximo_cod || 1;
@@ -271,16 +277,20 @@ export class ProdutoRepositoryORM {
         )
       `;
 
-      await poolBanco.executarComando(query, {
-        codEmpresa,
-        codProduto,
-        desProduto: dados.DES_PRODUTO || null,
-        codUnidadeMedida: dados.COD_UNIDADE_MEDIDA || null,
-        indProdutoServico: dados.IND_PRODUTO_SERVICO || null,
-        sitProduto: dados.SIT_PRODUTO || "A",
-        obsProduto: dados.OBS_PRODUTO || null,
-        codUsuario: dados.COD_USUARIO || null,
-      });
+      await poolBanco.executarComando(
+        query,
+        {
+          codEmpresa,
+          codProduto,
+          desProduto: dados.DES_PRODUTO || null,
+          codUnidadeMedida: dados.COD_UNIDADE_MEDIDA || null,
+          indProdutoServico: dados.IND_PRODUTO_SERVICO || null,
+          sitProduto: dados.SIT_PRODUTO || "A",
+          obsProduto: dados.OBS_PRODUTO || null,
+          codUsuario: dados.COD_USUARIO || null,
+        },
+        empresaConfig
+      );
 
       return codProduto;
     }
@@ -294,7 +304,8 @@ export class ProdutoRepositoryORM {
         ProdutoServicoDB,
         "COD_EMPRESA" | "COD_PRODUTO" | "DAT_CADASTRO" | "DAT_ALTERACAO"
       >
-    >
+    >,
+    empresaConfig: EmpresaConfig
   ): Promise<void> {
     try {
       await inicializarDataSource();
@@ -390,11 +401,15 @@ export class ProdutoRepositoryORM {
         WHERE COD_EMPRESA = @codEmpresa AND COD_PRODUTO = @codProduto
       `;
 
-      await poolBanco.executarComando(query, parametros);
+      await poolBanco.executarComando(query, parametros, empresaConfig);
     }
   }
 
-  async inativar(codEmpresa: number, codProduto: number): Promise<void> {
+  async inativar(
+    codEmpresa: number,
+    codProduto: number,
+    empresaConfig: EmpresaConfig
+  ): Promise<void> {
     try {
       await inicializarDataSource();
       const repository = AppDataSource.getRepository(ProdutoServico);
@@ -422,13 +437,14 @@ export class ProdutoRepositoryORM {
         WHERE COD_EMPRESA = @codEmpresa AND COD_PRODUTO = @codProduto
       `;
 
-      await poolBanco.executarComando(query, { codEmpresa, codProduto });
+      await poolBanco.executarComando(query, { codEmpresa, codProduto }, empresaConfig);
     }
   }
 
   async listarDerivacoes(
     codEmpresa: number,
-    codProduto: number
+    codProduto: number,
+    empresaConfig: EmpresaConfig
   ): Promise<DerivacaoDB[]> {
     try {
       await inicializarDataSource();
@@ -480,16 +496,18 @@ export class ProdutoRepositoryORM {
         ORDER BY COD_DERIVACAO
       `;
 
-      return poolBanco.executarConsulta<DerivacaoDB>(query, {
-        codEmpresa,
-        codProduto,
-      });
+      return poolBanco.executarConsulta<DerivacaoDB>(
+        query,
+        { codEmpresa, codProduto },
+        empresaConfig
+      );
     }
   }
 
   async listarEstoques(
     codEmpresa: number,
-    codProduto: number
+    codProduto: number,
+    empresaConfig: EmpresaConfig
   ): Promise<EstoqueDB[]> {
     try {
       await inicializarDataSource();
@@ -540,10 +558,11 @@ export class ProdutoRepositoryORM {
         ORDER BY COD_DEPOSITO, COD_DERIVACAO
       `;
 
-      return poolBanco.executarConsulta<EstoqueDB>(query, {
-        codEmpresa,
-        codProduto,
-      });
+      return poolBanco.executarConsulta<EstoqueDB>(
+        query,
+        { codEmpresa, codProduto },
+        empresaConfig
+      );
     }
   }
 

@@ -8,7 +8,7 @@ import { logger } from "@/core/utils/logger";
 try {
   validarVariaveisAmbiente();
 } catch (erro) {
-  logger.error("Erro na validação de variáveis de ambiente", erro);
+  logger.warn("Algumas variáveis de ambiente não estão definidas (sistema de empresas pode ser usado)", erro);
 }
 
 export async function POST(
@@ -52,12 +52,13 @@ export async function POST(
       );
     }
 
-    const { login, senha, codEmpresa } = validacao.data;
+    const { login, senha, codEmpresa, cnpj } = validacao.data;
 
     const dadosAutenticacao = await autenticacaoService.fazerLogin({
       login,
       senha,
       codEmpresa,
+      cnpj,
     });
 
     return NextResponse.json({

@@ -1,6 +1,7 @@
 import { produtoRepository } from "../repository/produto-repository";
 import { ProdutoServicoDB, DerivacaoDB, EstoqueDB } from "../tipos/produto-db";
 import { PAGINACAO_PADRAO } from "../constants/paginacao";
+import type { EmpresaConfig } from "../entities/EmpresaConfig";
 
 export interface FiltrosProduto {
   page?: number;
@@ -21,7 +22,8 @@ export interface RespostaListagemProdutos {
 export class ProdutoService {
   async listar(
     codEmpresa: number,
-    filtros: FiltrosProduto
+    filtros: FiltrosProduto,
+    empresaConfig: EmpresaConfig
   ): Promise<RespostaListagemProdutos> {
     const page = filtros.page || PAGINACAO_PADRAO.PAGE_DEFAULT;
     const pageSizeRaw = filtros.pageSize || PAGINACAO_PADRAO.PAGE_SIZE;
@@ -29,7 +31,8 @@ export class ProdutoService {
 
     const { produtos, total } = await produtoRepository.listar(
       codEmpresa,
-      filtros
+      filtros,
+      empresaConfig
     );
 
     const totalPages = Math.ceil(total / pageSize);
@@ -45,11 +48,13 @@ export class ProdutoService {
 
   async obterPorCodigo(
     codEmpresa: number,
-    codProduto: number
+    codProduto: number,
+    empresaConfig: EmpresaConfig
   ): Promise<ProdutoServicoDB> {
     const produto = await produtoRepository.obterPorCodigo(
       codEmpresa,
-      codProduto
+      codProduto,
+      empresaConfig
     );
 
     if (!produto) {
@@ -65,6 +70,7 @@ export class ProdutoService {
       ProdutoServicoDB,
       "COD_EMPRESA" | "COD_PRODUTO" | "DAT_CADASTRO" | "DAT_ALTERACAO"
     >,
+    empresaConfig: EmpresaConfig,
     codUsuario?: number
   ): Promise<ProdutoServicoDB> {
     if (!dados.DES_PRODUTO || (dados.DES_PRODUTO && dados.DES_PRODUTO.trim().length === 0)) {
@@ -78,10 +84,11 @@ export class ProdutoService {
     const codProduto = await produtoRepository.criar(codEmpresa, {
       ...dados,
       COD_USUARIO: codUsuario || null,
-    });
+    }, empresaConfig);
     const produto = await produtoRepository.obterPorCodigo(
       codEmpresa,
-      codProduto
+      codProduto,
+      empresaConfig
     );
 
     if (!produto) {
@@ -100,11 +107,13 @@ export class ProdutoService {
         "COD_EMPRESA" | "COD_PRODUTO" | "DAT_CADASTRO" | "DAT_ALTERACAO"
       >
     >,
+    empresaConfig: EmpresaConfig,
     codUsuario?: number
   ): Promise<ProdutoServicoDB> {
     const produtoExistente = await produtoRepository.obterPorCodigo(
       codEmpresa,
-      codProduto
+      codProduto,
+      empresaConfig
     );
 
     if (!produtoExistente) {
@@ -123,10 +132,11 @@ export class ProdutoService {
     await produtoRepository.atualizar(codEmpresa, codProduto, {
       ...dados,
       COD_USUARIO: codUsuario || dados.COD_USUARIO || null,
-    });
+    }, empresaConfig);
     const produto = await produtoRepository.obterPorCodigo(
       codEmpresa,
-      codProduto
+      codProduto,
+      empresaConfig
     );
 
     if (!produto) {
@@ -136,10 +146,11 @@ export class ProdutoService {
     return produto;
   }
 
-  async excluir(codEmpresa: number, codProduto: number): Promise<void> {
+  async excluir(codEmpresa: number, codProduto: number, empresaConfig: EmpresaConfig): Promise<void> {
     const produto = await produtoRepository.obterPorCodigo(
       codEmpresa,
-      codProduto
+      codProduto,
+      empresaConfig
     );
 
     if (!produto) {
@@ -147,43 +158,47 @@ export class ProdutoService {
     }
 
     const [derivacoes, estoques] = await Promise.all([
-      produtoRepository.listarDerivacoes(codEmpresa, codProduto),
-      produtoRepository.listarEstoques(codEmpresa, codProduto),
+      produtoRepository.listarDerivacoes(codEmpresa, codProduto, empresaConfig),
+      produtoRepository.listarEstoques(codEmpresa, codProduto, empresaConfig),
     ]);
 
-    await produtoRepository.inativar(codEmpresa, codProduto);
+    await produtoRepository.inativar(codEmpresa, codProduto, empresaConfig);
   }
 
   async listarDerivacoes(
     codEmpresa: number,
-    codProduto: number
+    codProduto: number,
+    empresaConfig: EmpresaConfig
   ): Promise<DerivacaoDB[]> {
     const produto = await produtoRepository.obterPorCodigo(
       codEmpresa,
-      codProduto
+      codProduto,
+      empresaConfig
     );
 
     if (!produto) {
       throw new Error("Produto não encontrado");
     }
 
-    return produtoRepository.listarDerivacoes(codEmpresa, codProduto);
+    return produtoRepository.listarDerivacoes(codEmpresa, codProduto, empresaConfig);
   }
 
   async listarEstoques(
     codEmpresa: number,
-    codProduto: number
+    codProduto: number,
+    empresaConfig: EmpresaConfig
   ): Promise<EstoqueDB[]> {
     const produto = await produtoRepository.obterPorCodigo(
       codEmpresa,
-      codProduto
+      codProduto,
+      empresaConfig
     );
 
     if (!produto) {
       throw new Error("Produto não encontrado");
     }
 
-    return produtoRepository.listarEstoques(codEmpresa, codProduto);
+    return produtoRepository.listarEstoques(codEmpresa, codProduto, empresaConfig);
   }
 }
 

@@ -4,11 +4,13 @@ import { tratarErroAPI } from "@/core/utils/tratar-erro";
 import { schemaFiltroTitulo } from "@/core/schemas/consulta-schemas";
 import { consultaRepository } from "@/core/repository/consulta-repository";
 import { DEFAULT_COD_EMPRESA } from "@/core/db/validar-env";
+import { obterEmpresaConfigDoCookie } from "@/core/utils/obter-empresa-cookie";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const usuario = validarAutenticacao(request);
     const codEmpresa = usuario.codEmpresa || DEFAULT_COD_EMPRESA;
+    const empresaConfig = obterEmpresaConfigDoCookie(request);
 
     const { searchParams } = new URL(request.url);
     const parametros = schemaFiltroTitulo.parse({
@@ -56,6 +58,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       "TITULOS_PAGAR",
       colunas,
       parametros,
+      empresaConfig,
       codEmpresa,
       filtrosAdicionais
     );

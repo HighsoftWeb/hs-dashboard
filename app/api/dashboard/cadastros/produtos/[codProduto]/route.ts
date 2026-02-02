@@ -3,6 +3,7 @@ import { validarAutenticacao } from "@/core/middleware/auth-middleware";
 import { tratarErroAPI } from "@/core/utils/tratar-erro";
 import { detalhesRepository } from "@/core/repository/detalhes-repository";
 import { DEFAULT_COD_EMPRESA } from "@/core/db/validar-env";
+import { obterEmpresaConfigDoCookie } from "@/core/utils/obter-empresa-cookie";
 
 export async function GET(
   request: NextRequest,
@@ -10,6 +11,7 @@ export async function GET(
 ): Promise<NextResponse> {
   try {
     const usuario = validarAutenticacao(request);
+    const empresaConfig = obterEmpresaConfigDoCookie(request);
     const codEmpresa = usuario.codEmpresa || DEFAULT_COD_EMPRESA;
     const { codProduto } = await params;
     const codProdutoNum = Number.parseInt(codProduto, 10);
@@ -28,10 +30,10 @@ export async function GET(
     }
 
     const [produto, derivacoes, estoques, tabelasPreco] = await Promise.all([
-      detalhesRepository.obterProdutoCompleto(codEmpresa, codProdutoNum),
-      detalhesRepository.obterDerivacoesProduto(codEmpresa, codProdutoNum),
-      detalhesRepository.obterEstoquesProduto(codEmpresa, codProdutoNum),
-      detalhesRepository.obterTabelasPrecoProduto(codEmpresa, codProdutoNum),
+      detalhesRepository.obterProdutoCompleto(codEmpresa, codProdutoNum, empresaConfig),
+      detalhesRepository.obterDerivacoesProduto(codEmpresa, codProdutoNum, empresaConfig),
+      detalhesRepository.obterEstoquesProduto(codEmpresa, codProdutoNum, empresaConfig),
+      detalhesRepository.obterTabelasPrecoProduto(codEmpresa, codProdutoNum, empresaConfig),
     ]);
 
     return NextResponse.json({

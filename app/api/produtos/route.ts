@@ -5,12 +5,14 @@ import { ProdutoServicoDB } from "@/core/tipos/produto-db";
 import { CriarProdutoSchema } from "@/core/schemas/produto-schemas";
 import { logger } from "@/core/utils/logger";
 import { PAGINACAO_PADRAO } from "@/core/constants/paginacao";
+import { obterEmpresaConfigDoCookie } from "@/core/utils/obter-empresa-cookie";
 
 export async function GET(
   request: NextRequest
 ): Promise<NextResponse> {
   try {
     const payload = validarAutenticacao(request);
+    const empresaConfig = obterEmpresaConfigDoCookie(request);
     const { searchParams } = new URL(request.url);
 
     const page = searchParams.get("page")
@@ -30,7 +32,7 @@ export async function GET(
       search,
       sit,
       ind,
-    });
+    }, empresaConfig);
 
     return NextResponse.json({
       success: true,
@@ -103,6 +105,7 @@ export async function POST(
     const produto = await produtoService.criar(
       payload.codEmpresa,
       dados,
+      empresaConfig,
       payload.codUsuario
     );
 

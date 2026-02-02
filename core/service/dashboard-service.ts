@@ -11,46 +11,55 @@ import {
   TituloReceberSchema,
   TituloPagarSchema,
 } from "../schemas/dashboard-schemas";
+import type { EmpresaConfig } from "../entities/EmpresaConfig";
 
 export class DashboardService {
   async obterEstatisticas(
-    codEmpresa: number
+    codEmpresa: number,
+    empresaConfig: EmpresaConfig
   ): Promise<EstatisticasDashboard> {
     const estatisticas = await dashboardRepository.obterEstatisticas(
-      codEmpresa
+      codEmpresa,
+      empresaConfig
     );
     return EstatisticasDashboardSchema.parse(estatisticas);
   }
 
   async listarOrcamentosRecentes(
     codEmpresa: number,
-    limite: number
+    limite: number,
+    empresaConfig: EmpresaConfig
   ): Promise<OrcamentoOSDB[]> {
     const orcamentos = await dashboardRepository.listarOrcamentosRecentes(
       codEmpresa,
-      limite
+      limite,
+      empresaConfig
     );
     return orcamentos.map((orc) => OrcamentoOSSchema.parse(orc));
   }
 
   async listarTitulosReceberVencendo(
     codEmpresa: number,
-    dias: number
+    dias: number,
+    empresaConfig: EmpresaConfig
   ): Promise<TituloReceberDB[]> {
     const titulos = await dashboardRepository.listarTitulosReceberVencendo(
       codEmpresa,
-      dias
+      dias,
+      empresaConfig
     );
     return titulos.map((tit) => TituloReceberSchema.parse(tit));
   }
 
   async listarTitulosPagarVencendo(
     codEmpresa: number,
-    dias: number
+    dias: number,
+    empresaConfig: EmpresaConfig
   ): Promise<TituloPagarDB[]> {
     const titulos = await dashboardRepository.listarTitulosPagarVencendo(
       codEmpresa,
-      dias
+      dias,
+      empresaConfig
     );
     return titulos.map((tit) => TituloPagarSchema.parse(tit));
   }

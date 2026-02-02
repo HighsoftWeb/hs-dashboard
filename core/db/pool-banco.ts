@@ -1,4 +1,5 @@
 import { ConnectionPool, config as SqlConfig } from "mssql";
+import type { EmpresaConfig } from "../entities/EmpresaConfig";
 
 interface ConfiguracaoBanco {
   server: string;
@@ -22,40 +23,49 @@ interface ConfiguracaoBanco {
 class PoolBanco {
   private pool: ConnectionPool | null = null;
   private configuracao: SqlConfig | null = null;
+  private configuracaoAtual: string | null = null;
 
-  configurar(): void {
+  configurar(empresaConfig: EmpresaConfig): void {
+    if (!empresaConfig) {
+      throw new Error("Configuração de empresa é obrigatória");
+    }
+
+    const configKey = `${empresaConfig.host}:${empresaConfig.porta}:${empresaConfig.nomeBase}`;
+    
+    if (this.configuracaoAtual && this.configuracaoAtual !== configKey) {
+      this.fecharPool();
+    }
+    
+    this.configuracaoAtual = configKey;
+    
     const config: ConfiguracaoBanco = {
-      server: process.env.DB_HOST || "",
-      database: process.env.DB_NAME || "",
-      user: process.env.DB_USER || "",
-      password: process.env.DB_PASSWORD || "",
-      port: parseInt(process.env.DB_PORT || "1433", 10),
+      server: empresaConfig.host,
+      database: empresaConfig.nomeBase,
+      user: empresaConfig.usuario,
+      password: empresaConfig.senha,
+      port: empresaConfig.porta,
       options: {
-        encrypt: process.env.DB_ENCRYPT === "true",
-        trustServerCertificate: process.env.DB_TRUST_SERVER_CERT === "true",
+        encrypt: false,
+        trustServerCertificate: true,
         enableArithAbort: true,
-        requestTimeout: parseInt(
-          process.env.DB_REQUEST_TIMEOUT_MS || "30000",
-          10
-        ),
+        requestTimeout: 30000,
       },
       pool: {
-        min: parseInt(process.env.DB_POOL_MIN || "0", 10),
-        max: parseInt(process.env.DB_POOL_MAX || "10", 10),
-        idleTimeoutMillis: parseInt(
-          process.env.DB_POOL_IDLE_MS || "30000",
-          10
-        ),
+        min: 0,
+        max: 10,
+        idleTimeoutMillis: 30000,
       },
     };
 
     this.configuracao = config as SqlConfig;
   }
 
-  async obterPool(): Promise<ConnectionPool> {
-    if (!this.configuracao) {
-      this.configurar();
+  async obterPool(empresaConfig: EmpresaConfig): Promise<ConnectionPool> {
+    if (!empresaConfig) {
+      throw new Error("Configuração de empresa é obrigatória");
     }
+
+    this.configurar(empresaConfig);
 
     if (!this.configuracao) {
       throw new Error("Configuração do banco de dados não definida");
@@ -90,10 +100,15 @@ class PoolBanco {
 
   async executarConsulta<T>(
     query: string,
-    parametros?: Record<string, string | number | boolean | Date | null>
+    parametros: Record<string, string | number | boolean | Date | null> | undefined,
+    empresaConfig: EmpresaConfig
   ): Promise<T[]> {
+    if (!empresaConfig) {
+      throw new Error("Configuração de empresa é obrigatória");
+    }
+
     try {
-      const pool = await this.obterPool();
+      const pool = await this.obterPool(empresaConfig);
       const request = pool.request();
 
       if (parametros) {
@@ -107,7 +122,7 @@ class PoolBanco {
     } catch (erro) {
       if (erro && typeof erro === "object" && "code" in erro && erro.code === "ECONNCLOSED") {
         this.pool = null;
-        const pool = await this.obterPool();
+        const pool = await this.obterPool(empresaConfig);
         const request = pool.request();
 
         if (parametros) {
@@ -125,10 +140,15 @@ class PoolBanco {
 
   async executarComando(
     query: string,
-    parametros?: Record<string, string | number | boolean | Date | null>
+    parametros: Record<string, string | number | boolean | Date | null> | undefined,
+    empresaConfig: EmpresaConfig
   ): Promise<number> {
+    if (!empresaConfig) {
+      throw new Error("Configuração de empresa é obrigatória");
+    }
+
     try {
-      const pool = await this.obterPool();
+      const pool = await this.obterPool(empresaConfig);
       const request = pool.request();
 
       if (parametros) {
@@ -142,7 +162,7 @@ class PoolBanco {
     } catch (erro) {
       if (erro && typeof erro === "object" && "code" in erro && erro.code === "ECONNCLOSED") {
         this.pool = null;
-        const pool = await this.obterPool();
+        const pool = await this.obterPool(empresaConfig);
         const request = pool.request();
 
         if (parametros) {

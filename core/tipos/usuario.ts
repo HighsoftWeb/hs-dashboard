@@ -10,6 +10,7 @@ export interface CredenciaisLogin {
   login: string;
   senha: string;
   codEmpresa?: number;
+  cnpj?: string;
 }
 
 export interface Permissao {

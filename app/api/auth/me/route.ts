@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { validarAutenticacao } from "@/core/middleware/auth-middleware";
 import { autenticacaoService } from "@/core/service/autenticacao-service";
 import { logger } from "@/core/utils/logger";
+import { empresaConfigRepository } from "@/core/repository/empresa-config-repository";
 
 export async function GET(
   request: NextRequest
@@ -9,8 +10,38 @@ export async function GET(
   try {
     const payload = validarAutenticacao(request);
 
+    const cnpjCookie = request.cookies.get("empresa_cnpj")?.value;
+    if (!cnpjCookie || cnpjCookie.length !== 14) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: "EMPRESA_NOT_FOUND",
+            message: "CNPJ da empresa não encontrado",
+          },
+        },
+        { status: 400 }
+      );
+    }
+
+    const empresaConfig = empresaConfigRepository.obterPorCnpj(cnpjCookie);
+    if (!empresaConfig) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: "EMPRESA_NOT_FOUND",
+            message: "Empresa não encontrada",
+          },
+        },
+        { status: 404 }
+      );
+    }
+
     const usuario = await autenticacaoService.obterUsuarioPorToken(
-      payload.codUsuario
+      payload.codUsuario,
+      empresaConfig,
+      payload.codEmpresa
     );
 
     if (!usuario) {

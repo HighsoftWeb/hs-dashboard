@@ -5,33 +5,38 @@ import {
   TituloPagarDB,
   EstatisticasDashboard,
 } from "../tipos/dashboard-db";
+import type { EmpresaConfig } from "../entities/EmpresaConfig";
 
 export class DashboardRepository {
   async obterEstatisticas(
-    codEmpresa: number
+    codEmpresa: number,
+    empresaConfig: EmpresaConfig
   ): Promise<EstatisticasDashboard> {
-    return dashboardRepositoryORM.obterEstatisticas(codEmpresa);
+    return dashboardRepositoryORM.obterEstatisticas(codEmpresa, empresaConfig);
   }
 
   async listarOrcamentosRecentes(
     codEmpresa: number,
-    limite: number = 10
+    limite: number,
+    empresaConfig: EmpresaConfig
   ): Promise<OrcamentoOSDB[]> {
-    return dashboardRepositoryORM.listarOrcamentosRecentes(codEmpresa, limite);
+    return dashboardRepositoryORM.listarOrcamentosRecentes(codEmpresa, limite, empresaConfig);
   }
 
   async listarTitulosReceberVencendo(
     codEmpresa: number,
-    dias: number = 30
+    dias: number,
+    empresaConfig: EmpresaConfig
   ): Promise<TituloReceberDB[]> {
-    return dashboardRepositoryORM.listarTitulosReceberVencendo(codEmpresa, dias);
+    return dashboardRepositoryORM.listarTitulosReceberVencendo(codEmpresa, dias, empresaConfig);
   }
 
   async listarTitulosPagarVencendo(
     codEmpresa: number,
-    dias: number = 30
+    dias: number,
+    empresaConfig: EmpresaConfig
   ): Promise<TituloPagarDB[]> {
-    return dashboardRepositoryORM.listarTitulosPagarVencendo(codEmpresa, dias);
+    return dashboardRepositoryORM.listarTitulosPagarVencendo(codEmpresa, dias, empresaConfig);
   }
 }
 

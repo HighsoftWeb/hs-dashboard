@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { validarAutenticacao } from "@/core/middleware/auth-middleware";
 import { tratarErroAPI } from "@/core/utils/tratar-erro";
 import { detalhesRepository } from "@/core/repository/detalhes-repository";
+import { obterEmpresaConfigDoCookie } from "@/core/utils/obter-empresa-cookie";
 
 export async function GET(
   request: NextRequest,
@@ -9,6 +10,7 @@ export async function GET(
 ): Promise<NextResponse> {
   try {
     validarAutenticacao(request);
+    const empresaConfig = obterEmpresaConfigDoCookie(request);
     const { codEmpresa, codCliFor, codTipoTitulo, numTitulo, seqTitulo } = await params;
     const codEmpresaNum = Number.parseInt(codEmpresa, 10);
     const codCliForNum = Number.parseInt(codCliFor, 10);
@@ -34,7 +36,8 @@ export async function GET(
       codCliForNum,
       codTipoTituloDecoded,
       numTituloDecoded,
-      seqTituloNum
+      seqTituloNum,
+      empresaConfig
     );
 
     return NextResponse.json({

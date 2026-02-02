@@ -3,12 +3,14 @@ import { validarAutenticacao } from "@/core/middleware/auth-middleware";
 import { dashboardService } from "@/core/service/dashboard-service";
 import { logger } from "@/core/utils/logger";
 import { DASHBOARD_PADRAO } from "@/core/constants/paginacao";
+import { obterEmpresaConfigDoCookie } from "@/core/utils/obter-empresa-cookie";
 
 export async function GET(
   request: NextRequest
 ): Promise<NextResponse> {
   try {
     const payload = validarAutenticacao(request);
+    const empresaConfig = obterEmpresaConfigDoCookie(request);
     const { searchParams } = new URL(request.url);
     const diasRaw = searchParams.get("dias")
       ? parseInt(searchParams.get("dias")!, 10)
@@ -18,11 +20,13 @@ export async function GET(
     const [titulosReceber, titulosPagar] = await Promise.all([
       dashboardService.listarTitulosReceberVencendo(
         payload.codEmpresa,
-        dias
+        dias,
+        empresaConfig
       ),
       dashboardService.listarTitulosPagarVencendo(
         payload.codEmpresa,
-        dias
+        dias,
+        empresaConfig
       ),
     ]);
 

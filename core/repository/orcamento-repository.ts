@@ -1,5 +1,6 @@
 import { poolBanco } from "../db/pool-banco";
 import { logger } from "../utils/logger";
+import type { EmpresaConfig } from "../entities/EmpresaConfig";
 
 export interface OrcamentoCompletoDB {
   COD_EMPRESA: number;
@@ -209,7 +210,8 @@ export class OrcamentoRepository {
   async obterOrcamentoCompleto(
     codEmpresa: number,
     indOrcamentoOS: string,
-    numOrcamentoOS: number
+    numOrcamentoOS: number,
+    empresaConfig: EmpresaConfig
   ): Promise<{ orcamento: OrcamentoCompletoDB; itens: ItemOrcamentoDB[] }> {
     try {
       const queryOrcamento = `
@@ -290,16 +292,16 @@ export class OrcamentoRepository {
       `;
 
       const [orcamentoResult, itensResult] = await Promise.all([
-        poolBanco.executarConsulta<OrcamentoCompletoDB>(queryOrcamento, {
-          codEmpresa,
-          indOrcamentoOS,
-          numOrcamentoOS,
-        }),
-        poolBanco.executarConsulta<ItemOrcamentoDB>(queryItens, {
-          codEmpresa,
-          indOrcamentoOS,
-          numOrcamentoOS,
-        }),
+        poolBanco.executarConsulta<OrcamentoCompletoDB>(
+          queryOrcamento,
+          { codEmpresa, indOrcamentoOS, numOrcamentoOS },
+          empresaConfig
+        ),
+        poolBanco.executarConsulta<ItemOrcamentoDB>(
+          queryItens,
+          { codEmpresa, indOrcamentoOS, numOrcamentoOS },
+          empresaConfig
+        ),
       ]);
 
       if (!orcamentoResult || orcamentoResult.length === 0) {
@@ -323,7 +325,8 @@ export class OrcamentoRepository {
   async obterApontamentosOS(
     codEmpresa: number,
     indOrcamentoOS: string,
-    numOrcamentoOS: number
+    numOrcamentoOS: number,
+    empresaConfig: EmpresaConfig
   ): Promise<ItemApontamentoOSDB[]> {
     try {
       const query = `
@@ -340,11 +343,11 @@ export class OrcamentoRepository {
         ORDER BY a.SEQ_ITEM_ORCAMENTO_OS, a.SEQ_APONTAMENTO_OS
       `;
 
-      const resultado = await poolBanco.executarConsulta<ItemApontamentoOSDB>(query, {
-        codEmpresa,
-        indOrcamentoOS,
-        numOrcamentoOS,
-      });
+      const resultado = await poolBanco.executarConsulta<ItemApontamentoOSDB>(
+        query,
+        { codEmpresa, indOrcamentoOS, numOrcamentoOS },
+        empresaConfig
+      );
 
       return resultado || [];
     } catch (erro) {
@@ -360,7 +363,8 @@ export class OrcamentoRepository {
   async obterReceituarios(
     codEmpresa: number,
     indOrcamentoOS: string,
-    numOrcamentoOS: number
+    numOrcamentoOS: number,
+    empresaConfig: EmpresaConfig
   ): Promise<ItemReceituarioDB[]> {
     try {
       const query = `
@@ -386,11 +390,11 @@ export class OrcamentoRepository {
         ORDER BY r.SEQ_ITEM_ORCAMENTO_OS
       `;
 
-      const resultado = await poolBanco.executarConsulta<ItemReceituarioDB>(query, {
-        codEmpresa,
-        indOrcamentoOS,
-        numOrcamentoOS,
-      });
+      const resultado = await poolBanco.executarConsulta<ItemReceituarioDB>(
+        query,
+        { codEmpresa, indOrcamentoOS, numOrcamentoOS },
+        empresaConfig
+      );
 
       return resultado || [];
     } catch (erro) {
@@ -406,7 +410,8 @@ export class OrcamentoRepository {
   async obterTrocasOrcamento(
     codEmpresa: number,
     indOrcamentoOS: string,
-    numOrcamentoOS: number
+    numOrcamentoOS: number,
+    empresaConfig: EmpresaConfig
   ): Promise<ItemTrocaOrcamentoDB[]> {
     try {
       const query = `
@@ -434,11 +439,11 @@ export class OrcamentoRepository {
         ORDER BY t.SEQ_ITEM_TROCA
       `;
 
-      const resultado = await poolBanco.executarConsulta<ItemTrocaOrcamentoDB>(query, {
-        codEmpresa,
-        indOrcamentoOS,
-        numOrcamentoOS,
-      });
+      const resultado = await poolBanco.executarConsulta<ItemTrocaOrcamentoDB>(
+        query,
+        { codEmpresa, indOrcamentoOS, numOrcamentoOS },
+        empresaConfig
+      );
 
       return resultado || [];
     } catch (erro) {

@@ -15,10 +15,12 @@ import {
 import { Between } from "typeorm";
 import { logger } from "../utils/logger";
 import { DASHBOARD_PADRAO } from "../constants/paginacao";
+import type { EmpresaConfig } from "../entities/EmpresaConfig";
 
 export class DashboardRepositoryORM {
   async obterEstatisticas(
-    codEmpresa: number
+    codEmpresa: number,
+    empresaConfig: EmpresaConfig
   ): Promise<EstatisticasDashboard> {
     try {
       await inicializarDataSource();
@@ -133,7 +135,7 @@ export class DashboardRepositoryORM {
         orcamentosMes: number;
         receitasMes: number;
         despesasMes: number;
-      }>(query, { codEmpresa });
+      }>(query, { codEmpresa }, empresaConfig);
 
       const stats = resultado[0] || {
         totalUsuarios: 0,
@@ -155,7 +157,8 @@ export class DashboardRepositoryORM {
 
   async listarOrcamentosRecentes(
     codEmpresa: number,
-    limite: number = DASHBOARD_PADRAO.LIMITE_ORCAMENTOS
+    limite: number,
+    empresaConfig: EmpresaConfig
   ): Promise<OrcamentoOSDB[]> {
     try {
       await inicializarDataSource();
@@ -221,16 +224,18 @@ export class DashboardRepositoryORM {
         ORDER BY O.DAT_EMISSAO DESC
       `;
 
-      return poolBanco.executarConsulta<OrcamentoOSDB>(query, {
-        codEmpresa,
-        limite,
-      });
+      return poolBanco.executarConsulta<OrcamentoOSDB>(
+        query,
+        { codEmpresa, limite },
+        empresaConfig
+      );
     }
   }
 
   async listarTitulosReceberVencendo(
     codEmpresa: number,
-    dias: number = DASHBOARD_PADRAO.DIAS_VENCIMENTO
+    dias: number,
+    empresaConfig: EmpresaConfig
   ): Promise<TituloReceberDB[]> {
     try {
       await inicializarDataSource();
@@ -305,16 +310,18 @@ export class DashboardRepositoryORM {
         ORDER BY T.VCT_ORIGINAL ASC
       `;
 
-      return poolBanco.executarConsulta<TituloReceberDB>(query, {
-        codEmpresa,
-        dias,
-      });
+      return poolBanco.executarConsulta<TituloReceberDB>(
+        query,
+        { codEmpresa, dias },
+        empresaConfig
+      );
     }
   }
 
   async listarTitulosPagarVencendo(
     codEmpresa: number,
-    dias: number = DASHBOARD_PADRAO.DIAS_VENCIMENTO
+    dias: number,
+    empresaConfig: EmpresaConfig
   ): Promise<TituloPagarDB[]> {
     try {
       await inicializarDataSource();
@@ -387,10 +394,11 @@ export class DashboardRepositoryORM {
         ORDER BY T.VCT_ORIGINAL ASC
       `;
 
-      return poolBanco.executarConsulta<TituloPagarDB>(query, {
-        codEmpresa,
-        dias,
-      });
+      return poolBanco.executarConsulta<TituloPagarDB>(
+        query,
+        { codEmpresa, dias },
+        empresaConfig
+      );
     }
   }
 }

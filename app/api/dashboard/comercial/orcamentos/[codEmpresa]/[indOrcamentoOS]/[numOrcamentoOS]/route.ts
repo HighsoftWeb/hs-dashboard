@@ -3,6 +3,7 @@ import { validarAutenticacao } from "@/core/middleware/auth-middleware";
 import { tratarErroAPI } from "@/core/utils/tratar-erro";
 import { orcamentoRepository } from "@/core/repository/orcamento-repository";
 import { DEFAULT_COD_EMPRESA } from "@/core/db/validar-env";
+import { obterEmpresaConfigDoCookie } from "@/core/utils/obter-empresa-cookie";
 
 export async function GET(
   request: NextRequest,
@@ -10,6 +11,7 @@ export async function GET(
 ): Promise<NextResponse> {
   try {
     const usuario = validarAutenticacao(request);
+    const empresaConfig = obterEmpresaConfigDoCookie(request);
     const { codEmpresa: codEmpresaParam, indOrcamentoOS, numOrcamentoOS } = await params;
     
     const codEmpresa = usuario.codEmpresa || Number.parseInt(codEmpresaParam, 10) || DEFAULT_COD_EMPRESA;
@@ -32,17 +34,20 @@ export async function GET(
       orcamentoRepository.obterOrcamentoCompleto(
         codEmpresa,
         indOrcamentoOS,
-        numOrcamentoOSNum
+        numOrcamentoOSNum,
+        empresaConfig
       ),
       orcamentoRepository.obterApontamentosOS(
         codEmpresa,
         indOrcamentoOS,
-        numOrcamentoOSNum
+        numOrcamentoOSNum,
+        empresaConfig
       ),
       orcamentoRepository.obterTrocasOrcamento(
         codEmpresa,
         indOrcamentoOS,
-        numOrcamentoOSNum
+        numOrcamentoOSNum,
+        empresaConfig
       ),
     ]);
 
