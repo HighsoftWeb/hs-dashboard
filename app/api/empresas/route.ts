@@ -3,7 +3,6 @@ import { cookies } from "next/headers";
 import { Empresa } from "@/core/tipos";
 import { logger } from "@/core/utils/logger";
 import { ListarEmpresasQuerySchema, CriarEmpresaSchema } from "@/core/schemas/empresa-schemas";
-import { PAGINACAO_PADRAO } from "@/core/constants/paginacao";
 
 async function obterToken(): Promise<string | null> {
   const cookieStore = await cookies();
@@ -37,7 +36,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         {
           sucesso: false,
           mensagem: "Parâmetros de consulta inválidos",
-          erros: queryValidacao.error.errors,
+          erros: queryValidacao.error.issues,
         },
         { status: 400 }
       );
@@ -109,7 +108,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         {
           sucesso: false,
           mensagem: "Dados inválidos",
-          erros: validacao.error.errors,
+          erros: validacao.error.issues,
         },
         { status: 400 }
       );
