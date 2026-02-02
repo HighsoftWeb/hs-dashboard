@@ -17,8 +17,11 @@ export async function GET(
     if (!token) {
       return NextResponse.json(
         {
-          sucesso: false,
-          mensagem: "Não autenticado",
+          success: false,
+          error: {
+            code: "UNAUTHORIZED",
+            message: "Não autenticado",
+          },
         },
         { status: 401 }
       );
@@ -40,8 +43,11 @@ export async function GET(
     if (!resposta.ok) {
       return NextResponse.json(
         {
-          sucesso: false,
-          mensagem: "Erro ao buscar usuário",
+          success: false,
+          error: {
+            code: "FETCH_ERROR",
+            message: "Erro ao buscar usuário",
+          },
         },
         { status: resposta.status }
       );
@@ -50,15 +56,17 @@ export async function GET(
     const dados = (await resposta.json()) as Usuario;
 
     return NextResponse.json({
-      sucesso: true,
-      dados,
+      success: true,
+      data: dados,
     });
   } catch (erro) {
     return NextResponse.json(
       {
-        sucesso: false,
-        mensagem: "Erro ao processar requisição",
-        erro: erro instanceof Error ? erro.message : "Erro desconhecido",
+        success: false,
+        error: {
+          code: "INTERNAL_ERROR",
+          message: erro instanceof Error ? erro.message : "Erro desconhecido",
+        },
       },
       { status: 500 }
     );
@@ -75,8 +83,11 @@ export async function PUT(
     if (!token) {
       return NextResponse.json(
         {
-          sucesso: false,
-          mensagem: "Não autenticado",
+          success: false,
+          error: {
+            code: "UNAUTHORIZED",
+            message: "Não autenticado",
+          },
         },
         { status: 401 }
       );
@@ -103,8 +114,11 @@ export async function PUT(
     if (!resposta.ok) {
       return NextResponse.json(
         {
-          sucesso: false,
-          mensagem: "Erro ao atualizar usuário",
+          success: false,
+          error: {
+            code: "UPDATE_ERROR",
+            message: "Erro ao atualizar usuário",
+          },
         },
         { status: resposta.status }
       );
@@ -113,15 +127,17 @@ export async function PUT(
     const dados = (await resposta.json()) as Usuario;
 
     return NextResponse.json({
-      sucesso: true,
-      dados,
+      success: true,
+      data: dados,
     });
   } catch (erro) {
     return NextResponse.json(
       {
-        sucesso: false,
-        mensagem: "Erro ao processar requisição",
-        erro: erro instanceof Error ? erro.message : "Erro desconhecido",
+        success: false,
+        error: {
+          code: "INTERNAL_ERROR",
+          message: erro instanceof Error ? erro.message : "Erro desconhecido",
+        },
       },
       { status: 500 }
     );
@@ -138,8 +154,11 @@ export async function DELETE(
     if (!token) {
       return NextResponse.json(
         {
-          sucesso: false,
-          mensagem: "Não autenticado",
+          success: false,
+          error: {
+            code: "UNAUTHORIZED",
+            message: "Não autenticado",
+          },
         },
         { status: 401 }
       );
@@ -162,23 +181,28 @@ export async function DELETE(
     if (!resposta.ok) {
       return NextResponse.json(
         {
-          sucesso: false,
-          mensagem: "Erro ao excluir usuário",
+          success: false,
+          error: {
+            code: "DELETE_ERROR",
+            message: "Erro ao excluir usuário",
+          },
         },
         { status: resposta.status }
       );
     }
 
     return NextResponse.json({
-      sucesso: true,
-      mensagem: "Usuário excluído com sucesso",
+      success: true,
+      data: { message: "Usuário excluído com sucesso" },
     });
   } catch (erro) {
     return NextResponse.json(
       {
-        sucesso: false,
-        mensagem: "Erro ao processar requisição",
-        erro: erro instanceof Error ? erro.message : "Erro desconhecido",
+        success: false,
+        error: {
+          code: "INTERNAL_ERROR",
+          message: erro instanceof Error ? erro.message : "Erro desconhecido",
+        },
       },
       { status: 500 }
     );

@@ -16,8 +16,11 @@ export async function GET(): Promise<NextResponse> {
     if (!token) {
       return NextResponse.json(
         {
-          sucesso: false,
-          mensagem: "Não autenticado",
+          success: false,
+          error: {
+            code: "UNAUTHORIZED",
+            message: "Não autenticado",
+          },
         },
         { status: 401 }
       );
@@ -28,8 +31,11 @@ export async function GET(): Promise<NextResponse> {
     if (!resposta.ok || !resposta.dados) {
       return NextResponse.json(
         {
-          sucesso: false,
-          mensagem: resposta.erro || "Erro ao buscar clientes",
+          success: false,
+          error: {
+            code: "FETCH_ERROR",
+            message: resposta.erro || "Erro ao buscar clientes",
+          },
         },
         { status: resposta.status }
       );
@@ -38,8 +44,8 @@ export async function GET(): Promise<NextResponse> {
     const dados = resposta.dados;
 
     return NextResponse.json({
-      sucesso: true,
-      dados,
+      success: true,
+      data: dados,
     });
   } catch (erro) {
     logger.error("Erro ao listar clientes", erro, {
@@ -49,9 +55,11 @@ export async function GET(): Promise<NextResponse> {
 
     return NextResponse.json(
       {
-        sucesso: false,
-        mensagem: "Erro ao processar requisição",
-        erro: erro instanceof Error ? erro.message : "Erro desconhecido",
+        success: false,
+        error: {
+          code: "INTERNAL_ERROR",
+          message: erro instanceof Error ? erro.message : "Erro desconhecido",
+        },
       },
       { status: 500 }
     );
@@ -65,8 +73,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (!token) {
       return NextResponse.json(
         {
-          sucesso: false,
-          mensagem: "Não autenticado",
+          success: false,
+          error: {
+            code: "UNAUTHORIZED",
+            message: "Não autenticado",
+          },
         },
         { status: 401 }
       );
@@ -82,8 +93,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (!resposta.ok || !resposta.dados) {
       return NextResponse.json(
         {
-          sucesso: false,
-          mensagem: resposta.erro || "Erro ao criar cliente",
+          success: false,
+          error: {
+            code: "CREATE_ERROR",
+            message: resposta.erro || "Erro ao criar cliente",
+          },
         },
         { status: resposta.status }
       );
@@ -92,8 +106,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const dados = resposta.dados;
 
     return NextResponse.json({
-      sucesso: true,
-      dados,
+      success: true,
+      data: dados,
     });
   } catch (erro) {
     logger.error("Erro ao criar cliente", erro, {
@@ -103,9 +117,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     return NextResponse.json(
       {
-        sucesso: false,
-        mensagem: "Erro ao processar requisição",
-        erro: erro instanceof Error ? erro.message : "Erro desconhecido",
+        success: false,
+        error: {
+          code: "INTERNAL_ERROR",
+          message: erro instanceof Error ? erro.message : "Erro desconhecido",
+        },
       },
       { status: 500 }
     );
