@@ -22,7 +22,4 @@ export class TituloPagar {
 
   @Column({ name: "SIT_TITULO", type: "varchar", length: 2 })
   SIT_TITULO!: string;
-
-  @Column({ name: "RAZ_CLI_FOR", type: "varchar", length: 60, nullable: true })
-  RAZ_CLI_FOR!: string | null;
 }
