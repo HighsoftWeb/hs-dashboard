@@ -8,7 +8,9 @@ import { logger } from "@/core/utils/logger";
 try {
   validarVariaveisAmbiente();
 } catch (erro) {
-  logger.warn("Algumas variáveis de ambiente não estão definidas (sistema de empresas pode ser usado)", erro);
+  logger.warn("Algumas variáveis de ambiente não estão definidas (sistema de empresas pode ser usado)", {
+    error: erro instanceof Error ? erro.message : String(erro),
+  });
 }
 
 export async function POST(
