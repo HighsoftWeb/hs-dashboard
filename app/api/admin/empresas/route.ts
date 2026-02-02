@@ -94,11 +94,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const empresa: EmpresaConfigInput = {
       cnpj: cnpjLimpo,
       nomeEmpresa: body.nomeEmpresa || "",
-      host: body.host,
+      host: body.host || "",
       porta,
-      nomeBase: body.nomeBase,
-      usuario: body.usuario,
-      senha: body.senha,
+      nomeBase: body.nomeBase || "",
+      usuario: body.usuario || "",
+      senha: body.senha || "",
       codigosUsuariosPermitidos: body.codigosUsuariosPermitidos || undefined,
     };
 
