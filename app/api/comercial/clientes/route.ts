@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { Cliente } from "@/core/tipos";
 import { logger } from "@/core/utils/logger";
+import { getBackend, postBackend } from "@/core/http/cliente-http-server";
 
 async function obterToken(): Promise<string | null> {
   const cookieStore = await cookies();
@@ -22,28 +23,19 @@ export async function GET(): Promise<NextResponse> {
       );
     }
 
-    const resposta = await fetch(
-      `${process.env.API_BACKEND_URL || "http://localhost:3001"}/comercial/clientes`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      }
-    );
+    const resposta = await getBackend<Cliente[]>("/comercial/clientes", token);
 
-    if (!resposta.ok) {
+    if (!resposta.ok || !resposta.dados) {
       return NextResponse.json(
         {
           sucesso: false,
-          mensagem: "Erro ao buscar clientes",
+          mensagem: resposta.erro || "Erro ao buscar clientes",
         },
         { status: resposta.status }
       );
     }
 
-    const dados = (await resposta.json()) as Cliente[];
+    const dados = resposta.dados;
 
     return NextResponse.json({
       sucesso: true,
@@ -85,30 +77,19 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       "id" | "criadoEm" | "atualizadoEm"
     >;
 
-    const resposta = await fetch(
-      `${process.env.API_BACKEND_URL || "http://localhost:3001"}/comercial/clientes`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
-        credentials: "include",
-      }
-    );
+    const resposta = await postBackend<Cliente>("/comercial/clientes", body, token);
 
-    if (!resposta.ok) {
+    if (!resposta.ok || !resposta.dados) {
       return NextResponse.json(
         {
           sucesso: false,
-          mensagem: "Erro ao criar cliente",
+          mensagem: resposta.erro || "Erro ao criar cliente",
         },
         { status: resposta.status }
       );
     }
 
-    const dados = (await resposta.json()) as Cliente;
+    const dados = resposta.dados;
 
     return NextResponse.json({
       sucesso: true,
