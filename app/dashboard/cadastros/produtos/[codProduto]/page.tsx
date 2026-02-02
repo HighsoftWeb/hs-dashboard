@@ -11,6 +11,7 @@ import {
   TabelaPrecoProdutoDB,
 } from "@/core/repository/detalhes-repository";
 import { ArrowLeft, ArrowRight } from "lucide-react";
+import { formatarData } from "@/core/utils/formatar-data";
 
 export default function PaginaDetalhesProduto(): React.JSX.Element {
   const params = useParams();
@@ -73,16 +74,6 @@ export default function PaginaDetalhesProduto(): React.JSX.Element {
     }).format(valor);
   };
 
-  const formatarData = (data: Date | string | null | undefined): string => {
-    if (!data) return "-";
-    const dataObj = data instanceof Date ? data : new Date(data);
-    if (isNaN(dataObj.getTime())) return "-";
-    return dataObj.toLocaleDateString("pt-BR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    });
-  };
 
   const formatarQuantidade = (qtd: number | null | undefined): string => {
     if (qtd === null || qtd === undefined) return "-";

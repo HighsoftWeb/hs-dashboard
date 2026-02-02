@@ -8,6 +8,7 @@ import { Orcamento } from "@/core/tipos";
 import { servicoDashboard, ContaVencendo } from "@/core/dashboard/servico-dashboard";
 import { EstatisticasDashboard } from "@/core/tipos/dashboard-db";
 import { DEFAULT_COD_EMPRESA } from "@/core/db/validar-env";
+import { formatarData } from "@/core/utils/formatar-data";
 
 export default function PaginaDashboard(): React.JSX.Element {
   const router = useRouter();
@@ -56,23 +57,6 @@ export default function PaginaDashboard(): React.JSX.Element {
     }).format(valor);
   };
 
-  const formatarData = (data: Date | string | null | undefined): string => {
-    if (!data) {
-      return "-";
-    }
-
-    const dataObj = data instanceof Date ? data : new Date(data);
-
-    if (isNaN(dataObj.getTime())) {
-      return "-";
-    }
-
-    return new Intl.DateTimeFormat("pt-BR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    }).format(dataObj);
-  };
 
   const obterCorStatus = (status: string): string => {
     const statusUpper = status.toUpperCase();
@@ -136,12 +120,7 @@ export default function PaginaDashboard(): React.JSX.Element {
               </h1>
             </div>
             <div className="text-sm text-gray-500">
-              {new Date().toLocaleDateString("pt-BR", {
-                weekday: "long",
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
+            {formatarData(new Date())}
             </div>
           </div>
         </div>
