@@ -19,5 +19,6 @@ export function validarVariaveisAmbiente(): void {
 }
 
 export const DEFAULT_COD_EMPRESA = parseInt(
+  process.env.DEFAULT_COD_EMPRESA || "1",
   10
 );
