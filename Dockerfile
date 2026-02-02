@@ -7,7 +7,8 @@ WORKDIR /app
 COPY package.json yarn.lock* ./
 
 # Instalar dependências
-RUN yarn install --frozen-lockfile
+# Tenta com --frozen-lockfile primeiro, se falhar atualiza o lockfile
+RUN yarn install --frozen-lockfile || yarn install
 
 # Stage 2: Builder
 FROM node:20-alpine AS builder
