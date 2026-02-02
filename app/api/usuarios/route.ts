@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validarAutenticacao } from "@/core/middleware/auth-middleware";
 import { tratarErroAPI } from "@/core/utils/tratar-erro";
-import { criarRespostaSucesso } from "@/core/utils/resposta-api";
+import { criarRespostaErro, criarRespostaSucesso } from "@/core/utils/resposta-api";
 import { consultaRepository } from "@/core/repository/consulta-repository";
 import { obterEmpresaConfigDoCookie } from "@/core/utils/obter-empresa-cookie";
 import { schemaParametrosConsulta } from "@/core/schemas/consulta-schemas";
