@@ -49,7 +49,7 @@ export class AutenticacaoService {
       throw new Error("Empresa não encontrada");
     }
 
-    poolBanco.configurar(empresaConfig);
+    await poolBanco.configurar(empresaConfig);
 
     const usuario = await usuarioRepository.obterPorLogin(dados.login, empresaConfig);
 
