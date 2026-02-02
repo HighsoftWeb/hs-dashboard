@@ -1,4 +1,4 @@
-import jwt from "jsonwebtoken";
+import jwt, { SignOptions } from "jsonwebtoken";
 
 export interface PayloadJWT {
   codUsuario: number;
@@ -8,18 +8,19 @@ export interface PayloadJWT {
 }
 
 export function gerarToken(payload: PayloadJWT): string {
-  const secret = process.env.JWT_SECRET;
+  const secret: string = process.env.JWT_SECRET || "";
   if (!secret) {
     throw new Error("JWT_SECRET não definido");
   }
 
-  const expiresIn = process.env.JWT_EXPIRES_IN || "8h";
+  const expiresIn: string = process.env.JWT_EXPIRES_IN || "8h";
 
-  return jwt.sign(payload, secret, { expiresIn });
+  const options: SignOptions = { expiresIn };
+  return jwt.sign(payload, secret, options);
 }
 
 export function verificarToken(token: string): PayloadJWT {
-  const secret = process.env.JWT_SECRET;
+  const secret: string = process.env.JWT_SECRET || "";
   if (!secret) {
     throw new Error("JWT_SECRET não definido");
   }
