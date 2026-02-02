@@ -23,6 +23,10 @@ class ClienteHttp {
   private configurarInterceptores(): void {
     this.instancia.interceptors.request.use(
       (config) => {
+        if (!config) {
+          return Promise.reject(new Error("Configuração de requisição inválida"));
+        }
+        
         const token = Cookies.get("token");
         if (token && config.headers) {
           config.headers.Authorization = `Bearer ${token}`;

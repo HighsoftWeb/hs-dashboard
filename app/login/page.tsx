@@ -18,7 +18,7 @@ import {
 } from "@/core/utils/cod-empresa-cookie";
 import { formatarCnpj, validarELimparCnpj } from "@/core/utils/cnpj-utils";
 import { clienteHttp } from "@/core/http/cliente-http";
-import { ArrowDown, Building2, Lock, User } from "lucide-react";
+import { ArrowDown, Building2, Lock, User, Loader2 } from "lucide-react";
 import type { EmpresaBanco } from "@/core/tipos/empresa-banco";
 
 export default function PaginaLogin(): React.JSX.Element {
@@ -97,6 +97,8 @@ export default function PaginaLogin(): React.JSX.Element {
         return;
       }
 
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
       const resposta = await clienteHttp.get<{ nomeEmpresa: string }>(
         `/admin/empresas/cnpj/${cnpjLimpo}`
       );
@@ -110,9 +112,11 @@ export default function PaginaLogin(): React.JSX.Element {
       setNomeEmpresa(resposta.data.nomeEmpresa || "");
       setCnpjValidado(true);
       await carregarEmpresasBanco(cnpjLimpo);
-    } catch {
+    } catch (erro) {
+      console.error("Erro ao validar CNPJ:", erro);
       limparEstadoLogin();
       setCarregandoInicial(false);
+      setErro(erro instanceof Error ? erro.message : "Erro ao validar CNPJ");
     } finally {
       setValidandoCnpj(false);
     }
@@ -153,6 +157,8 @@ export default function PaginaLogin(): React.JSX.Element {
         setValidandoCnpj(false);
         return;
       }
+
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       const resposta = await clienteHttp.get<{ nomeEmpresa: string }>(
         `/admin/empresas/cnpj/${cnpjLimpo}`
@@ -270,6 +276,26 @@ export default function PaginaLogin(): React.JSX.Element {
                   </p>
                 </div>
               )}
+              
+              {validandoCnpj && (
+                <div className="bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 rounded-xl p-4 shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <div className="relative">
+                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                        <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-blue-900">
+                        Validando CNPJ...
+                      </p>
+                      <p className="text-xs text-blue-600 mt-0.5">
+                        Aguarde enquanto verificamos os dados da empresa
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -290,7 +316,8 @@ export default function PaginaLogin(): React.JSX.Element {
                       }
                     }}
                     placeholder="00.000.000/0000-00"
-                    className="w-full pl-10 pr-4 py-3 border-2 border-[#A4A5A6] rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#094A73] focus:border-[#094A73] transition-all duration-200"
+                    disabled={validandoCnpj || carregandoInicial}
+                    className="w-full pl-10 pr-4 py-3 border-2 border-[#A4A5A6] rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#094A73] focus:border-[#094A73] transition-all duration-200 disabled:bg-gray-100 disabled:cursor-not-allowed"
                   />
                 </div>
               </div>
