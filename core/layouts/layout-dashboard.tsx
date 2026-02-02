@@ -17,6 +17,7 @@ import {
 import { servicoAutenticacao } from "../autenticacao/servico-autenticacao";
 import { Usuario } from "../tipos/usuario";
 import { clienteHttp } from "../http/cliente-http";
+import { logger } from "../utils/logger";
 
 interface EmpresaAtual {
   COD_EMPRESA: number;
@@ -109,7 +110,10 @@ export function LayoutDashboard({
             setEmpresaAtual(resposta.data);
           }
         } catch (erro) {
-          console.error("Erro ao carregar empresa atual:", erro);
+          logger.error("Erro ao carregar empresa atual", erro, {
+            endpoint: "/dashboard/empresa-atual",
+            method: "GET",
+          });
         }
       }
       

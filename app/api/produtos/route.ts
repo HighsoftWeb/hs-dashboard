@@ -73,6 +73,7 @@ export async function POST(
 ): Promise<NextResponse> {
   try {
     const payload = validarAutenticacao(request);
+    const empresaConfig = obterEmpresaConfigDoCookie(request);
     const body = await request.json();
 
     const validacao = CriarProdutoSchema.safeParse(body);

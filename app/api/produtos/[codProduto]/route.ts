@@ -73,6 +73,7 @@ export async function PUT(
 ): Promise<NextResponse> {
   try {
     const payload = validarAutenticacao(request);
+    const empresaConfig = obterEmpresaConfigDoCookie(request);
     const { codProduto } = await params;
     const body = await request.json();
 
