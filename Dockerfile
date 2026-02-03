@@ -3,25 +3,19 @@ FROM node:20-alpine AS deps
 RUN apk add --no-cache libc6-compat python3 make g++
 WORKDIR /app
 
-# Copiar arquivos de dependências
 COPY package.json yarn.lock* ./
 
-# Instalar dependências
-# Tenta com --frozen-lockfile primeiro, se falhar atualiza o lockfile
 RUN yarn install --frozen-lockfile || yarn install
 
 # Stage 2: Builder
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-# Copiar dependências do stage anterior
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Variáveis de ambiente para build (podem ser vazias no build)
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Build da aplicação
 RUN yarn build
 
 # Stage 3: Runner (produção)
@@ -31,17 +25,14 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Criar usuário não-root para segurança
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copiar arquivos necessários
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
-# Ajustar permissões
-RUN chown -R nextjs:nodejs /app
+RUN mkdir -p /app/.data && chown -R nextjs:nodejs /app
 
 USER nextjs
 

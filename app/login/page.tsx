@@ -35,6 +35,7 @@ export default function PaginaLogin(): React.JSX.Element {
     codEmpresa: undefined,
   });
   const [erro, setErro] = useState<string>("");
+  const [isTokenRevogado, setIsTokenRevogado] = useState<boolean>(false);
   const [carregando, setCarregando] = useState<boolean>(false);
   const [validandoCnpj, setValidandoCnpj] = useState<boolean>(false);
   const [carregandoInicial, setCarregandoInicial] = useState<boolean>(true);
@@ -50,6 +51,7 @@ export default function PaginaLogin(): React.JSX.Element {
     setEmpresaSelecionada(null);
     setCredenciais({ login: "", senha: "", codEmpresa: undefined });
     setErro("");
+    setIsTokenRevogado(false);
   }, []);
 
   const carregarEmpresasBanco = useCallback(async (cnpj: string): Promise<void> => {
@@ -127,6 +129,20 @@ export default function PaginaLogin(): React.JSX.Element {
   }, [carregarEmpresasBanco, limparEstadoLogin]);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const tokenRevogado = sessionStorage.getItem("tokenRevogado");
+    const mensagemRevogacao = sessionStorage.getItem("mensagemRevogacao");
+
+    if (tokenRevogado === "true" && mensagemRevogacao) {
+      setErro(mensagemRevogacao);
+      setIsTokenRevogado(true);
+      sessionStorage.removeItem("tokenRevogado");
+      sessionStorage.removeItem("mensagemRevogacao");
+    }
+  }, []);
+
+  useEffect(() => {
     const inicializar = async (): Promise<void> => {
       setCarregandoInicial(true);
       const cnpjSalvo = obterCnpjDoCookie();
@@ -191,6 +207,7 @@ export default function PaginaLogin(): React.JSX.Element {
   ): Promise<void> => {
     evento.preventDefault();
     setErro("");
+    setIsTokenRevogado(false);
     setCarregando(true);
 
     try {
@@ -274,8 +291,8 @@ export default function PaginaLogin(): React.JSX.Element {
           {!cnpjValidado ? (
             <form className="space-y-6" onSubmit={handleValidarCnpj}>
               {erro && (
-                <div className="bg-red-50 border-l-4 border-red-500 rounded-lg p-4 animate-shake">
-                  <p className="text-sm text-red-800 font-medium">
+                <div className={`${isTokenRevogado ? "bg-yellow-50 border-l-4 border-yellow-500" : "bg-red-50 border-l-4 border-red-500"} rounded-lg p-4 animate-shake`}>
+                  <p className={`text-sm ${isTokenRevogado ? "text-yellow-800" : "text-red-800"} font-medium`}>
                     {erro}
                   </p>
                 </div>
@@ -341,8 +358,8 @@ export default function PaginaLogin(): React.JSX.Element {
           ) : (
             <form className="space-y-6" onSubmit={handleSubmit}>
               {erro && (
-                <div className="bg-red-50 border-l-4 border-red-500 rounded-lg p-4 animate-shake">
-                  <p className="text-sm text-red-800 font-medium">
+                <div className={`${isTokenRevogado ? "bg-yellow-50 border-l-4 border-yellow-500" : "bg-red-50 border-l-4 border-red-500"} rounded-lg p-4 animate-shake`}>
+                  <p className={`text-sm ${isTokenRevogado ? "text-yellow-800" : "text-red-800"} font-medium`}>
                     {erro}
                   </p>
                 </div>

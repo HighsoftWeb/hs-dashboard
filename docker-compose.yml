@@ -10,6 +10,8 @@ services:
       - NODE_ENV=production
       - JWT_SECRET=${JWT_SECRET}
       - DEFAULT_COD_EMPRESA=${DEFAULT_COD_EMPRESA:-1}
+    volumes:
+      - hs-web-data:/app/.data
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
@@ -19,6 +21,11 @@ services:
       start_period: 40s
     networks:
       - hs-network
+
+volumes:
+  hs-web-data:
+    driver: local
+    name: hs-web-data
 
 networks:
   hs-network:
