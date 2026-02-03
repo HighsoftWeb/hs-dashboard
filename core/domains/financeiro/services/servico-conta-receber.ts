@@ -1,12 +1,12 @@
-import { clienteHttp } from "../http/cliente-http";
-import { ContaPagar } from "../tipos/financeiro";
+import { clienteHttp } from "@/core/http/cliente-http";
+import { ContaReceber } from "@/core/tipos/financeiro";
 
-class ServicoContaPagar {
-  async listarContasPagar(): Promise<ContaPagar[]> {
-    const resposta = await clienteHttp.get<ContaPagar[]>("/financeiro/contas-pagar");
+class ServicoContaReceber {
+  async listarContasReceber(): Promise<ContaReceber[]> {
+    const resposta = await clienteHttp.get<ContaReceber[]>("/financeiro/contas-receber");
 
     if (!resposta.success || !resposta.data) {
-      throw new Error(resposta.error?.message || "Erro ao listar contas a pagar");
+      throw new Error(resposta.error?.message || "Erro ao listar contas a receber");
     }
 
     return resposta.data?.map((conta) => ({
@@ -18,13 +18,13 @@ class ServicoContaPagar {
     }));
   }
 
-  async obterContaPagarPorId(id: string): Promise<ContaPagar> {
-    const resposta = await clienteHttp.get<ContaPagar>(
-      `/financeiro/contas-pagar/${id}`
+  async obterContaReceberPorId(id: string): Promise<ContaReceber> {
+    const resposta = await clienteHttp.get<ContaReceber>(
+      `/financeiro/contas-receber/${id}`
     );
 
     if (!resposta.success || !resposta.data) {
-      throw new Error(resposta.error?.message || "Erro ao obter conta a pagar");
+      throw new Error(resposta.error?.message || "Erro ao obter conta a receber");
     }
 
     return {
@@ -38,16 +38,16 @@ class ServicoContaPagar {
     };
   }
 
-  async criarContaPagar(
-    dados: Omit<ContaPagar, "id" | "criadoEm" | "atualizadoEm">
-  ): Promise<ContaPagar> {
-    const resposta = await clienteHttp.post<ContaPagar>(
-      "/financeiro/contas-pagar",
+  async criarContaReceber(
+    dados: Omit<ContaReceber, "id" | "criadoEm" | "atualizadoEm">
+  ): Promise<ContaReceber> {
+    const resposta = await clienteHttp.post<ContaReceber>(
+      "/financeiro/contas-receber",
       dados as unknown as Record<string, string | number | boolean | null>
     );
 
     if (!resposta.success || !resposta.data) {
-      throw new Error(resposta.error?.message || "Erro ao criar conta a pagar");
+      throw new Error(resposta.error?.message || "Erro ao criar conta a receber");
     }
 
     return {
@@ -61,17 +61,17 @@ class ServicoContaPagar {
     };
   }
 
-  async atualizarContaPagar(
+  async atualizarContaReceber(
     id: string,
-    dados: Partial<Omit<ContaPagar, "id" | "criadoEm" | "atualizadoEm">>
-  ): Promise<ContaPagar> {
-    const resposta = await clienteHttp.put<ContaPagar>(
-      `/financeiro/contas-pagar/${id}`,
-      dados as unknown as Record<string, string | number | boolean | null>
+    dados: Partial<Omit<ContaReceber, "id" | "criadoEm" | "atualizadoEm">>
+  ): Promise<ContaReceber> {
+    const resposta = await clienteHttp.put<ContaReceber>(
+      `/financeiro/contas-receber/${id}`,
+      dados as Record<string, string | number | boolean | null>
     );
 
     if (!resposta.success || !resposta.data) {
-      throw new Error(resposta.error?.message || "Erro ao atualizar conta a pagar");
+      throw new Error(resposta.error?.message || "Erro ao atualizar conta a receber");
     }
 
     return {
@@ -85,13 +85,14 @@ class ServicoContaPagar {
     };
   }
 
-  async excluirContaPagar(id: string): Promise<void> {
-    const resposta = await clienteHttp.delete(`/financeiro/contas-pagar/${id}`);
+  async excluirContaReceber(id: string): Promise<void> {
+    const resposta = await clienteHttp.delete(`/financeiro/contas-receber/${id}`);
 
+    
     if (!resposta.success) {
-      throw new Error(resposta.error?.message || "Erro ao excluir conta a pagar");
+      throw new Error(resposta.error?.message || "Erro ao excluir conta a receber");
     }
   }
 }
 
-export const servicoContaPagar = new ServicoContaPagar();
+export const servicoContaReceber = new ServicoContaReceber();

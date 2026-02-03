@@ -19,6 +19,7 @@
     "noFallthroughCasesInSwitch": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
+    "types": ["node"],
     "plugins": [
       {
         "name": "next"
@@ -30,6 +31,9 @@
   },
   "include": [
     "next-env.d.ts",
+    "global.d.ts",
+    "jest.d.ts",
+    "jest-globals.d.ts",
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",

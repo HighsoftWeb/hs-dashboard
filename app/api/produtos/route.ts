@@ -1,16 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validarAutenticacao } from "@/core/middleware/auth-middleware";
-import { produtoService } from "@/core/service/produto-service";
-import { ProdutoServicoDB } from "@/core/tipos/produto-db";
-import { CriarProdutoSchema } from "@/core/schemas/produto-schemas";
-import { logger } from "@/core/utils/logger";
+import { produtoService } from "@/core/domains/cadastros/services/produto-service";
 import { PAGINACAO_PADRAO } from "@/core/constants/paginacao";
 import { obterEmpresaConfigDoCookie } from "@/core/utils/obter-empresa-cookie";
+import { criarHandler } from "@/core/utils/api-handler";
+import { criarRespostaSucesso } from "@/core/utils/resposta-api";
 
-export async function GET(
-  request: NextRequest
-): Promise<NextResponse> {
-  try {
+export const GET = criarHandler(
+  async (request: NextRequest): Promise<NextResponse> => {
     const payload = validarAutenticacao(request);
     const empresaConfig = obterEmpresaConfigDoCookie(request);
     const { searchParams } = new URL(request.url);
@@ -35,8 +32,7 @@ export async function GET(
     }, empresaConfig);
 
     return NextResponse.json({
-      success: true,
-      data: resultado.produtos,
+      ...criarRespostaSucesso(resultado.produtos),
       meta: {
         total: resultado.total,
         page: resultado.page,
@@ -44,34 +40,15 @@ export async function GET(
         totalPages: resultado.totalPages,
       },
     });
-  } catch (erro) {
-    logger.error("Erro ao listar produtos", erro, {
-      endpoint: "/api/produtos",
-      method: "GET",
-    });
+  },
+  { requerAutenticacao: true }
+);
 
-    const mensagem =
-      erro instanceof Error ? erro.message : "Erro ao processar requisição";
+import { CriarProdutoSchema } from "@/core/schemas/produto-schemas";
+import { ProdutoServicoDB } from "@/core/tipos/produto-db";
 
-    const status = mensagem.includes("Token") ? 401 : 500;
-
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          code: "PRODUCT_LIST_ERROR",
-          message: mensagem,
-        },
-      },
-      { status }
-    );
-  }
-}
-
-export async function POST(
-  request: NextRequest
-): Promise<NextResponse> {
-  try {
+export const POST = criarHandler(
+  async (request: NextRequest): Promise<NextResponse> => {
     const payload = validarAutenticacao(request);
     const empresaConfig = obterEmpresaConfigDoCookie(request);
     const body = await request.json();
@@ -111,36 +88,10 @@ export async function POST(
     );
 
     return NextResponse.json(
-      {
-        success: true,
-        data: produto,
-      },
+      criarRespostaSucesso(produto),
       { status: 201 }
     );
-  } catch (erro) {
-    logger.error("Erro ao criar produto", erro, {
-      endpoint: "/api/produtos",
-      method: "POST",
-    });
+  },
+  { requerAutenticacao: true }
+);
 
-    const mensagem =
-      erro instanceof Error ? erro.message : "Erro ao processar requisição";
-
-    const status = mensagem.includes("Token")
-      ? 401
-      : mensagem.includes("obrigatório") || mensagem.includes("máximo")
-      ? 400
-      : 500;
-
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          code: "PRODUCT_CREATE_ERROR",
-          message: mensagem,
-        },
-      },
-      { status }
-    );
-  }
-}

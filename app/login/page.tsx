@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { servicoAutenticacao } from "@/core/autenticacao/servico-autenticacao";
+import { servicoAutenticacao } from "@/core/domains/auth/client/auth-client";
 import { CredenciaisLogin } from "@/core/tipos";
 import { Botao } from "@/core/componentes/botao/botao";
 import {
@@ -21,6 +21,9 @@ import { clienteHttp } from "@/core/http/cliente-http";
 import { ArrowDown, Building2, Lock, User, Loader2 } from "lucide-react";
 import type { EmpresaBanco } from "@/core/tipos/empresa-banco";
 import { logger } from "@/core/utils/logger";
+
+const TOKEN_REVOGADO_KEY = "tokenRevogado";
+const MENSAGEM_REVOGACAO_KEY = "mensagemRevogacao";
 
 export default function PaginaLogin(): React.JSX.Element {
   const router = useRouter();
@@ -131,15 +134,51 @@ export default function PaginaLogin(): React.JSX.Element {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const tokenRevogado = sessionStorage.getItem("tokenRevogado");
-    const mensagemRevogacao = sessionStorage.getItem("mensagemRevogacao");
+    // Verificar imediatamente ao montar o componente
+    const verificarTokenRevogado = (): void => {
+      const tokenRevogado = sessionStorage.getItem(TOKEN_REVOGADO_KEY);
+      const mensagemRevogacao = sessionStorage.getItem(MENSAGEM_REVOGACAO_KEY);
 
-    if (tokenRevogado === "true" && mensagemRevogacao) {
-      setErro(mensagemRevogacao);
-      setIsTokenRevogado(true);
-      sessionStorage.removeItem("tokenRevogado");
-      sessionStorage.removeItem("mensagemRevogacao");
-    }
+      if (tokenRevogado === "true") {
+        const mensagem = mensagemRevogacao || "Outro usuário acessou o sistema com este mesmo login e empresa. Você foi desconectado por segurança.";
+        
+        // Log para debug
+        console.log("[Login] Token revogado detectado. Exibindo mensagem:", mensagem);
+        
+        setErro(mensagem);
+        setIsTokenRevogado(true);
+        
+        // Limpar apenas após um pequeno delay para garantir que a mensagem seja exibida
+        setTimeout(() => {
+          sessionStorage.removeItem(TOKEN_REVOGADO_KEY);
+          sessionStorage.removeItem(MENSAGEM_REVOGACAO_KEY);
+        }, 100);
+      }
+    };
+
+    // Verificar imediatamente
+    verificarTokenRevogado();
+
+    // Verificar periodicamente também (fallback caso o storage seja setado depois)
+    const intervalId = setInterval(() => {
+      const tokenRevogado = sessionStorage.getItem(TOKEN_REVOGADO_KEY);
+      if (tokenRevogado === "true") {
+        const mensagem = sessionStorage.getItem(MENSAGEM_REVOGACAO_KEY) || "Outro usuário acessou o sistema com este mesmo login e empresa. Você foi desconectado por segurança.";
+        // Usar função de atualização para evitar dependência
+        setErro((prevErro) => {
+          if (prevErro !== mensagem) {
+            console.log("[Login] Detectando token revogado via polling. Mensagem:", mensagem);
+            setIsTokenRevogado(true);
+            return mensagem;
+          }
+          return prevErro;
+        });
+      }
+    }, 200);
+
+    return () => {
+      clearInterval(intervalId);
+    };
   }, []);
 
   useEffect(() => {
@@ -206,8 +245,11 @@ export default function PaginaLogin(): React.JSX.Element {
     evento: React.FormEvent<HTMLFormElement>
   ): Promise<void> => {
     evento.preventDefault();
-    setErro("");
-    setIsTokenRevogado(false);
+    // Limpar apenas erros que não sejam de token revogado
+    if (!isTokenRevogado) {
+      setErro("");
+      setIsTokenRevogado(false);
+    }
     setCarregando(true);
 
     try {
@@ -233,12 +275,18 @@ export default function PaginaLogin(): React.JSX.Element {
       
       salvarCnpjNoCookie(cnpjLimpo);
       salvarCodEmpresaNoCookie(empresaSelecionada);
+      // Limpar mensagem de token revogado após login bem-sucedido
+      setIsTokenRevogado(false);
+      setErro("");
       router.push("/dashboard");
     } catch (erroLogin) {
       const mensagemErro = erroLogin instanceof Error
         ? erroLogin.message
         : "Erro ao fazer login. Verifique suas credenciais.";
-      setErro(mensagemErro);
+      // Só atualizar erro se não for token revogado (para manter a mensagem original)
+      if (!isTokenRevogado) {
+        setErro(mensagemErro);
+      }
     } finally {
       setCarregando(false);
     }
@@ -290,10 +338,10 @@ export default function PaginaLogin(): React.JSX.Element {
 
           {!cnpjValidado ? (
             <form className="space-y-6" onSubmit={handleValidarCnpj}>
-              {erro && (
+              {(erro || isTokenRevogado) && (
                 <div className={`${isTokenRevogado ? "bg-yellow-50 border-l-4 border-yellow-500" : "bg-red-50 border-l-4 border-red-500"} rounded-lg p-4 animate-shake`}>
                   <p className={`text-sm ${isTokenRevogado ? "text-yellow-800" : "text-red-800"} font-medium`}>
-                    {erro}
+                    {erro || (isTokenRevogado ? "Outro usuário acessou o sistema com este mesmo login e empresa. Você foi desconectado por segurança." : "")}
                   </p>
                 </div>
               )}
@@ -357,10 +405,10 @@ export default function PaginaLogin(): React.JSX.Element {
             </form>
           ) : (
             <form className="space-y-6" onSubmit={handleSubmit}>
-              {erro && (
+              {(erro || isTokenRevogado) && (
                 <div className={`${isTokenRevogado ? "bg-yellow-50 border-l-4 border-yellow-500" : "bg-red-50 border-l-4 border-red-500"} rounded-lg p-4 animate-shake`}>
                   <p className={`text-sm ${isTokenRevogado ? "text-yellow-800" : "text-red-800"} font-medium`}>
-                    {erro}
+                    {erro || (isTokenRevogado ? "Outro usuário acessou o sistema com este mesmo login e empresa. Você foi desconectado por segurança." : "")}
                   </p>
                 </div>
               )}

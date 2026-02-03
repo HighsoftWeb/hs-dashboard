@@ -1,6 +1,6 @@
-import { clienteHttp } from "../http/cliente-http";
-import { OrcamentoHttpService } from "../infrastructure/http/services/orcamento-http-service";
-import { Orcamento } from "../tipos/comercial";
+import { clienteHttp } from "@/core/http/cliente-http";
+import { OrcamentoHttpService } from "@/core/infrastructure/http/services/orcamento-http-service";
+import { Orcamento } from "@/core/tipos/comercial";
 
 class ServicoOrcamento {
   private readonly orcamentoService: OrcamentoHttpService;

@@ -2,29 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { empresaConfigRepository } from "@/core/repository/empresa-config-repository";
 import { EmpresaConfigInput } from "@/core/entities/EmpresaConfig";
 import { filtrarEmpresaSegura } from "@/core/utils/filtrar-empresa-segura";
-
-interface EmpresaRequestBody {
-  cnpj?: string;
-  nomeEmpresa?: string;
-  host?: string;
-  porta?: number | string;
-  nomeBase?: string;
-  usuario?: string;
-  senha?: string;
-  codigosUsuariosPermitidos?: string | null;
-}
-
-function validarBodyEmpresa(body: unknown): body is EmpresaRequestBody {
-  return (
-    typeof body === "object" &&
-    body !== null &&
-    "nomeEmpresa" in body &&
-    "host" in body &&
-    "nomeBase" in body &&
-    "usuario" in body &&
-    "senha" in body
-  );
-}
+import { validarCnpjCompleto, validarELimparCnpj } from "@/core/utils/cnpj-utils";
+import { CriarEmpresaSchema } from "@/core/schemas/empresa-schemas";
+import { tratarErroAPI } from "@/core/utils/tratar-erro";
 
 export async function GET(): Promise<NextResponse> {
   try {
@@ -49,27 +29,30 @@ export async function GET(): Promise<NextResponse> {
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    const body = (await request.json()) as unknown;
+    const body = await request.json();
+    const validacao = CriarEmpresaSchema.safeParse(body);
 
-    if (!validarBodyEmpresa(body)) {
+    if (!validacao.success) {
       return NextResponse.json(
         {
           success: false,
           error: {
-            message: "Campos obrigatórios não preenchidos",
+            code: "VALIDATION_ERROR",
+            message: validacao.error.issues.map((e) => e.message).join(", "),
           },
         },
         { status: 400 }
       );
     }
 
-    const cnpjLimpo = body.cnpj?.replace(/\D/g, "") || "";
+    const cnpjLimpo = validarELimparCnpj(validacao.data.cnpj, { validarDigitos: true });
 
-    if (!cnpjLimpo || cnpjLimpo.length !== 14) {
+    if (!cnpjLimpo) {
       return NextResponse.json(
         {
           success: false,
           error: {
+            code: "VALIDATION_ERROR",
             message: "CNPJ inválido",
           },
         },
@@ -77,14 +60,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const porta = typeof body.porta === "string" ? parseInt(body.porta, 10) : body.porta || 1433;
-
-    if (isNaN(porta) || porta <= 0 || porta > 65535) {
+    if (!validarCnpjCompleto(validacao.data.cnpj)) {
       return NextResponse.json(
         {
           success: false,
           error: {
-            message: "Porta inválida",
+            code: "VALIDATION_ERROR",
+            message: "CNPJ inválido: dígitos verificadores incorretos",
           },
         },
         { status: 400 }
@@ -93,13 +75,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     const empresa: EmpresaConfigInput = {
       cnpj: cnpjLimpo,
-      nomeEmpresa: body.nomeEmpresa || "",
-      host: body.host || "",
-      porta,
-      nomeBase: body.nomeBase || "",
-      usuario: body.usuario || "",
-      senha: body.senha || "",
-      codigosUsuariosPermitidos: body.codigosUsuariosPermitidos || undefined,
+      nomeEmpresa: validacao.data.nomeEmpresa,
+      host: validacao.data.host,
+      porta: validacao.data.porta,
+      nomeBase: validacao.data.nomeBase,
+      usuario: validacao.data.usuario,
+      senha: validacao.data.senha,
+      codigosUsuariosPermitidos: validacao.data.codigosUsuariosPermitidos || undefined,
     };
 
     const empresaExistente = empresaConfigRepository.obterPorCnpj(empresa.cnpj);
@@ -108,6 +90,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         {
           success: false,
           error: {
+            code: "DUPLICATE_ERROR",
             message: "CNPJ já cadastrado",
           },
         },
@@ -122,14 +105,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       data: empresaSegura,
     });
   } catch (erro) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          message: erro instanceof Error ? erro.message : "Erro ao criar empresa",
-        },
-      },
-      { status: 500 }
-    );
+    return tratarErroAPI(erro, {
+      endpoint: "/api/admin/empresas",
+      method: "POST",
+    });
   }
 }

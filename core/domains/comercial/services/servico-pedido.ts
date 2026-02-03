@@ -1,6 +1,6 @@
-import { clienteHttp } from "../http/cliente-http";
-import { PedidoHttpService } from "../infrastructure/http/services/pedido-http-service";
-import { Pedido } from "../tipos/comercial";
+import { clienteHttp } from "@/core/http/cliente-http";
+import { PedidoHttpService } from "@/core/infrastructure/http/services/pedido-http-service";
+import { Pedido } from "@/core/tipos/comercial";
 
 class ServicoPedido {
   private readonly pedidoService: PedidoHttpService;

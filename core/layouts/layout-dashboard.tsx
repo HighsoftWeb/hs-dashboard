@@ -14,7 +14,7 @@ import {
   User,
   LogOut
 } from "lucide-react";
-import { servicoAutenticacao } from "../autenticacao/servico-autenticacao";
+import { servicoAutenticacao } from "../domains/auth/client/auth-client";
 import { Usuario } from "../tipos/usuario";
 import { clienteHttp } from "../http/cliente-http";
 import { logger } from "../utils/logger";

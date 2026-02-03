@@ -59,7 +59,7 @@ docker compose up -d
 docker compose down
 ```
 
-Para mais detalhes sobre Docker, consulte [DOCKER.md](./DOCKER.md)
+Para mais detalhes sobre Docker, consulte o Dockerfile e docker-compose.yml
 
 ## Scripts Disponíveis
 
@@ -78,6 +78,34 @@ hs-web/
 ├── public/           # Arquivos estáticos
 └── sql/              # Queries SQL
 ```
+
+## Configuração
+
+### Variáveis de Ambiente
+
+O sistema requer variáveis de ambiente para funcionar. Consulte o arquivo `.env.example` (se existir) ou a documentação do projeto.
+
+**Variáveis obrigatórias:**
+- `JWT_SECRET` - Secret para assinatura de tokens JWT
+
+**Variáveis opcionais:**
+- `JWT_EXPIRES_IN` - Expiração do token (padrão: 8h)
+- `DEFAULT_COD_EMPRESA` - Código padrão de empresa (padrão: 1)
+- `DB_POOL_MIN` / `DB_POOL_MAX` - Configuração do pool de conexões
+- `LOG_LEVEL` - Nível de log (padrão: info)
+
+Crie um arquivo `.env.local` na raiz do projeto com as variáveis necessárias.
+
+## Auditoria Enterprise
+
+Este projeto passou por uma auditoria completa de segurança, performance e arquitetura. Consulte [AUDITORIA_ENTERPRISE.md](./AUDITORIA_ENTERPRISE.md) para:
+
+- Mapa completo do projeto
+- Problemas identificados e priorizados
+- Plano de correção em etapas
+- Checklist de produção enterprise
+
+**Status Atual:** ⚠️ Implementando melhorias críticas (P0)
 
 ## Licença
 

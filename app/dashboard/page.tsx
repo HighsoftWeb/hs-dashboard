@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Building2, Package, FileText, User } from "lucide-react";
 import { LayoutDashboard } from "@/core/layouts/layout-dashboard";
 import { Orcamento } from "@/core/tipos";
-import { servicoDashboard, ContaVencendo } from "@/core/dashboard/servico-dashboard";
+import { servicoDashboard, ContaVencendo } from "@/core/domains/dashboard/services/dashboard-client";
 import { EstatisticasDashboard } from "@/core/tipos/dashboard-db";
 import { DEFAULT_COD_EMPRESA } from "@/core/db/validar-env";
 import { formatarData } from "@/core/utils/formatar-data";

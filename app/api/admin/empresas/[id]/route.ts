@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { empresaConfigRepository } from "@/core/repository/empresa-config-repository";
 import { EmpresaConfigInput } from "@/core/entities/EmpresaConfig";
 import { filtrarEmpresaSegura } from "@/core/utils/filtrar-empresa-segura";
+import { validarELimparCnpj, validarCnpjCompleto } from "@/core/utils/cnpj-utils";
 
 interface EmpresaRequestBody {
   cnpj?: string;
@@ -59,14 +60,26 @@ export async function PUT(
       );
     }
 
-    const cnpjLimpo = body.cnpj?.replace(/\D/g, "") || "";
+    const cnpjLimpo = validarELimparCnpj(body.cnpj, { validarDigitos: true });
 
-    if (!cnpjLimpo || cnpjLimpo.length !== 14) {
+    if (!cnpjLimpo) {
       return NextResponse.json(
         {
           success: false,
           error: {
             message: "CNPJ inválido",
+          },
+        },
+        { status: 400 }
+      );
+    }
+
+    if (!validarCnpjCompleto(body.cnpj || "")) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            message: "CNPJ inválido: dígitos verificadores incorretos",
           },
         },
         { status: 400 }

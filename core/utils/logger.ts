@@ -4,9 +4,52 @@ interface LogContext {
   [key: string]: string | number | boolean | null | undefined;
 }
 
+/**
+ * Campos sensíveis que devem ser redigidos nos logs
+ */
+const SENSITIVE_FIELDS = [
+  "senha",
+  "password",
+  "senha_usuario",
+  "sen_usuario",
+  "token",
+  "jwt",
+  "authorization",
+  "api_key",
+  "secret",
+  "credential",
+  "cnpj",
+  "cpf",
+  "cpf_cnpj",
+];
+
 class Logger {
   private getTimestamp(): string {
     return new Date().toISOString();
+  }
+
+  /**
+   * Sanitiza contexto removendo campos sensíveis
+   */
+  private sanitizeContext(context?: LogContext): LogContext | undefined {
+    if (!context) {
+      return undefined;
+    }
+
+    const sanitized: LogContext = { ...context };
+
+    Object.keys(sanitized).forEach((key) => {
+      const lowerKey = key.toLowerCase();
+      if (
+        SENSITIVE_FIELDS.some((field) => lowerKey.includes(field)) ||
+        lowerKey.includes("secret") ||
+        lowerKey.includes("key")
+      ) {
+        sanitized[key] = "[REDACTED]";
+      }
+    });
+
+    return sanitized;
   }
 
   private formatMessage(
@@ -15,8 +58,9 @@ class Logger {
     context?: LogContext
   ): string {
     const timestamp = this.getTimestamp();
-    const contextStr = context
-      ? ` ${JSON.stringify(context)}`
+    const sanitizedContext = this.sanitizeContext(context);
+    const contextStr = sanitizedContext
+      ? ` ${JSON.stringify(sanitizedContext)}`
       : "";
     return `[${timestamp}] [${level.toUpperCase()}] ${message}${contextStr}`;
   }
@@ -49,8 +93,9 @@ class Logger {
 
   error(message: string, error?: Error | unknown, context?: LogContext): void {
     if (this.shouldLog("error")) {
+      const sanitizedContext = this.sanitizeContext(context);
       const errorContext: LogContext = {
-        ...context,
+        ...sanitizedContext,
         error: error instanceof Error ? error.message : String(error),
         stack: error instanceof Error ? error.stack : undefined,
       };

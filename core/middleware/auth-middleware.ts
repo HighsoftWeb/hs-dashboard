@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { verificarToken, extrairTokenDoHeader, PayloadJWT } from "../auth/jwt";
+import { verificarToken, extrairTokenDoHeader, PayloadJWT } from "../domains/auth/jwt/jwt";
 import { tokenRepository } from "../repository/token-repository";
 import { logger } from "../utils/logger";
 
@@ -39,12 +39,15 @@ export function validarAutenticacao(
     );
 
     if (loginMaisRecente) {
-      tokenRepository.revogarToken(
-        payload.jti,
-        payload.codUsuario,
-        payload.codEmpresa
-      );
-      throw new ErroAutenticacao("TOKEN_REVOGADO");
+      const tempoDiferenca = Date.now() - tokenCriadoEm.getTime();
+      if (tempoDiferenca > 2000) {
+        tokenRepository.revogarToken(
+          payload.jti,
+          payload.codUsuario,
+          payload.codEmpresa
+        );
+        throw new ErroAutenticacao("TOKEN_REVOGADO");
+      }
     }
 
     return payload;

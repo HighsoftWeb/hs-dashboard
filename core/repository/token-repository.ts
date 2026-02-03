@@ -87,6 +87,24 @@ class TokenRepository {
     `).run(codUsuario, codEmpresa);
   }
 
+  atualizarUltimoLogin(
+    codUsuario: number,
+    codEmpresa: number,
+    dataLogin: Date
+  ): void {
+    this.ensureInitialized();
+    const db = obterBancoEmpresas();
+
+    db.prepare(`
+      INSERT OR REPLACE INTO ultimo_login (
+        cod_usuario, 
+        cod_empresa, 
+        ultimo_login_em
+      )
+      VALUES (?, ?, ?)
+    `).run(codUsuario, codEmpresa, dataLogin.toISOString());
+  }
+
   verificarLoginMaisRecente(
     codUsuario: number,
     codEmpresa: number,
