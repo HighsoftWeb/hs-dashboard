@@ -111,5 +111,5 @@ export const cache = new Cache(
 if (typeof setInterval !== "undefined") {
   setInterval(() => {
     cache.cleanup();
-  }, 600000); 
+  }, 600000);
 }

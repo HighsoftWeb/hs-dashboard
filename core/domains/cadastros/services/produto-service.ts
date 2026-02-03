@@ -1,5 +1,9 @@
 import { produtoRepository } from "@/core/repository/produto-repository";
-import { ProdutoServicoDB, DerivacaoDB, EstoqueDB } from "@/core/tipos/produto-db";
+import {
+  ProdutoServicoDB,
+  DerivacaoDB,
+  EstoqueDB,
+} from "@/core/tipos/produto-db";
 import { PAGINACAO_PADRAO } from "@/core/constants/paginacao";
 import type { EmpresaConfig } from "@/core/entities/EmpresaConfig";
 
@@ -73,7 +77,10 @@ export class ProdutoService {
     empresaConfig: EmpresaConfig,
     codUsuario?: number
   ): Promise<ProdutoServicoDB> {
-    if (!dados.DES_PRODUTO || (dados.DES_PRODUTO && dados.DES_PRODUTO.trim().length === 0)) {
+    if (
+      !dados.DES_PRODUTO ||
+      (dados.DES_PRODUTO && dados.DES_PRODUTO.trim().length === 0)
+    ) {
       throw new Error("DES_PRODUTO é obrigatório");
     }
 
@@ -81,10 +88,14 @@ export class ProdutoService {
       throw new Error("DES_PRODUTO deve ter no máximo 200 caracteres");
     }
 
-    const codProduto = await produtoRepository.criar(codEmpresa, {
-      ...dados,
-      COD_USUARIO: codUsuario || null,
-    }, empresaConfig);
+    const codProduto = await produtoRepository.criar(
+      codEmpresa,
+      {
+        ...dados,
+        COD_USUARIO: codUsuario || null,
+      },
+      empresaConfig
+    );
     const produto = await produtoRepository.obterPorCodigo(
       codEmpresa,
       codProduto,
@@ -129,10 +140,15 @@ export class ProdutoService {
       }
     }
 
-    await produtoRepository.atualizar(codEmpresa, codProduto, {
-      ...dados,
-      COD_USUARIO: codUsuario || dados.COD_USUARIO || null,
-    }, empresaConfig);
+    await produtoRepository.atualizar(
+      codEmpresa,
+      codProduto,
+      {
+        ...dados,
+        COD_USUARIO: codUsuario || dados.COD_USUARIO || null,
+      },
+      empresaConfig
+    );
     const produto = await produtoRepository.obterPorCodigo(
       codEmpresa,
       codProduto,
@@ -146,7 +162,11 @@ export class ProdutoService {
     return produto;
   }
 
-  async excluir(codEmpresa: number, codProduto: number, empresaConfig: EmpresaConfig): Promise<void> {
+  async excluir(
+    codEmpresa: number,
+    codProduto: number,
+    empresaConfig: EmpresaConfig
+  ): Promise<void> {
     const produto = await produtoRepository.obterPorCodigo(
       codEmpresa,
       codProduto,
@@ -180,7 +200,11 @@ export class ProdutoService {
       throw new Error("Produto não encontrado");
     }
 
-    return produtoRepository.listarDerivacoes(codEmpresa, codProduto, empresaConfig);
+    return produtoRepository.listarDerivacoes(
+      codEmpresa,
+      codProduto,
+      empresaConfig
+    );
   }
 
   async listarEstoques(
@@ -198,7 +222,11 @@ export class ProdutoService {
       throw new Error("Produto não encontrado");
     }
 
-    return produtoRepository.listarEstoques(codEmpresa, codProduto, empresaConfig);
+    return produtoRepository.listarEstoques(
+      codEmpresa,
+      codProduto,
+      empresaConfig
+    );
   }
 }
 

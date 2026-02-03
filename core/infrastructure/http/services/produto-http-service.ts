@@ -1,7 +1,7 @@
-import { BaseHttpService } from './base-http-service';
-import { HttpClient } from '../client/http-client';
-import { ProdutoServicoDB } from '@/core/tipos/produto-db';
-import { PAGINACAO_PADRAO } from '@/core/constants/paginacao';
+import { BaseHttpService } from "./base-http-service";
+import { HttpClient } from "../client/http-client";
+import { ProdutoServicoDB } from "@/core/tipos/produto-db";
+import { PAGINACAO_PADRAO } from "@/core/constants/paginacao";
 
 export interface FiltrosProduto {
   page?: number;
@@ -24,35 +24,46 @@ export interface RespostaListagemProdutos {
  */
 export class ProdutoHttpService extends BaseHttpService<
   ProdutoServicoDB,
-  Omit<ProdutoServicoDB, 'COD_EMPRESA' | 'COD_PRODUTO' | 'DAT_CADASTRO' | 'DAT_ALTERACAO'>,
-  Partial<Omit<ProdutoServicoDB, 'COD_EMPRESA' | 'COD_PRODUTO' | 'DAT_CADASTRO' | 'DAT_ALTERACAO'>>
+  Omit<
+    ProdutoServicoDB,
+    "COD_EMPRESA" | "COD_PRODUTO" | "DAT_CADASTRO" | "DAT_ALTERACAO"
+  >,
+  Partial<
+    Omit<
+      ProdutoServicoDB,
+      "COD_EMPRESA" | "COD_PRODUTO" | "DAT_CADASTRO" | "DAT_ALTERACAO"
+    >
+  >
 > {
   constructor(httpClient: HttpClient) {
-    super(httpClient, '/produtos', {
+    super(httpClient, "/produtos", {
       dateFields: [],
     });
   }
 
   protected getEntityName(): string {
-    return 'produto';
+    return "produto";
   }
 
   /**
    * Lista produtos com filtros e paginação
    */
-  async listarProdutos(filtros?: FiltrosProduto): Promise<RespostaListagemProdutos> {
+  async listarProdutos(
+    filtros?: FiltrosProduto
+  ): Promise<RespostaListagemProdutos> {
     const params = new URLSearchParams();
-    if (filtros?.page) params.append('page', filtros.page.toString());
-    if (filtros?.pageSize) params.append('pageSize', filtros.pageSize.toString());
-    if (filtros?.search) params.append('search', filtros.search);
-    if (filtros?.sit) params.append('sit', filtros.sit);
-    if (filtros?.ind) params.append('ind', filtros.ind);
+    if (filtros?.page) params.append("page", filtros.page.toString());
+    if (filtros?.pageSize)
+      params.append("pageSize", filtros.pageSize.toString());
+    if (filtros?.search) params.append("search", filtros.search);
+    if (filtros?.sit) params.append("sit", filtros.sit);
+    if (filtros?.ind) params.append("ind", filtros.ind);
 
-    const url = `${this.basePath}${params.toString() ? `?${params.toString()}` : ''}`;
+    const url = `${this.basePath}${params.toString() ? `?${params.toString()}` : ""}`;
     const response = await this.httpClient.get<ProdutoServicoDB[]>(url);
 
     if (!response.success || !response.data) {
-      const errorMessage = response.error?.message || 'Erro ao listar produtos';
+      const errorMessage = response.error?.message || "Erro ao listar produtos";
       throw new Error(errorMessage);
     }
 
@@ -62,7 +73,8 @@ export class ProdutoHttpService extends BaseHttpService<
       produtos: response.data,
       total: meta?.total || response.data.length,
       page: meta?.page || filtros?.page || 1,
-      pageSize: meta?.pageSize || filtros?.pageSize || PAGINACAO_PADRAO.PAGE_SIZE,
+      pageSize:
+        meta?.pageSize || filtros?.pageSize || PAGINACAO_PADRAO.PAGE_SIZE,
       totalPages: meta?.totalPages || 1,
     };
   }

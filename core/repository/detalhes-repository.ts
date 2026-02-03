@@ -104,7 +104,10 @@ export interface TituloPagarCompletoDB {
 }
 
 export class DetalhesRepository {
-  async obterClienteCompleto(codCliFor: number, empresaConfig: EmpresaConfig): Promise<ClienteCompletoDB> {
+  async obterClienteCompleto(
+    codCliFor: number,
+    empresaConfig: EmpresaConfig
+  ): Promise<ClienteCompletoDB> {
     try {
       const query = `
         SELECT 
@@ -136,7 +139,10 @@ export class DetalhesRepository {
     }
   }
 
-  async obterEmpresaCompleto(codEmpresa: number, empresaConfig: EmpresaConfig): Promise<EmpresaCompletoDB> {
+  async obterEmpresaCompleto(
+    codEmpresa: number,
+    empresaConfig: EmpresaConfig
+  ): Promise<EmpresaCompletoDB> {
     try {
       const query = `
         SELECT 
@@ -202,11 +208,12 @@ export class DetalhesRepository {
           AND t.SEQ_TITULO = @seqTitulo
       `;
 
-      const resultado = await poolBanco.executarConsulta<TituloReceberCompletoDB>(
-        query,
-        { codEmpresa, codCliFor, codTipoTitulo, numTitulo, seqTitulo },
-        empresaConfig
-      );
+      const resultado =
+        await poolBanco.executarConsulta<TituloReceberCompletoDB>(
+          query,
+          { codEmpresa, codCliFor, codTipoTitulo, numTitulo, seqTitulo },
+          empresaConfig
+        );
 
       if (!resultado || resultado.length === 0) {
         throw new Error("Título a receber não encontrado");
@@ -278,7 +285,11 @@ export class DetalhesRepository {
     }
   }
 
-  async obterProdutoCompleto(codEmpresa: number, codProduto: number, empresaConfig: EmpresaConfig): Promise<ProdutoCompletoDB> {
+  async obterProdutoCompleto(
+    codEmpresa: number,
+    codProduto: number,
+    empresaConfig: EmpresaConfig
+  ): Promise<ProdutoCompletoDB> {
     try {
       const query = `
         SELECT 
@@ -304,12 +315,19 @@ export class DetalhesRepository {
 
       return resultado[0];
     } catch (erro) {
-      logger.error("Erro ao obter produto completo", erro, { codEmpresa, codProduto });
+      logger.error("Erro ao obter produto completo", erro, {
+        codEmpresa,
+        codProduto,
+      });
       throw erro;
     }
   }
 
-  async obterDerivacoesProduto(codEmpresa: number, codProduto: number, empresaConfig: EmpresaConfig): Promise<DerivacaoCompletaDB[]> {
+  async obterDerivacoesProduto(
+    codEmpresa: number,
+    codProduto: number,
+    empresaConfig: EmpresaConfig
+  ): Promise<DerivacaoCompletaDB[]> {
     try {
       const query = `
         SELECT 
@@ -329,12 +347,19 @@ export class DetalhesRepository {
         empresaConfig
       );
     } catch (erro) {
-      logger.error("Erro ao obter derivações do produto", erro, { codEmpresa, codProduto });
+      logger.error("Erro ao obter derivações do produto", erro, {
+        codEmpresa,
+        codProduto,
+      });
       throw erro;
     }
   }
 
-  async obterEstoquesProduto(codEmpresa: number, codProduto: number, empresaConfig: EmpresaConfig): Promise<EstoqueCompletoDB[]> {
+  async obterEstoquesProduto(
+    codEmpresa: number,
+    codProduto: number,
+    empresaConfig: EmpresaConfig
+  ): Promise<EstoqueCompletoDB[]> {
     try {
       const query = `
         SELECT 
@@ -359,12 +384,19 @@ export class DetalhesRepository {
         empresaConfig
       );
     } catch (erro) {
-      logger.error("Erro ao obter estoques do produto", erro, { codEmpresa, codProduto });
+      logger.error("Erro ao obter estoques do produto", erro, {
+        codEmpresa,
+        codProduto,
+      });
       throw erro;
     }
   }
 
-  async obterTabelasPrecoProduto(codEmpresa: number, codProduto: number, empresaConfig: EmpresaConfig): Promise<TabelaPrecoProdutoDB[]> {
+  async obterTabelasPrecoProduto(
+    codEmpresa: number,
+    codProduto: number,
+    empresaConfig: EmpresaConfig
+  ): Promise<TabelaPrecoProdutoDB[]> {
     try {
       const query = `
         SELECT DISTINCT
@@ -399,7 +431,10 @@ export class DetalhesRepository {
         empresaConfig
       );
     } catch (erro) {
-      logger.error("Erro ao obter tabelas de preço do produto", erro, { codEmpresa, codProduto });
+      logger.error("Erro ao obter tabelas de preço do produto", erro, {
+        codEmpresa,
+        codProduto,
+      });
       return [];
     }
   }

@@ -55,7 +55,6 @@ export default function PaginaDetalhesTituloReceber(): React.JSX.Element {
     }).format(valor);
   };
 
-
   if (carregando) {
     return (
       <LayoutDashboard>
@@ -70,7 +69,9 @@ export default function PaginaDetalhesTituloReceber(): React.JSX.Element {
     return (
       <LayoutDashboard>
         <div className="bg-red-50 border-l-4 border-red-500 rounded-lg p-4">
-          <p className="text-sm text-red-800">{erro || "Título não encontrado"}</p>
+          <p className="text-sm text-red-800">
+            {erro || "Título não encontrado"}
+          </p>
           <button
             onClick={() => router.back()}
             className="mt-4 px-4 py-2 bg-[#094A73] text-white rounded hover:bg-[#073a5c]"
@@ -91,8 +92,15 @@ export default function PaginaDetalhesTituloReceber(): React.JSX.Element {
               Título a Receber - {titulo.NUM_TITULO}
             </h1>
             <div className="mt-1 flex items-center gap-3 text-xs text-gray-600">
-              <span>Sequência: <strong>{titulo.SEQ_TITULO}</strong></span>
-              <span>Tipo: <strong>{titulo.DES_TIPO_TITULO || titulo.COD_TIPO_TITULO}</strong></span>
+              <span>
+                Sequência: <strong>{titulo.SEQ_TITULO}</strong>
+              </span>
+              <span>
+                Tipo:{" "}
+                <strong>
+                  {titulo.DES_TIPO_TITULO || titulo.COD_TIPO_TITULO}
+                </strong>
+              </span>
             </div>
           </div>
           <button
@@ -106,7 +114,9 @@ export default function PaginaDetalhesTituloReceber(): React.JSX.Element {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2">
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Cliente</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Cliente
+              </label>
               <input
                 type="text"
                 value={`${titulo.RAZ_CLI_FOR || "-"} (${titulo.COD_CLI_FOR})`}
@@ -115,7 +125,9 @@ export default function PaginaDetalhesTituloReceber(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Tipo Título</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Tipo Título
+              </label>
               <input
                 type="text"
                 value={titulo.DES_TIPO_TITULO || titulo.COD_TIPO_TITULO || "-"}
@@ -124,7 +136,9 @@ export default function PaginaDetalhesTituloReceber(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Número Título</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Número Título
+              </label>
               <input
                 type="text"
                 value={titulo.NUM_TITULO || "-"}
@@ -133,7 +147,9 @@ export default function PaginaDetalhesTituloReceber(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Sequência</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Sequência
+              </label>
               <input
                 type="text"
                 value={titulo.SEQ_TITULO || "-"}
@@ -142,7 +158,9 @@ export default function PaginaDetalhesTituloReceber(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Vencimento</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Vencimento
+              </label>
               <input
                 type="text"
                 value={formatarData(titulo.VCT_ORIGINAL)}
@@ -151,7 +169,9 @@ export default function PaginaDetalhesTituloReceber(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Data Emissão</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Data Emissão
+              </label>
               <input
                 type="text"
                 value={formatarData(titulo.DAT_EMISSAO)}
@@ -160,7 +180,9 @@ export default function PaginaDetalhesTituloReceber(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Data Entrada</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Data Entrada
+              </label>
               <input
                 type="text"
                 value={formatarData(titulo.DAT_ENTRADA)}
@@ -169,16 +191,25 @@ export default function PaginaDetalhesTituloReceber(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Representante</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Representante
+              </label>
               <input
                 type="text"
-                value={titulo.DES_REPRESENTANTE || (titulo.COD_REPRESENTANTE ? `Código: ${titulo.COD_REPRESENTANTE}` : "-")}
+                value={
+                  titulo.DES_REPRESENTANTE ||
+                  (titulo.COD_REPRESENTANTE
+                    ? `Código: ${titulo.COD_REPRESENTANTE}`
+                    : "-")
+                }
                 readOnly
                 className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Moeda</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Moeda
+              </label>
               <input
                 type="text"
                 value={titulo.DES_MOEDA || titulo.COD_MOEDA || "-"}
@@ -187,7 +218,9 @@ export default function PaginaDetalhesTituloReceber(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Situação</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Situação
+              </label>
               <input
                 type="text"
                 value={titulo.SIT_TITULO || "-"}
@@ -204,7 +237,9 @@ export default function PaginaDetalhesTituloReceber(): React.JSX.Element {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2">
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Valor Original</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Valor Original
+              </label>
               <input
                 type="text"
                 value={formatarMoeda(titulo.VLR_ORIGINAL)}
@@ -213,7 +248,9 @@ export default function PaginaDetalhesTituloReceber(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Valor Aberto</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Valor Aberto
+              </label>
               <input
                 type="text"
                 value={formatarMoeda(titulo.VLR_ABERTO)}
@@ -222,7 +259,9 @@ export default function PaginaDetalhesTituloReceber(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col md:col-span-2 lg:col-span-3 xl:col-span-4 2xl:col-span-5">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Valor Total</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Valor Total
+              </label>
               <input
                 type="text"
                 value={formatarMoeda(titulo.VLR_ORIGINAL)}

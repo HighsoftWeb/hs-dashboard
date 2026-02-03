@@ -3,16 +3,16 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
-import { 
-  LayoutDashboard as IconDashboard, 
-  FileText, 
-  TrendingUp, 
+import {
+  LayoutDashboard as IconDashboard,
+  FileText,
+  TrendingUp,
   DollarSign,
   ChevronDown,
   ChevronRight,
   Building2,
   User,
-  LogOut
+  LogOut,
 } from "lucide-react";
 import { servicoAutenticacao } from "../domains/auth/client/auth-client";
 import { Usuario } from "../tipos/usuario";
@@ -56,8 +56,14 @@ const menuItems: MenuItem[] = [
       {
         label: "Comercial",
         submenus: [
-          { label: "Clientes", href: "/dashboard/cadastros/comercial/clientes" },
-          { label: "Produtos", href: "/dashboard/cadastros/comercial/produtos" },
+          {
+            label: "Clientes",
+            href: "/dashboard/cadastros/comercial/clientes",
+          },
+          {
+            label: "Produtos",
+            href: "/dashboard/cadastros/comercial/produtos",
+          },
         ],
       },
     ],
@@ -69,7 +75,10 @@ const menuItems: MenuItem[] = [
       {
         label: "Saídas",
         submenus: [
-          { label: "Orçamentos/OS", href: "/dashboard/cadastros/saidas/orcamentos-os" },
+          {
+            label: "Orçamentos/OS",
+            href: "/dashboard/cadastros/saidas/orcamentos-os",
+          },
         ],
       },
     ],
@@ -78,7 +87,10 @@ const menuItems: MenuItem[] = [
     label: "Financeiro",
     icone: DollarSign,
     submenus: [
-      { label: "Contas a Receber", href: "/dashboard/financeiro/contas-receber" },
+      {
+        label: "Contas a Receber",
+        href: "/dashboard/financeiro/contas-receber",
+      },
       { label: "Contas a Pagar", href: "/dashboard/financeiro/contas-pagar" },
     ],
   },
@@ -99,13 +111,13 @@ export function LayoutDashboard({
     const carregarDados = async (): Promise<void> => {
       const usuarioAtual = servicoAutenticacao.obterUsuarioAtual();
       setUsuario(usuarioAtual);
-      
+
       if (usuarioAtual?.codEmpresa) {
         try {
           const resposta = await clienteHttp.get<EmpresaAtual>(
             "/dashboard/empresa-atual"
           );
-          
+
           if (resposta.success && resposta.data) {
             setEmpresaAtual(resposta.data);
           }
@@ -116,7 +128,7 @@ export function LayoutDashboard({
           });
         }
       }
-      
+
       setCarregandoUsuario(false);
     };
 
@@ -194,10 +206,14 @@ export function LayoutDashboard({
                 {menuItems.map((item) => {
                   const temSubmenus = item.submenus && item.submenus.length > 0;
                   const estaAberto = menuAberto === item.label;
-                  const estaAtivo = isPathActive(item.href) || (temSubmenus && estaAberto);
+                  const estaAtivo =
+                    isPathActive(item.href) || (temSubmenus && estaAberto);
 
                   return (
-                    <div key={item.label} className="relative h-full flex items-center">
+                    <div
+                      key={item.label}
+                      className="relative h-full flex items-center"
+                    >
                       {temSubmenus ? (
                         <>
                           <button
@@ -213,17 +229,27 @@ export function LayoutDashboard({
                           >
                             {item.icone && <item.icone className="w-4 h-4" />}
                             <span>{item.label}</span>
-                            <ChevronDown className={`w-3.5 h-3.5 transition-transform ${estaAberto ? "rotate-180" : ""}`} />
+                            <ChevronDown
+                              className={`w-3.5 h-3.5 transition-transform ${estaAberto ? "rotate-180" : ""}`}
+                            />
                           </button>
                           {estaAberto && (
                             <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-xl z-50 min-w-[200px]">
                               {item.submenus?.map((submenu) => {
-                                const temSubSubmenus = submenu.submenus && submenu.submenus.length > 0;
-                                const submenuEstaAberto = submenuAberto === submenu.label;
-                                const submenuEstaAtivo = isPathActive(submenu.href) || (temSubSubmenus && submenuEstaAberto);
+                                const temSubSubmenus =
+                                  submenu.submenus &&
+                                  submenu.submenus.length > 0;
+                                const submenuEstaAberto =
+                                  submenuAberto === submenu.label;
+                                const submenuEstaAtivo =
+                                  isPathActive(submenu.href) ||
+                                  (temSubSubmenus && submenuEstaAberto);
 
                                 return (
-                                  <div key={submenu.label} className="relative group">
+                                  <div
+                                    key={submenu.label}
+                                    className="relative group"
+                                  >
                                     {temSubSubmenus ? (
                                       <>
                                         <button
@@ -237,29 +263,34 @@ export function LayoutDashboard({
                                           `}
                                         >
                                           <span>{submenu.label}</span>
-                                          <ChevronRight className={`w-4 h-4 transition-transform ${submenuEstaAberto ? "rotate-90" : ""}`} />
+                                          <ChevronRight
+                                            className={`w-4 h-4 transition-transform ${submenuEstaAberto ? "rotate-90" : ""}`}
+                                          />
                                         </button>
                                         {submenuEstaAberto && (
                                           <div className="absolute left-full top-0 ml-0.5 bg-white border border-gray-200 rounded-md shadow-xl z-50 min-w-[180px]">
-                                            {submenu.submenus?.map((subSubmenu) => {
-                                              const subSubmenuEstaAtivo = isPathActive(subSubmenu.href);
-                                              return (
-                                                <a
-                                                  key={subSubmenu.label}
-                                                  href={subSubmenu.href}
-                                                  onClick={() => {
-                                                    setMenuAberto(null);
-                                                    setSubmenuAberto(null);
-                                                  }}
-                                                  className={`
+                                            {submenu.submenus?.map(
+                                              (subSubmenu) => {
+                                                const subSubmenuEstaAtivo =
+                                                  isPathActive(subSubmenu.href);
+                                                return (
+                                                  <a
+                                                    key={subSubmenu.label}
+                                                    href={subSubmenu.href}
+                                                    onClick={() => {
+                                                      setMenuAberto(null);
+                                                      setSubmenuAberto(null);
+                                                    }}
+                                                    className={`
                                                     block px-4 py-2 text-sm transition-colors
                                                     ${subSubmenuEstaAtivo ? "text-[#094A73] bg-[#094A73]/10 font-medium" : "text-gray-700 hover:bg-gray-50"}
                                                   `}
-                                                >
-                                                  {subSubmenu.label}
-                                                </a>
-                                              );
-                                            })}
+                                                  >
+                                                    {subSubmenu.label}
+                                                  </a>
+                                                );
+                                              }
+                                            )}
                                           </div>
                                         )}
                                       </>
@@ -322,7 +353,8 @@ export function LayoutDashboard({
                           Empresa
                         </span>
                         <span className="text-xs font-semibold text-gray-900 truncate leading-tight">
-                          {empresaAtual.COD_EMPRESA} - {empresaAtual.FAN_EMPRESA || empresaAtual.NOM_EMPRESA}
+                          {empresaAtual.COD_EMPRESA} -{" "}
+                          {empresaAtual.FAN_EMPRESA || empresaAtual.NOM_EMPRESA}
                         </span>
                       </div>
                     </div>

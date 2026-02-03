@@ -61,12 +61,16 @@ describe("CNPJ Utils", () => {
 
   describe("validarELimparCnpj", () => {
     it("deve retornar CNPJ limpo para CNPJ válido", () => {
-      const resultado = validarELimparCnpj(CNPJ_VALIDO, { validarDigitos: true });
+      const resultado = validarELimparCnpj(CNPJ_VALIDO, {
+        validarDigitos: true,
+      });
       expect(resultado).toBe(CNPJ_VALIDO_LIMPO);
     });
 
     it("deve retornar null para CNPJ inválido", () => {
-      expect(validarELimparCnpj(CNPJ_INVALIDO, { validarDigitos: true })).toBeNull();
+      expect(
+        validarELimparCnpj(CNPJ_INVALIDO, { validarDigitos: true })
+      ).toBeNull();
       expect(validarELimparCnpj("123", { validarDigitos: false })).toBeNull();
     });
   });

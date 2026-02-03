@@ -1,4 +1,3 @@
-
 process.env.JWT_SECRET = "test-secret-key-for-jest-tests-minimum-32-characters";
 process.env.JWT_EXPIRES_IN = "1h";
 process.env.REFRESH_TOKEN_EXPIRES_IN = "7d";

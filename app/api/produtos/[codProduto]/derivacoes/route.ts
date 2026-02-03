@@ -49,8 +49,8 @@ export async function GET(
     const status = mensagem.includes("Token")
       ? 401
       : mensagem.includes("não encontrado")
-      ? 404
-      : 500;
+        ? 404
+        : 500;
 
     return NextResponse.json(
       {

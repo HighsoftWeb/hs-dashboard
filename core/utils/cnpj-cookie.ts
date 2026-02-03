@@ -6,11 +6,11 @@ const COOKIE_EXPIRES_DAYS = 365 * 10;
 
 export function salvarCnpjNoCookie(cnpj: string): void {
   const cnpjLimpo = validarELimparCnpj(cnpj);
-  
+
   if (!cnpjLimpo) {
     return;
   }
-  
+
   Cookies.set(CNPJ_COOKIE_NAME, cnpjLimpo, {
     expires: COOKIE_EXPIRES_DAYS,
     sameSite: "strict",

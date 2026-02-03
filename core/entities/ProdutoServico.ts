@@ -11,10 +11,20 @@ export class ProdutoServico {
   @Column({ name: "DES_PRODUTO", type: "varchar", length: 200, nullable: true })
   DES_PRODUTO!: string | null;
 
-  @Column({ name: "COD_UNIDADE_MEDIDA", type: "varchar", length: 5, nullable: true })
+  @Column({
+    name: "COD_UNIDADE_MEDIDA",
+    type: "varchar",
+    length: 5,
+    nullable: true,
+  })
   COD_UNIDADE_MEDIDA!: string | null;
 
-  @Column({ name: "IND_PRODUTO_SERVICO", type: "varchar", length: 1, nullable: true })
+  @Column({
+    name: "IND_PRODUTO_SERVICO",
+    type: "varchar",
+    length: 1,
+    nullable: true,
+  })
   IND_PRODUTO_SERVICO!: string | null;
 
   @Column({ name: "SIT_PRODUTO", type: "varchar", length: 1, nullable: true })

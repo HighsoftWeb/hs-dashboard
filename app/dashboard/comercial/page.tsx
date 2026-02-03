@@ -3,7 +3,11 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { LayoutDashboard } from "@/core/layouts/layout-dashboard";
-import { DataTable, ColunaDataTable, FiltroDataTable } from "@/core/componentes/data-table/data-table";
+import {
+  DataTable,
+  ColunaDataTable,
+  FiltroDataTable,
+} from "@/core/componentes/data-table/data-table";
 import { formatarData } from "@/core/utils/formatar-data";
 
 interface OrcamentoOSDB extends Record<string, unknown> {
@@ -37,20 +41,50 @@ export default function PaginaComercial(): React.JSX.Element {
       alinhamento: "esquerda",
       renderizar: (valor) => {
         const ind = String(valor || "");
-        return ind === "OR" ? "Orçamento" : ind === "OS" ? "Ordem de Serviço" : ind;
+        return ind === "OR"
+          ? "Orçamento"
+          : ind === "OS"
+            ? "Ordem de Serviço"
+            : ind;
       },
     },
-    { chave: "NUM_ORCAMENTO_OS", titulo: "Nº Orçamento", ordenavel: true, alinhamento: "direita" },
-    { chave: "NUM_DOCUMENTO", titulo: "Nº Documento", ordenavel: true, alinhamento: "esquerda" },
-    { chave: "COD_SERIE_ORC_OS", titulo: "Série", ordenavel: true, alinhamento: "esquerda" },
-    { chave: "RAZ_CLI_FOR", titulo: "Cliente", ordenavel: true, alinhamento: "esquerda" },
-    { chave: "COD_CLI_FOR", titulo: "Cód. Cliente", ordenavel: true, alinhamento: "direita" },
+    {
+      chave: "NUM_ORCAMENTO_OS",
+      titulo: "Nº Orçamento",
+      ordenavel: true,
+      alinhamento: "direita",
+    },
+    {
+      chave: "NUM_DOCUMENTO",
+      titulo: "Nº Documento",
+      ordenavel: true,
+      alinhamento: "esquerda",
+    },
+    {
+      chave: "COD_SERIE_ORC_OS",
+      titulo: "Série",
+      ordenavel: true,
+      alinhamento: "esquerda",
+    },
+    {
+      chave: "RAZ_CLI_FOR",
+      titulo: "Cliente",
+      ordenavel: true,
+      alinhamento: "esquerda",
+    },
+    {
+      chave: "COD_CLI_FOR",
+      titulo: "Cód. Cliente",
+      ordenavel: true,
+      alinhamento: "direita",
+    },
     {
       chave: "DAT_EMISSAO",
       titulo: "Data Emissão",
       ordenavel: true,
       alinhamento: "esquerda",
-      renderizar: (valor) => formatarData(valor as Date | string | null | undefined),
+      renderizar: (valor) =>
+        formatarData(valor as Date | string | null | undefined),
     },
     {
       chave: "VLR_LIQUIDO",
@@ -85,10 +119,12 @@ export default function PaginaComercial(): React.JSX.Element {
           sit === "AP" || sit === "PR"
             ? "bg-green-100 text-green-800"
             : sit === "CA"
-            ? "bg-red-100 text-red-800"
-            : "bg-yellow-100 text-yellow-800";
-    return (
-          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${cor}`}>
+              ? "bg-red-100 text-red-800"
+              : "bg-yellow-100 text-yellow-800";
+        return (
+          <span
+            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${cor}`}
+          >
             {status[sit] || sit}
           </span>
         );
@@ -126,7 +162,7 @@ export default function PaginaComercial(): React.JSX.Element {
   return (
     <LayoutDashboard>
       <div className="space-y-6">
-          <div>
+        <div>
           <h1 className="text-3xl font-bold text-gray-900">Comercial</h1>
         </div>
 

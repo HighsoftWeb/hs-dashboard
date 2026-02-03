@@ -14,7 +14,7 @@ class TokenRepository {
     if (this.initialized) return;
 
     const db = obterBancoEmpresas();
-    
+
     db.exec(`
       CREATE TABLE IF NOT EXISTS tokens_revogados (
         jti TEXT PRIMARY KEY,
@@ -42,24 +42,30 @@ class TokenRepository {
     this.initialized = true;
   }
 
-  private cleanupExpiredTokens(db: ReturnType<typeof obterBancoEmpresas>): void {
+  private cleanupExpiredTokens(
+    db: ReturnType<typeof obterBancoEmpresas>
+  ): void {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - this.RETENTION_DAYS);
-    
-    db.prepare(`
+
+    db.prepare(
+      `
       DELETE FROM tokens_revogados 
       WHERE revogado_em < ?
-    `).run(cutoffDate.toISOString());
+    `
+    ).run(cutoffDate.toISOString());
   }
 
   revogarToken(jti: string, codUsuario: number, codEmpresa: number): void {
     this.ensureInitialized();
     const db = obterBancoEmpresas();
 
-    db.prepare(`
+    db.prepare(
+      `
       INSERT OR REPLACE INTO tokens_revogados (jti, cod_usuario, cod_empresa, revogado_em)
       VALUES (?, ?, ?, CURRENT_TIMESTAMP)
-    `).run(jti, codUsuario, codEmpresa);
+    `
+    ).run(jti, codUsuario, codEmpresa);
   }
 
   isTokenRevogado(jti: string): boolean {
@@ -77,14 +83,16 @@ class TokenRepository {
     this.ensureInitialized();
     const db = obterBancoEmpresas();
 
-    db.prepare(`
+    db.prepare(
+      `
       INSERT OR REPLACE INTO ultimo_login (
         cod_usuario, 
         cod_empresa, 
         ultimo_login_em
       )
       VALUES (?, ?, CURRENT_TIMESTAMP)
-    `).run(codUsuario, codEmpresa);
+    `
+    ).run(codUsuario, codEmpresa);
   }
 
   atualizarUltimoLogin(
@@ -95,14 +103,16 @@ class TokenRepository {
     this.ensureInitialized();
     const db = obterBancoEmpresas();
 
-    db.prepare(`
+    db.prepare(
+      `
       INSERT OR REPLACE INTO ultimo_login (
         cod_usuario, 
         cod_empresa, 
         ultimo_login_em
       )
       VALUES (?, ?, ?)
-    `).run(codUsuario, codEmpresa, dataLogin.toISOString());
+    `
+    ).run(codUsuario, codEmpresa, dataLogin.toISOString());
   }
 
   verificarLoginMaisRecente(
@@ -114,11 +124,13 @@ class TokenRepository {
     const db = obterBancoEmpresas();
 
     const resultado = db
-      .prepare(`
+      .prepare(
+        `
         SELECT ultimo_login_em 
         FROM ultimo_login 
         WHERE cod_usuario = ? AND cod_empresa = ?
-      `)
+      `
+      )
       .get(codUsuario, codEmpresa) as UltimoLogin | undefined;
 
     if (!resultado) {

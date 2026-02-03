@@ -20,7 +20,11 @@ export class DashboardRepository {
     limite: number,
     empresaConfig: EmpresaConfig
   ): Promise<OrcamentoOSDB[]> {
-    return dashboardRepositoryORM.listarOrcamentosRecentes(codEmpresa, limite, empresaConfig);
+    return dashboardRepositoryORM.listarOrcamentosRecentes(
+      codEmpresa,
+      limite,
+      empresaConfig
+    );
   }
 
   async listarTitulosReceberVencendo(
@@ -28,7 +32,11 @@ export class DashboardRepository {
     dias: number,
     empresaConfig: EmpresaConfig
   ): Promise<TituloReceberDB[]> {
-    return dashboardRepositoryORM.listarTitulosReceberVencendo(codEmpresa, dias, empresaConfig);
+    return dashboardRepositoryORM.listarTitulosReceberVencendo(
+      codEmpresa,
+      dias,
+      empresaConfig
+    );
   }
 
   async listarTitulosPagarVencendo(
@@ -36,7 +44,11 @@ export class DashboardRepository {
     dias: number,
     empresaConfig: EmpresaConfig
   ): Promise<TituloPagarDB[]> {
-    return dashboardRepositoryORM.listarTitulosPagarVencendo(codEmpresa, dias, empresaConfig);
+    return dashboardRepositoryORM.listarTitulosPagarVencendo(
+      codEmpresa,
+      dias,
+      empresaConfig
+    );
   }
 }
 

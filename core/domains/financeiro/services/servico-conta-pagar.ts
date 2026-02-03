@@ -3,16 +3,22 @@ import { ContaPagar } from "@/core/tipos/financeiro";
 
 class ServicoContaPagar {
   async listarContasPagar(): Promise<ContaPagar[]> {
-    const resposta = await clienteHttp.get<ContaPagar[]>("/financeiro/contas-pagar");
+    const resposta = await clienteHttp.get<ContaPagar[]>(
+      "/financeiro/contas-pagar"
+    );
 
     if (!resposta.success || !resposta.data) {
-      throw new Error(resposta.error?.message || "Erro ao listar contas a pagar");
+      throw new Error(
+        resposta.error?.message || "Erro ao listar contas a pagar"
+      );
     }
 
     return resposta.data?.map((conta) => ({
       ...conta,
       dataVencimento: new Date(conta.dataVencimento),
-      dataPagamento: conta.dataPagamento ? new Date(conta.dataPagamento) : undefined,
+      dataPagamento: conta.dataPagamento
+        ? new Date(conta.dataPagamento)
+        : undefined,
       criadoEm: new Date(conta.criadoEm),
       atualizadoEm: new Date(conta.atualizadoEm),
     }));
@@ -71,7 +77,9 @@ class ServicoContaPagar {
     );
 
     if (!resposta.success || !resposta.data) {
-      throw new Error(resposta.error?.message || "Erro ao atualizar conta a pagar");
+      throw new Error(
+        resposta.error?.message || "Erro ao atualizar conta a pagar"
+      );
     }
 
     return {
@@ -89,7 +97,9 @@ class ServicoContaPagar {
     const resposta = await clienteHttp.delete(`/financeiro/contas-pagar/${id}`);
 
     if (!resposta.success) {
-      throw new Error(resposta.error?.message || "Erro ao excluir conta a pagar");
+      throw new Error(
+        resposta.error?.message || "Erro ao excluir conta a pagar"
+      );
     }
   }
 }

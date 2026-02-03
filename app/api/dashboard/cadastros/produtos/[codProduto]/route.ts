@@ -30,10 +30,26 @@ export async function GET(
     }
 
     const [produto, derivacoes, estoques, tabelasPreco] = await Promise.all([
-      detalhesRepository.obterProdutoCompleto(codEmpresa, codProdutoNum, empresaConfig),
-      detalhesRepository.obterDerivacoesProduto(codEmpresa, codProdutoNum, empresaConfig),
-      detalhesRepository.obterEstoquesProduto(codEmpresa, codProdutoNum, empresaConfig),
-      detalhesRepository.obterTabelasPrecoProduto(codEmpresa, codProdutoNum, empresaConfig),
+      detalhesRepository.obterProdutoCompleto(
+        codEmpresa,
+        codProdutoNum,
+        empresaConfig
+      ),
+      detalhesRepository.obterDerivacoesProduto(
+        codEmpresa,
+        codProdutoNum,
+        empresaConfig
+      ),
+      detalhesRepository.obterEstoquesProduto(
+        codEmpresa,
+        codProdutoNum,
+        empresaConfig
+      ),
+      detalhesRepository.obterTabelasPrecoProduto(
+        codEmpresa,
+        codProdutoNum,
+        empresaConfig
+      ),
     ]);
 
     return NextResponse.json({

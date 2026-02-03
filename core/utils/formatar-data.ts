@@ -9,11 +9,11 @@ moment.locale("pt-br");
  */
 export function formatarData(data: Date | string | null | undefined): string {
   if (!data) return "-";
-  
+
   const momento = moment(data);
-  
+
   if (!momento.isValid()) return "-";
-  
+
   return momento.format("DD/MM/YYYY");
 }
 
@@ -22,13 +22,15 @@ export function formatarData(data: Date | string | null | undefined): string {
  * @param data - Data a ser formatada (Date, string ou null/undefined)
  * @returns String formatada ou "-" se a data for inválida
  */
-export function formatarDataHora(data: Date | string | null | undefined): string {
+export function formatarDataHora(
+  data: Date | string | null | undefined
+): string {
   if (!data) return "-";
-  
+
   const momento = moment(data);
-  
+
   if (!momento.isValid()) return "-";
-  
+
   return momento.format("DD/MM/YYYY HH:mm");
 }
 
@@ -39,10 +41,10 @@ export function formatarDataHora(data: Date | string | null | undefined): string
  */
 export function formatarHora(data: Date | string | null | undefined): string {
   if (!data) return "-";
-  
+
   const momento = moment(data);
-  
+
   if (!momento.isValid()) return "-";
-  
+
   return momento.format("HH:mm");
 }

@@ -16,13 +16,13 @@ export function obterEmpresaConfigDoCookie(
 ): EmpresaConfig {
   const cnpjCookie = request.cookies.get(CNPJ_COOKIE_NAME)?.value;
   const cnpjLimpo = validarELimparCnpj(cnpjCookie);
-  
+
   if (!cnpjLimpo) {
     throw new Error("CNPJ da empresa não encontrado no cookie");
   }
 
   const empresaConfig = empresaConfigRepository.obterPorCnpj(cnpjLimpo);
-  
+
   if (!empresaConfig) {
     throw new Error("Empresa não encontrada");
   }
@@ -36,16 +36,16 @@ export function obterEmpresaConfigDoCookie(
  */
 export function obterCodEmpresaDoCookie(request: NextRequest): number | null {
   const codEmpresaCookie = request.cookies.get(COD_EMPRESA_COOKIE_NAME)?.value;
-  
+
   if (!codEmpresaCookie) {
     return null;
   }
-  
+
   const codEmpresa = parseInt(codEmpresaCookie, RADIX_DECIMAL);
-  
+
   if (isNaN(codEmpresa) || !Number.isInteger(codEmpresa) || codEmpresa <= 0) {
     return null;
   }
-  
+
   return codEmpresa;
 }

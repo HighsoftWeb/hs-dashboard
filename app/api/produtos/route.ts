@@ -23,13 +23,17 @@ export const GET = criarHandler(
     const sit = searchParams.get("sit") || undefined;
     const ind = searchParams.get("ind") || undefined;
 
-    const resultado = await produtoService.listar(payload.codEmpresa, {
-      page,
-      pageSize,
-      search,
-      sit,
-      ind,
-    }, empresaConfig);
+    const resultado = await produtoService.listar(
+      payload.codEmpresa,
+      {
+        page,
+        pageSize,
+        search,
+        sit,
+        ind,
+      },
+      empresaConfig
+    );
 
     return NextResponse.json({
       ...criarRespostaSucesso(resultado.produtos),
@@ -72,11 +76,20 @@ export const POST = criarHandler(
       ProdutoServicoDB,
       "COD_EMPRESA" | "COD_PRODUTO" | "DAT_CADASTRO" | "DAT_ALTERACAO"
     > = {
-      DES_PRODUTO: validacao.data.DES_PRODUTO || validacao.data.desProduto || null,
-      COD_UNIDADE_MEDIDA: validacao.data.COD_UNIDADE_MEDIDA || validacao.data.codUnidadeMedida || null,
-      IND_PRODUTO_SERVICO: validacao.data.IND_PRODUTO_SERVICO || validacao.data.indProdutoServico || null,
-      SIT_PRODUTO: validacao.data.SIT_PRODUTO || validacao.data.sitProduto || "A",
-      OBS_PRODUTO: validacao.data.OBS_PRODUTO || validacao.data.obsProduto || null,
+      DES_PRODUTO:
+        validacao.data.DES_PRODUTO || validacao.data.desProduto || null,
+      COD_UNIDADE_MEDIDA:
+        validacao.data.COD_UNIDADE_MEDIDA ||
+        validacao.data.codUnidadeMedida ||
+        null,
+      IND_PRODUTO_SERVICO:
+        validacao.data.IND_PRODUTO_SERVICO ||
+        validacao.data.indProdutoServico ||
+        null,
+      SIT_PRODUTO:
+        validacao.data.SIT_PRODUTO || validacao.data.sitProduto || "A",
+      OBS_PRODUTO:
+        validacao.data.OBS_PRODUTO || validacao.data.obsProduto || null,
       COD_USUARIO: payload.codUsuario,
     };
 
@@ -87,11 +100,7 @@ export const POST = criarHandler(
       payload.codUsuario
     );
 
-    return NextResponse.json(
-      criarRespostaSucesso(produto),
-      { status: 201 }
-    );
+    return NextResponse.json(criarRespostaSucesso(produto), { status: 201 });
   },
   { requerAutenticacao: true }
 );
-

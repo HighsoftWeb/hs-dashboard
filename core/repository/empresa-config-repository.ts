@@ -103,9 +103,9 @@ class EmpresaConfigRepository {
 
   obterPorId(id: number): EmpresaConfig | null {
     const db = obterBancoEmpresas();
-    const row = db
-      .prepare("SELECT * FROM empresas WHERE id = ?")
-      .get(id) as EmpresaRow | undefined;
+    const row = db.prepare("SELECT * FROM empresas WHERE id = ?").get(id) as
+      | EmpresaRow
+      | undefined;
 
     if (!row) {
       return null;

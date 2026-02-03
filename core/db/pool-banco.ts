@@ -31,13 +31,13 @@ class PoolBanco {
     }
 
     const configKey = `${empresaConfig.host}:${empresaConfig.porta}:${empresaConfig.nomeBase}`;
-    
+
     if (this.configuracaoAtual && this.configuracaoAtual !== configKey) {
       await this.fecharPool();
     }
-    
+
     this.configuracaoAtual = configKey;
-    
+
     const config: ConfiguracaoBanco = {
       server: empresaConfig.host,
       database: empresaConfig.nomeBase,
@@ -85,7 +85,12 @@ class PoolBanco {
       try {
         await this.pool.connect();
       } catch (erro) {
-        if (erro && typeof erro === "object" && "code" in erro && erro.code === "ECONNCLOSED") {
+        if (
+          erro &&
+          typeof erro === "object" &&
+          "code" in erro &&
+          erro.code === "ECONNCLOSED"
+        ) {
           this.pool = new ConnectionPool(this.configuracao);
           await this.pool.connect();
         } else {
@@ -108,7 +113,9 @@ class PoolBanco {
 
   private async executarQueryComRetry<T>(
     query: string,
-    parametros: Record<string, string | number | boolean | Date | null> | undefined,
+    parametros:
+      | Record<string, string | number | boolean | Date | null>
+      | undefined,
     empresaConfig: EmpresaConfig,
     retornarRecordset: boolean
   ): Promise<T> {
@@ -127,13 +134,20 @@ class PoolBanco {
       }
 
       const resultado = await request.query(query);
-      return (retornarRecordset ? resultado.recordset : resultado.rowsAffected[0] || 0) as T;
+      return (
+        retornarRecordset ? resultado.recordset : resultado.rowsAffected[0] || 0
+      ) as T;
     };
 
     try {
       return await executar();
     } catch (erro) {
-      if (erro && typeof erro === "object" && "code" in erro && erro.code === "ECONNCLOSED") {
+      if (
+        erro &&
+        typeof erro === "object" &&
+        "code" in erro &&
+        erro.code === "ECONNCLOSED"
+      ) {
         this.pool = null;
         return await executar();
       }
@@ -143,18 +157,32 @@ class PoolBanco {
 
   async executarConsulta<T>(
     query: string,
-    parametros: Record<string, string | number | boolean | Date | null> | undefined,
+    parametros:
+      | Record<string, string | number | boolean | Date | null>
+      | undefined,
     empresaConfig: EmpresaConfig
   ): Promise<T[]> {
-    return this.executarQueryComRetry<T[]>(query, parametros, empresaConfig, true);
+    return this.executarQueryComRetry<T[]>(
+      query,
+      parametros,
+      empresaConfig,
+      true
+    );
   }
 
   async executarComando(
     query: string,
-    parametros: Record<string, string | number | boolean | Date | null> | undefined,
+    parametros:
+      | Record<string, string | number | boolean | Date | null>
+      | undefined,
     empresaConfig: EmpresaConfig
   ): Promise<number> {
-    return this.executarQueryComRetry<number>(query, parametros, empresaConfig, false);
+    return this.executarQueryComRetry<number>(
+      query,
+      parametros,
+      empresaConfig,
+      false
+    );
   }
 }
 

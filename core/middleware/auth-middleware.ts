@@ -1,5 +1,9 @@
 import { NextRequest } from "next/server";
-import { verificarToken, extrairTokenDoHeader, PayloadJWT } from "../domains/auth/jwt/jwt";
+import {
+  verificarToken,
+  extrairTokenDoHeader,
+  PayloadJWT,
+} from "../domains/auth/jwt/jwt";
 import { tokenRepository } from "../repository/token-repository";
 import { logger } from "../utils/logger";
 
@@ -14,9 +18,7 @@ export class ErroAutenticacao extends Error {
   }
 }
 
-export function validarAutenticacao(
-  request: NextRequest
-): PayloadJWT {
+export function validarAutenticacao(request: NextRequest): PayloadJWT {
   const authorization = request.headers.get("authorization");
   const token = extrairTokenDoHeader(authorization);
 
@@ -26,7 +28,7 @@ export function validarAutenticacao(
 
   try {
     const payload = verificarToken(token);
-    
+
     if (tokenRepository.isTokenRevogado(payload.jti)) {
       throw new ErroAutenticacao("TOKEN_REVOGADO");
     }
@@ -64,7 +66,7 @@ export function validarAutenticacao(
     if (erro instanceof Error) {
       throw new ErroAutenticacao(erro.message);
     }
-    
+
     throw new ErroAutenticacao("Erro ao validar token");
   }
 }

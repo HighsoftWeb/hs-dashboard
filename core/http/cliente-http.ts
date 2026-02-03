@@ -33,7 +33,9 @@ class ClienteHttp {
     this.instancia.interceptors.request.use(
       (config) => {
         if (!config) {
-          return Promise.reject(new Error("Configuração de requisição inválida"));
+          return Promise.reject(
+            new Error("Configuração de requisição inválida")
+          );
         }
 
         const token = Cookies.get("token");
@@ -56,7 +58,7 @@ class ClienteHttp {
           const codigoErro = axiosError.response?.data?.error?.code || "";
           const mensagemErroUpper = mensagemErro.toUpperCase();
           const codigoErroUpper = codigoErro.toUpperCase();
-          
+
           const isTokenRevogado =
             mensagemErro === "TOKEN_REVOGADO" ||
             codigoErro === "TOKEN_REVOGADO" ||
@@ -77,16 +79,21 @@ class ClienteHttp {
           // Tentar refresh apenas se não for token revogado
           if (refreshToken) {
             try {
-              const respostaRefresh = await axios.post<RespostaApi<{ token: string; refreshToken: string }>>(
-                "/api/auth/refresh",
-                { refreshToken },
-                { baseURL: "" }
-              );
+              const respostaRefresh = await axios.post<
+                RespostaApi<{ token: string; refreshToken: string }>
+              >("/api/auth/refresh", { refreshToken }, { baseURL: "" });
 
               if (respostaRefresh.data.success && respostaRefresh.data.data) {
-                Cookies.set("token", respostaRefresh.data.data.token, { expires: 7, sameSite: "strict" });
-                Cookies.set("refreshToken", respostaRefresh.data.data.refreshToken, { expires: 7, sameSite: "strict" });
-                
+                Cookies.set("token", respostaRefresh.data.data.token, {
+                  expires: 7,
+                  sameSite: "strict",
+                });
+                Cookies.set(
+                  "refreshToken",
+                  respostaRefresh.data.data.refreshToken,
+                  { expires: 7, sameSite: "strict" }
+                );
+
                 const configOriginal = axiosError.config;
                 if (configOriginal) {
                   configOriginal.headers = configOriginal.headers || {};
@@ -125,7 +132,7 @@ class ClienteHttp {
     const codigoErro = erro.response?.data?.error?.code || "";
     const mensagemErroUpper = mensagemErro.toUpperCase();
     const codigoErroUpper = codigoErro.toUpperCase();
-    
+
     // Verificação mais abrangente para detectar token revogado
     const isTokenRevogado =
       mensagemErro === "TOKEN_REVOGADO" ||
@@ -144,14 +151,19 @@ class ClienteHttp {
       // Sempre salvar a informação de token revogado se detectado
       if (isTokenRevogado) {
         // Garantir que a mensagem seja salva
-        const mensagemFinal = TOKEN_REVOGADO_MESSAGE || "Outro usuário acessou o sistema com este mesmo login e empresa. Você foi desconectado por segurança.";
+        const mensagemFinal =
+          TOKEN_REVOGADO_MESSAGE ||
+          "Outro usuário acessou o sistema com este mesmo login e empresa. Você foi desconectado por segurança.";
         sessionStorage.setItem(TOKEN_REVOGADO_KEY, "true");
         sessionStorage.setItem(MENSAGEM_REVOGACAO_KEY, mensagemFinal);
-        
+
         // Log para debug (remover em produção se necessário)
-        console.log("[ClienteHttp] Token revogado detectado. Mensagem salva:", mensagemFinal);
+        console.log(
+          "[ClienteHttp] Token revogado detectado. Mensagem salva:",
+          mensagemFinal
+        );
       }
-      
+
       // Redirecionar apenas se não estiver já na página de login
       if (!window.location.pathname.includes("/login")) {
         window.location.href = "/login";
@@ -177,7 +189,9 @@ class ClienteHttp {
 
   async post<T>(
     url: string,
-    dados?: Record<string, string | number | boolean | null> | Array<string | number | boolean | null>,
+    dados?:
+      | Record<string, string | number | boolean | null>
+      | Array<string | number | boolean | null>,
     config?: AxiosRequestConfig
   ): Promise<RespostaApi<T>> {
     const resposta = await this.instancia.post<RespostaApi<T>>(
@@ -190,7 +204,9 @@ class ClienteHttp {
 
   async put<T>(
     url: string,
-    dados?: Record<string, string | number | boolean | null> | Array<string | number | boolean | null>,
+    dados?:
+      | Record<string, string | number | boolean | null>
+      | Array<string | number | boolean | null>,
     config?: AxiosRequestConfig
   ): Promise<RespostaApi<T>> {
     const resposta = await this.instancia.put<RespostaApi<T>>(

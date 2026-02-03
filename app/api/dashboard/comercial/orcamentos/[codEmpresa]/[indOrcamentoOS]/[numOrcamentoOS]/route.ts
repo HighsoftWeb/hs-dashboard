@@ -7,14 +7,29 @@ import { obterEmpresaConfigDoCookie } from "@/core/utils/obter-empresa-cookie";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ codEmpresa: string; indOrcamentoOS: string; numOrcamentoOS: string }> }
+  {
+    params,
+  }: {
+    params: Promise<{
+      codEmpresa: string;
+      indOrcamentoOS: string;
+      numOrcamentoOS: string;
+    }>;
+  }
 ): Promise<NextResponse> {
   try {
     const usuario = validarAutenticacao(request);
     const empresaConfig = obterEmpresaConfigDoCookie(request);
-    const { codEmpresa: codEmpresaParam, indOrcamentoOS, numOrcamentoOS } = await params;
-    
-    const codEmpresa = usuario.codEmpresa || Number.parseInt(codEmpresaParam, 10) || DEFAULT_COD_EMPRESA;
+    const {
+      codEmpresa: codEmpresaParam,
+      indOrcamentoOS,
+      numOrcamentoOS,
+    } = await params;
+
+    const codEmpresa =
+      usuario.codEmpresa ||
+      Number.parseInt(codEmpresaParam, 10) ||
+      DEFAULT_COD_EMPRESA;
     const numOrcamentoOSNum = Number.parseInt(numOrcamentoOS, 10);
 
     if (isNaN(codEmpresa) || isNaN(numOrcamentoOSNum)) {
@@ -62,7 +77,8 @@ export async function GET(
     });
   } catch (erro) {
     return tratarErroAPI(erro, {
-      endpoint: "/api/dashboard/comercial/orcamentos/[codEmpresa]/[indOrcamentoOS]/[numOrcamentoOS]",
+      endpoint:
+        "/api/dashboard/comercial/orcamentos/[codEmpresa]/[indOrcamentoOS]/[numOrcamentoOS]",
       method: "GET",
     });
   }

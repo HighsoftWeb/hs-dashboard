@@ -31,44 +31,46 @@ export class ProdutoRepositoryORM {
       const pageSize = Math.min(pageSizeRaw, PAGINACAO_PADRAO.PAGE_SIZE_MAX);
       const skip = (page - 1) * pageSize;
 
-    const where: FindOptionsWhere<ProdutoServico> = {
-      COD_EMPRESA: codEmpresa,
-    };
+      const where: FindOptionsWhere<ProdutoServico> = {
+        COD_EMPRESA: codEmpresa,
+      };
 
-    if (filtros.sit) {
-      where.SIT_PRODUTO = filtros.sit;
-    }
+      if (filtros.sit) {
+        where.SIT_PRODUTO = filtros.sit;
+      }
 
-    if (filtros.ind) {
-      where.IND_PRODUTO_SERVICO = filtros.ind;
-    }
+      if (filtros.ind) {
+        where.IND_PRODUTO_SERVICO = filtros.ind;
+      }
 
-    const queryBuilder = repository.createQueryBuilder("produto");
+      const queryBuilder = repository.createQueryBuilder("produto");
 
-    queryBuilder.where("produto.COD_EMPRESA = :codEmpresa", { codEmpresa });
+      queryBuilder.where("produto.COD_EMPRESA = :codEmpresa", { codEmpresa });
 
-    if (filtros.search) {
-      queryBuilder.andWhere(
-        "(produto.DES_PRODUTO LIKE :search OR CAST(produto.COD_PRODUTO AS VARCHAR) LIKE :search)",
-        { search: `%${filtros.search}%` }
-      );
-    }
+      if (filtros.search) {
+        queryBuilder.andWhere(
+          "(produto.DES_PRODUTO LIKE :search OR CAST(produto.COD_PRODUTO AS VARCHAR) LIKE :search)",
+          { search: `%${filtros.search}%` }
+        );
+      }
 
-    if (filtros.sit) {
-      queryBuilder.andWhere("produto.SIT_PRODUTO = :sit", { sit: filtros.sit });
-    }
+      if (filtros.sit) {
+        queryBuilder.andWhere("produto.SIT_PRODUTO = :sit", {
+          sit: filtros.sit,
+        });
+      }
 
-    if (filtros.ind) {
-      queryBuilder.andWhere("produto.IND_PRODUTO_SERVICO = :ind", {
-        ind: filtros.ind,
-      });
-    }
+      if (filtros.ind) {
+        queryBuilder.andWhere("produto.IND_PRODUTO_SERVICO = :ind", {
+          ind: filtros.ind,
+        });
+      }
 
-    const [produtos, total] = await queryBuilder
-      .orderBy("produto.COD_PRODUTO", "ASC")
-      .skip(skip)
-      .take(pageSize)
-      .getManyAndCount();
+      const [produtos, total] = await queryBuilder
+        .orderBy("produto.COD_PRODUTO", "ASC")
+        .skip(skip)
+        .take(pageSize)
+        .getManyAndCount();
 
       return {
         produtos: produtos.map(this.mapearParaDB),
@@ -86,7 +88,10 @@ export class ProdutoRepositoryORM {
       const offset = (page - 1) * pageSize;
 
       const whereConditions = ["COD_EMPRESA = @codEmpresa"];
-      const parametros: Record<string, string | number | boolean | Date | null> = {
+      const parametros: Record<
+        string,
+        string | number | boolean | Date | null
+      > = {
         codEmpresa,
         offset,
         pageSize,
@@ -137,8 +142,16 @@ export class ProdutoRepositoryORM {
       `;
 
       const [totalResult, produtos] = await Promise.all([
-        poolBanco.executarConsulta<{ total: number }>(queryCount, parametros, empresaConfig),
-        poolBanco.executarConsulta<ProdutoServicoDB>(queryList, parametros, empresaConfig),
+        poolBanco.executarConsulta<{ total: number }>(
+          queryCount,
+          parametros,
+          empresaConfig
+        ),
+        poolBanco.executarConsulta<ProdutoServicoDB>(
+          queryList,
+          parametros,
+          empresaConfig
+        ),
       ]);
 
       return {
@@ -221,16 +234,16 @@ export class ProdutoRepositoryORM {
       const codProduto = (maxResult?.max || 0) + 1;
 
       const produto = repository.create({
-      COD_EMPRESA: codEmpresa,
-      COD_PRODUTO: codProduto,
-      DES_PRODUTO: dados.DES_PRODUTO || null,
-      COD_UNIDADE_MEDIDA: dados.COD_UNIDADE_MEDIDA || null,
-      IND_PRODUTO_SERVICO: dados.IND_PRODUTO_SERVICO || null,
-      SIT_PRODUTO: dados.SIT_PRODUTO || "A",
-      OBS_PRODUTO: dados.OBS_PRODUTO || null,
-      DAT_CADASTRO: new Date(),
-      COD_USUARIO: dados.COD_USUARIO || null,
-    });
+        COD_EMPRESA: codEmpresa,
+        COD_PRODUTO: codProduto,
+        DES_PRODUTO: dados.DES_PRODUTO || null,
+        COD_UNIDADE_MEDIDA: dados.COD_UNIDADE_MEDIDA || null,
+        IND_PRODUTO_SERVICO: dados.IND_PRODUTO_SERVICO || null,
+        SIT_PRODUTO: dados.SIT_PRODUTO || "A",
+        OBS_PRODUTO: dados.OBS_PRODUTO || null,
+        DAT_CADASTRO: new Date(),
+        COD_USUARIO: dados.COD_USUARIO || null,
+      });
 
       await repository.save(produto);
 
@@ -247,11 +260,9 @@ export class ProdutoRepositoryORM {
         WHERE COD_EMPRESA = @codEmpresa
       `;
 
-      const maxResult = await poolBanco.executarConsulta<{ proximo_cod: number }>(
-        queryMax,
-        { codEmpresa },
-        empresaConfig
-      );
+      const maxResult = await poolBanco.executarConsulta<{
+        proximo_cod: number;
+      }>(queryMax, { codEmpresa }, empresaConfig);
 
       const codProduto = maxResult[0]?.proximo_cod || 1;
 
@@ -323,21 +334,21 @@ export class ProdutoRepositoryORM {
         updateData.DES_PRODUTO = dados.DES_PRODUTO;
       }
 
-    if (dados.COD_UNIDADE_MEDIDA !== undefined) {
-      updateData.COD_UNIDADE_MEDIDA = dados.COD_UNIDADE_MEDIDA;
-    }
+      if (dados.COD_UNIDADE_MEDIDA !== undefined) {
+        updateData.COD_UNIDADE_MEDIDA = dados.COD_UNIDADE_MEDIDA;
+      }
 
-    if (dados.IND_PRODUTO_SERVICO !== undefined) {
-      updateData.IND_PRODUTO_SERVICO = dados.IND_PRODUTO_SERVICO;
-    }
+      if (dados.IND_PRODUTO_SERVICO !== undefined) {
+        updateData.IND_PRODUTO_SERVICO = dados.IND_PRODUTO_SERVICO;
+      }
 
-    if (dados.SIT_PRODUTO !== undefined) {
-      updateData.SIT_PRODUTO = dados.SIT_PRODUTO;
-    }
+      if (dados.SIT_PRODUTO !== undefined) {
+        updateData.SIT_PRODUTO = dados.SIT_PRODUTO;
+      }
 
-    if (dados.OBS_PRODUTO !== undefined) {
-      updateData.OBS_PRODUTO = dados.OBS_PRODUTO;
-    }
+      if (dados.OBS_PRODUTO !== undefined) {
+        updateData.OBS_PRODUTO = dados.OBS_PRODUTO;
+      }
 
       if (dados.COD_USUARIO !== undefined) {
         updateData.COD_USUARIO = dados.COD_USUARIO;
@@ -358,7 +369,10 @@ export class ProdutoRepositoryORM {
       });
 
       const campos: string[] = [];
-      const parametros: Record<string, string | number | boolean | Date | null> = {
+      const parametros: Record<
+        string,
+        string | number | boolean | Date | null
+      > = {
         codEmpresa,
         codProduto,
       };
@@ -442,7 +456,11 @@ export class ProdutoRepositoryORM {
         WHERE COD_EMPRESA = @codEmpresa AND COD_PRODUTO = @codProduto
       `;
 
-      await poolBanco.executarComando(query, { codEmpresa, codProduto }, empresaConfig);
+      await poolBanco.executarComando(
+        query,
+        { codEmpresa, codProduto },
+        empresaConfig
+      );
     }
   }
 
@@ -467,16 +485,16 @@ export class ProdutoRepositoryORM {
       });
 
       return derivacoes.map((d) => ({
-      COD_EMPRESA: d.COD_EMPRESA,
-      COD_PRODUTO: d.COD_PRODUTO,
-      COD_DERIVACAO: d.COD_DERIVACAO,
-      DES_DERIVACAO: d.DES_DERIVACAO,
-      COD_BARRA: d.COD_BARRA,
-      SIT_DERIVACAO: d.SIT_DERIVACAO,
-      OBS_DERIVACAO: d.OBS_DERIVACAO,
-      DAT_CADASTRO: null,
-      DAT_ALTERACAO: null,
-      COD_USUARIO: null,
+        COD_EMPRESA: d.COD_EMPRESA,
+        COD_PRODUTO: d.COD_PRODUTO,
+        COD_DERIVACAO: d.COD_DERIVACAO,
+        DES_DERIVACAO: d.DES_DERIVACAO,
+        COD_BARRA: d.COD_BARRA,
+        SIT_DERIVACAO: d.SIT_DERIVACAO,
+        OBS_DERIVACAO: d.OBS_DERIVACAO,
+        DAT_CADASTRO: null,
+        DAT_ALTERACAO: null,
+        COD_USUARIO: null,
       }));
     } catch (erro) {
       logger.warn("Erro ao listar derivações com TypeORM, usando SQL raw", {

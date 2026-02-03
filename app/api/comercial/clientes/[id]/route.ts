@@ -46,7 +46,10 @@ export async function PUT(
   try {
     validarAutenticacao(request);
     return NextResponse.json(
-      criarRespostaErro("Método PUT não implementado. Use as rotas de dashboard.", "NOT_IMPLEMENTED"),
+      criarRespostaErro(
+        "Método PUT não implementado. Use as rotas de dashboard.",
+        "NOT_IMPLEMENTED"
+      ),
       { status: 501 }
     );
   } catch (erro) {
@@ -64,7 +67,10 @@ export async function DELETE(
   try {
     validarAutenticacao(_request);
     return NextResponse.json(
-      criarRespostaErro("Método DELETE não implementado. Use as rotas de dashboard.", "NOT_IMPLEMENTED"),
+      criarRespostaErro(
+        "Método DELETE não implementado. Use as rotas de dashboard.",
+        "NOT_IMPLEMENTED"
+      ),
       { status: 501 }
     );
   } catch (erro) {

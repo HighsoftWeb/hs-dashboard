@@ -8,7 +8,7 @@ export async function GET(
 ): Promise<NextResponse> {
   try {
     const resolvedParams = await params;
-    
+
     if (!resolvedParams.cnpj || typeof resolvedParams.cnpj !== "string") {
       return NextResponse.json(
         {
@@ -22,7 +22,7 @@ export async function GET(
     }
 
     const cnpj = resolvedParams.cnpj.replace(/\D/g, "");
-    
+
     if (cnpj.length !== 14) {
       return NextResponse.json(
         {
@@ -60,7 +60,8 @@ export async function GET(
       {
         success: false,
         error: {
-          message: erro instanceof Error ? erro.message : "Erro ao buscar empresa",
+          message:
+            erro instanceof Error ? erro.message : "Erro ao buscar empresa",
         },
       },
       { status: 500 }

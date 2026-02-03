@@ -3,7 +3,11 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { LayoutDashboard } from "@/core/layouts/layout-dashboard";
-import { DataTable, ColunaDataTable, FiltroDataTable } from "@/core/componentes/data-table/data-table";
+import {
+  DataTable,
+  ColunaDataTable,
+  FiltroDataTable,
+} from "@/core/componentes/data-table/data-table";
 import { formatarData } from "@/core/utils/formatar-data";
 
 interface TituloReceberDB extends Record<string, unknown> {
@@ -38,30 +42,53 @@ export default function PaginaFinanceiro(): React.JSX.Element {
   const [abaAtiva, setAbaAtiva] = useState<"receber" | "pagar">("receber");
 
   const colunasTitulosReceber: ColunaDataTable<TituloReceberDB>[] = [
-    { chave: "NUM_TITULO", titulo: "Número", ordenavel: true, alinhamento: "esquerda" },
-    { chave: "SEQ_TITULO", titulo: "Seq.", ordenavel: true, alinhamento: "direita" },
-    { chave: "COD_TIPO_TITULO", titulo: "Tipo", ordenavel: true, alinhamento: "esquerda" },
-    { chave: "COD_CLI_FOR", titulo: "Cód. Cliente", ordenavel: true, alinhamento: "direita" },
+    {
+      chave: "NUM_TITULO",
+      titulo: "Número",
+      ordenavel: true,
+      alinhamento: "esquerda",
+    },
+    {
+      chave: "SEQ_TITULO",
+      titulo: "Seq.",
+      ordenavel: true,
+      alinhamento: "direita",
+    },
+    {
+      chave: "COD_TIPO_TITULO",
+      titulo: "Tipo",
+      ordenavel: true,
+      alinhamento: "esquerda",
+    },
+    {
+      chave: "COD_CLI_FOR",
+      titulo: "Cód. Cliente",
+      ordenavel: true,
+      alinhamento: "direita",
+    },
     {
       chave: "DAT_EMISSAO",
       titulo: "Emissão",
       ordenavel: true,
       alinhamento: "esquerda",
-      renderizar: (valor) => formatarData(valor as Date | string | null | undefined),
+      renderizar: (valor) =>
+        formatarData(valor as Date | string | null | undefined),
     },
     {
       chave: "DAT_ENTRADA",
       titulo: "Entrada",
       ordenavel: true,
       alinhamento: "esquerda",
-      renderizar: (valor) => formatarData(valor as Date | string | null | undefined),
+      renderizar: (valor) =>
+        formatarData(valor as Date | string | null | undefined),
     },
     {
       chave: "VCT_ORIGINAL",
       titulo: "Vencimento",
       ordenavel: true,
       alinhamento: "esquerda",
-      renderizar: (valor) => formatarData(valor as Date | string | null | undefined),
+      renderizar: (valor) =>
+        formatarData(valor as Date | string | null | undefined),
     },
     {
       chave: "VLR_ORIGINAL",
@@ -89,8 +116,18 @@ export default function PaginaFinanceiro(): React.JSX.Element {
         }).format(vlr);
       },
     },
-    { chave: "COD_REPRESENTANTE", titulo: "Representante", ordenavel: true, alinhamento: "direita" },
-    { chave: "COD_MOEDA", titulo: "Moeda", ordenavel: true, alinhamento: "esquerda" },
+    {
+      chave: "COD_REPRESENTANTE",
+      titulo: "Representante",
+      ordenavel: true,
+      alinhamento: "direita",
+    },
+    {
+      chave: "COD_MOEDA",
+      titulo: "Moeda",
+      ordenavel: true,
+      alinhamento: "esquerda",
+    },
     {
       chave: "SIT_TITULO",
       titulo: "Status",
@@ -101,10 +138,12 @@ export default function PaginaFinanceiro(): React.JSX.Element {
           sit === "PG" || sit === "BA"
             ? "bg-green-100 text-green-800"
             : sit === "CA"
-            ? "bg-red-100 text-red-800"
-            : "bg-yellow-100 text-yellow-800";
+              ? "bg-red-100 text-red-800"
+              : "bg-yellow-100 text-yellow-800";
         return (
-          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${cor}`}>
+          <span
+            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${cor}`}
+          >
             {sit}
           </span>
         );
@@ -113,15 +152,31 @@ export default function PaginaFinanceiro(): React.JSX.Element {
   ];
 
   const colunasTitulosPagar: ColunaDataTable<TituloPagarDB>[] = [
-    { chave: "NUM_INTERNO", titulo: "Nº Interno", ordenavel: true, alinhamento: "direita" },
-    { chave: "NUM_PARCELA", titulo: "Parcela", ordenavel: true, alinhamento: "direita" },
-    { chave: "COD_CLI_FOR", titulo: "Cód. Fornecedor", ordenavel: true, alinhamento: "direita" },
+    {
+      chave: "NUM_INTERNO",
+      titulo: "Nº Interno",
+      ordenavel: true,
+      alinhamento: "direita",
+    },
+    {
+      chave: "NUM_PARCELA",
+      titulo: "Parcela",
+      ordenavel: true,
+      alinhamento: "direita",
+    },
+    {
+      chave: "COD_CLI_FOR",
+      titulo: "Cód. Fornecedor",
+      ordenavel: true,
+      alinhamento: "direita",
+    },
     {
       chave: "VCT_ORIGINAL",
       titulo: "Vencimento",
       ordenavel: true,
       alinhamento: "esquerda",
-      renderizar: (valor) => formatarData(valor as Date | string | null | undefined),
+      renderizar: (valor) =>
+        formatarData(valor as Date | string | null | undefined),
     },
     {
       chave: "VLR_ORIGINAL",
@@ -159,10 +214,12 @@ export default function PaginaFinanceiro(): React.JSX.Element {
           sit === "PG" || sit === "BA"
             ? "bg-green-100 text-green-800"
             : sit === "CA"
-            ? "bg-red-100 text-red-800"
-            : "bg-yellow-100 text-yellow-800";
-    return (
-          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${cor}`}>
+              ? "bg-red-100 text-red-800"
+              : "bg-yellow-100 text-yellow-800";
+        return (
+          <span
+            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${cor}`}
+          >
             {sit}
           </span>
         );
@@ -197,7 +254,7 @@ export default function PaginaFinanceiro(): React.JSX.Element {
   return (
     <LayoutDashboard>
       <div className="space-y-6">
-          <div>
+        <div>
           <h1 className="text-3xl font-bold text-gray-900">Financeiro</h1>
         </div>
 

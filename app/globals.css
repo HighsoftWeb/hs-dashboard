@@ -4,13 +4,13 @@
   --background: #ffffff;
   --foreground: #171717;
 
-  --highsoft-cinza: #A4A5A6;
-  --highsoft-primario: #094A73;
-  --highsoft-secundario: #048ABF;
-  --highsoft-terciario: #04B2D9;
-  --highsoft-sucesso: #10B981;
-  --highsoft-erro: #EF4444;
-  --highsoft-aviso: #F59E0B;
+  --highsoft-cinza: #a4a5a6;
+  --highsoft-primario: #094a73;
+  --highsoft-secundario: #048abf;
+  --highsoft-terciario: #04b2d9;
+  --highsoft-sucesso: #10b981;
+  --highsoft-erro: #ef4444;
+  --highsoft-aviso: #f59e0b;
 }
 
 @theme inline {
@@ -35,7 +35,6 @@ body {
 }
 
 @keyframes blob {
-
   0%,
   100% {
     transform: translate(0, 0) scale(1);
@@ -63,7 +62,6 @@ body {
 }
 
 @keyframes shake {
-
   0%,
   100% {
     transform: translateX(0);

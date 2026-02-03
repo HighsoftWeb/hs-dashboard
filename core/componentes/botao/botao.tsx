@@ -18,10 +18,8 @@ export function Botao({
   const classesVariante = {
     primario:
       "bg-[#094A73] text-white hover:bg-[#073a5c] shadow-lg hover:shadow-xl",
-    secundario:
-      "bg-[#A4A5A6] text-white hover:bg-[#8a8b8c]",
-    perigo:
-      "bg-[#EF4444] text-white hover:bg-[#dc2626]",
+    secundario: "bg-[#A4A5A6] text-white hover:bg-[#8a8b8c]",
+    perigo: "bg-[#EF4444] text-white hover:bg-[#dc2626]",
   };
 
   const classesTamanho = {

@@ -41,12 +41,14 @@ export default function PaginaDetalhesProduto(): React.JSX.Element {
         }>(`/dashboard/cadastros/produtos/${codProduto}`);
 
         if (!resposta.success || !resposta.data) {
-          throw new Error(resposta.error?.message || "Erro ao carregar produto");
+          throw new Error(
+            resposta.error?.message || "Erro ao carregar produto"
+          );
         }
 
         setProduto(resposta.data.produto);
-        const derivacoesOrdenadas = (resposta.data.derivacoes || []).sort((a, b) => 
-          a.COD_DERIVACAO.localeCompare(b.COD_DERIVACAO)
+        const derivacoesOrdenadas = (resposta.data.derivacoes || []).sort(
+          (a, b) => a.COD_DERIVACAO.localeCompare(b.COD_DERIVACAO)
         );
         setDerivacoes(derivacoesOrdenadas);
         setEstoques(resposta.data.estoques || []);
@@ -74,7 +76,6 @@ export default function PaginaDetalhesProduto(): React.JSX.Element {
     }).format(valor);
   };
 
-
   const formatarQuantidade = (qtd: number | null | undefined): string => {
     if (qtd === null || qtd === undefined) return "-";
     return new Intl.NumberFormat("pt-BR", {
@@ -97,7 +98,9 @@ export default function PaginaDetalhesProduto(): React.JSX.Element {
     return (
       <LayoutDashboard>
         <div className="bg-red-50 border-l-4 border-red-500 rounded-lg p-4">
-          <p className="text-sm text-red-800">{erro || "Produto não encontrado"}</p>
+          <p className="text-sm text-red-800">
+            {erro || "Produto não encontrado"}
+          </p>
           <button
             onClick={() => router.back()}
             className="mt-4 px-4 py-2 bg-[#094A73] text-white rounded hover:bg-[#073a5c]"
@@ -118,11 +121,26 @@ export default function PaginaDetalhesProduto(): React.JSX.Element {
               {produto.DES_PRODUTO || `Produto ${produto.COD_PRODUTO}`}
             </h1>
             <div className="mt-1 flex items-center gap-3 text-xs text-gray-600">
-              <span>Código: <strong>{produto.COD_PRODUTO}</strong></span>
-              <span>Tipo: <strong>{produto.IND_PRODUTO_SERVICO === "P" ? "Produto" : produto.IND_PRODUTO_SERVICO === "S" ? "Serviço" : produto.IND_PRODUTO_SERVICO}</strong></span>
-              <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-                produto.SIT_PRODUTO === "A" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-              }`}>
+              <span>
+                Código: <strong>{produto.COD_PRODUTO}</strong>
+              </span>
+              <span>
+                Tipo:{" "}
+                <strong>
+                  {produto.IND_PRODUTO_SERVICO === "P"
+                    ? "Produto"
+                    : produto.IND_PRODUTO_SERVICO === "S"
+                      ? "Serviço"
+                      : produto.IND_PRODUTO_SERVICO}
+                </strong>
+              </span>
+              <span
+                className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+                  produto.SIT_PRODUTO === "A"
+                    ? "bg-green-100 text-green-800"
+                    : "bg-red-100 text-red-800"
+                }`}
+              >
                 {produto.SIT_PRODUTO === "A" ? "Ativo" : "Inativo"}
               </span>
             </div>
@@ -138,7 +156,9 @@ export default function PaginaDetalhesProduto(): React.JSX.Element {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2">
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Descrição</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Descrição
+              </label>
               <input
                 type="text"
                 value={produto.DES_PRODUTO || "-"}
@@ -147,34 +167,58 @@ export default function PaginaDetalhesProduto(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Unidade de Medida</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Unidade de Medida
+              </label>
               <input
                 type="text"
-                value={produto.DES_UNIDADE_MEDIDA || produto.COD_UNIDADE_MEDIDA || "-"}
+                value={
+                  produto.DES_UNIDADE_MEDIDA ||
+                  produto.COD_UNIDADE_MEDIDA ||
+                  "-"
+                }
                 readOnly
                 className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Tipo</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Tipo
+              </label>
               <input
                 type="text"
-                value={produto.IND_PRODUTO_SERVICO === "P" ? "Produto" : produto.IND_PRODUTO_SERVICO === "S" ? "Serviço" : produto.IND_PRODUTO_SERVICO || "-"}
+                value={
+                  produto.IND_PRODUTO_SERVICO === "P"
+                    ? "Produto"
+                    : produto.IND_PRODUTO_SERVICO === "S"
+                      ? "Serviço"
+                      : produto.IND_PRODUTO_SERVICO || "-"
+                }
                 readOnly
                 className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Situação</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Situação
+              </label>
               <input
                 type="text"
-                value={produto.SIT_PRODUTO === "A" ? "Ativo" : produto.SIT_PRODUTO === "I" ? "Inativo" : produto.SIT_PRODUTO || "-"}
+                value={
+                  produto.SIT_PRODUTO === "A"
+                    ? "Ativo"
+                    : produto.SIT_PRODUTO === "I"
+                      ? "Inativo"
+                      : produto.SIT_PRODUTO || "-"
+                }
                 readOnly
                 className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Data Cadastro</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Data Cadastro
+              </label>
               <input
                 type="text"
                 value={formatarData(produto.DAT_CADASTRO)}
@@ -183,7 +227,9 @@ export default function PaginaDetalhesProduto(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col md:col-span-2 lg:col-span-3 xl:col-span-4 2xl:col-span-5">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Observações</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Observações
+              </label>
               <textarea
                 value={produto.OBS_PRODUTO || "-"}
                 readOnly
@@ -197,19 +243,29 @@ export default function PaginaDetalhesProduto(): React.JSX.Element {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200">
           <div className="p-3">
             {derivacoes.length === 0 ? (
-              <p className="text-sm text-gray-500 text-center py-8">Nenhuma derivação encontrada</p>
+              <p className="text-sm text-gray-500 text-center py-8">
+                Nenhuma derivação encontrada
+              </p>
             ) : (
               (() => {
                 const derivacaoAtual = derivacoes[indiceDerivacaoAtual];
-                const estoquesDerivacao = estoques.filter((e) => e.COD_DERIVACAO === derivacaoAtual.COD_DERIVACAO);
-                const precosDerivacao = tabelasPreco.filter((p) => p.COD_DERIVACAO === derivacaoAtual.COD_DERIVACAO);
+                const estoquesDerivacao = estoques.filter(
+                  (e) => e.COD_DERIVACAO === derivacaoAtual.COD_DERIVACAO
+                );
+                const precosDerivacao = tabelasPreco.filter(
+                  (p) => p.COD_DERIVACAO === derivacaoAtual.COD_DERIVACAO
+                );
 
                 return (
                   <div>
                     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 mb-4">
                       <div className="flex items-end justify-between mb-3 gap-2">
                         <button
-                          onClick={() => setIndiceDerivacaoAtual((prev) => (prev > 0 ? prev - 1 : derivacoes.length - 1))}
+                          onClick={() =>
+                            setIndiceDerivacaoAtual((prev) =>
+                              prev > 0 ? prev - 1 : derivacoes.length - 1
+                            )
+                          }
                           disabled={derivacoes.length <= 1}
                           className="p-2 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border border-gray-300 flex-shrink-0 h-[34px]"
                           title="Derivação anterior"
@@ -219,16 +275,23 @@ export default function PaginaDetalhesProduto(): React.JSX.Element {
 
                         <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
                           <div className="flex flex-col">
-                            <label className="block text-xs font-medium text-gray-700 mb-0.5">Descrição</label>
+                            <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                              Descrição
+                            </label>
                             <input
                               type="text"
-                              value={derivacaoAtual.DES_DERIVACAO || derivacaoAtual.COD_DERIVACAO}
+                              value={
+                                derivacaoAtual.DES_DERIVACAO ||
+                                derivacaoAtual.COD_DERIVACAO
+                              }
                               readOnly
                               className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white font-semibold"
                             />
                           </div>
                           <div className="flex flex-col">
-                            <label className="block text-xs font-medium text-gray-700 mb-0.5">Código Derivação</label>
+                            <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                              Código Derivação
+                            </label>
                             <input
                               type="text"
                               value={derivacaoAtual.COD_DERIVACAO}
@@ -237,16 +300,26 @@ export default function PaginaDetalhesProduto(): React.JSX.Element {
                             />
                           </div>
                           <div className="flex flex-col">
-                            <label className="block text-xs font-medium text-gray-700 mb-0.5">Situação</label>
+                            <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                              Situação
+                            </label>
                             <input
                               type="text"
-                              value={derivacaoAtual.SIT_DERIVACAO === "A" ? "Ativo" : derivacaoAtual.SIT_DERIVACAO === "I" ? "Inativo" : derivacaoAtual.SIT_DERIVACAO || "-"}
+                              value={
+                                derivacaoAtual.SIT_DERIVACAO === "A"
+                                  ? "Ativo"
+                                  : derivacaoAtual.SIT_DERIVACAO === "I"
+                                    ? "Inativo"
+                                    : derivacaoAtual.SIT_DERIVACAO || "-"
+                              }
                               readOnly
                               className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
                             />
                           </div>
                           <div className="flex flex-col">
-                            <label className="block text-xs font-medium text-gray-700 mb-0.5">Posição</label>
+                            <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                              Posição
+                            </label>
                             <input
                               type="text"
                               value={`${indiceDerivacaoAtual + 1} de ${derivacoes.length}`}
@@ -257,7 +330,11 @@ export default function PaginaDetalhesProduto(): React.JSX.Element {
                         </div>
 
                         <button
-                          onClick={() => setIndiceDerivacaoAtual((prev) => (prev < derivacoes.length - 1 ? prev + 1 : 0))}
+                          onClick={() =>
+                            setIndiceDerivacaoAtual((prev) =>
+                              prev < derivacoes.length - 1 ? prev + 1 : 0
+                            )
+                          }
                           disabled={derivacoes.length <= 1}
                           className="p-2 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border border-gray-300 flex-shrink-0 h-[34px]"
                           title="Próxima derivação"
@@ -268,7 +345,9 @@ export default function PaginaDetalhesProduto(): React.JSX.Element {
 
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2">
                         <div className="flex flex-col">
-                          <label className="block text-xs font-medium text-gray-700 mb-0.5">Código de Barras</label>
+                          <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                            Código de Barras
+                          </label>
                           <input
                             type="text"
                             value={derivacaoAtual.COD_BARRA || "-"}
@@ -277,26 +356,36 @@ export default function PaginaDetalhesProduto(): React.JSX.Element {
                           />
                         </div>
                         <div className="flex flex-col">
-                          <label className="block text-xs font-medium text-gray-700 mb-0.5">Preço Custo Última Entrada</label>
+                          <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                            Preço Custo Última Entrada
+                          </label>
                           <input
                             type="text"
-                            value={formatarMoeda(derivacaoAtual.VLR_PRECO_CUSTO_ULT_ENT)}
+                            value={formatarMoeda(
+                              derivacaoAtual.VLR_PRECO_CUSTO_ULT_ENT
+                            )}
                             readOnly
                             className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white text-right"
                           />
                         </div>
                         <div className="flex flex-col">
-                          <label className="block text-xs font-medium text-gray-700 mb-0.5">Preço Custo Médio</label>
+                          <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                            Preço Custo Médio
+                          </label>
                           <input
                             type="text"
-                            value={formatarMoeda(derivacaoAtual.VLR_PRECO_CUSTO_MEDIO)}
+                            value={formatarMoeda(
+                              derivacaoAtual.VLR_PRECO_CUSTO_MEDIO
+                            )}
                             readOnly
                             className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white text-right"
                           />
                         </div>
                         {derivacaoAtual.OBS_DERIVACAO && (
                           <div className="flex flex-col md:col-span-2 lg:col-span-3 xl:col-span-4 2xl:col-span-5">
-                            <label className="block text-xs font-medium text-gray-700 mb-0.5">Observações</label>
+                            <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                              Observações
+                            </label>
                             <textarea
                               value={derivacaoAtual.OBS_DERIVACAO}
                               readOnly
@@ -336,76 +425,166 @@ export default function PaginaDetalhesProduto(): React.JSX.Element {
 
                       <div className="p-4">
                         {abaDerivacaoAtiva === "estoque" && (
-                              <div className="overflow-x-auto">
-                                {estoquesDerivacao.length === 0 ? (
-                                  <p className="text-sm text-gray-500 text-center py-8">Nenhum estoque encontrado</p>
-                                ) : (
-                                  <table className="min-w-full text-sm divide-y divide-gray-100">
-                                    <thead className="bg-gray-50">
-                                      <tr>
-                                        <th className="px-2 py-1 text-left text-xs font-medium text-gray-700 border-b border-gray-100">Depósito</th>
-                                        <th className="px-2 py-1 text-right text-xs font-medium text-gray-700 border-b border-gray-100">Qtd. Atual</th>
-                                        <th className="px-2 py-1 text-right text-xs font-medium text-gray-700 border-b border-gray-100">Qtd. Reservada</th>
-                                        <th className="px-2 py-1 text-right text-xs font-medium text-gray-700 border-b border-gray-100">Qtd. Bloqueada</th>
-                                        <th className="px-2 py-1 text-right text-xs font-medium text-gray-700 border-b border-gray-100">Qtd. Ordem Compra</th>
-                                        <th className="px-2 py-1 text-right text-xs font-medium text-gray-700 border-b border-gray-100">Qtd. Mínima</th>
-                                        <th className="px-2 py-1 text-right text-xs font-medium text-gray-700 border-b border-gray-100">Qtd. Máxima</th>
-                                        <th className="px-2 py-1 text-left text-xs font-medium text-gray-700 border-b border-gray-100">Última Entrada</th>
-                                        <th className="px-2 py-1 text-left text-xs font-medium text-gray-700 border-b border-gray-100">Última Saída</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody className="bg-white divide-y divide-gray-100">
-                                      {estoquesDerivacao.map((estoque, idx) => (
-                                        <tr key={idx} className="hover:bg-gray-50 border-b border-gray-100">
-                                          <td className="px-2 py-1 text-sm">{estoque.DES_DEPOSITO || estoque.COD_DEPOSITO}</td>
-                                          <td className="px-2 py-1 text-sm text-right">{formatarQuantidade(estoque.QTD_ATUAL)}</td>
-                                          <td className="px-2 py-1 text-sm text-right">{formatarQuantidade(estoque.QTD_RESERVADA)}</td>
-                                          <td className="px-2 py-1 text-sm text-right">{formatarQuantidade(estoque.QTD_BLOQUEADA)}</td>
-                                          <td className="px-2 py-1 text-sm text-right">{formatarQuantidade(estoque.QTD_ORDEM_COMPRA)}</td>
-                                          <td className="px-2 py-1 text-sm text-right">{formatarQuantidade(estoque.QTD_MINIMA_REPOSICAO)}</td>
-                                          <td className="px-2 py-1 text-sm text-right">{formatarQuantidade(estoque.QTD_MAXIMA_REPOSICAO)}</td>
-                                          <td className="px-2 py-1 text-sm">{formatarData(estoque.DAT_ULTIMA_ENTRADA)}</td>
-                                          <td className="px-2 py-1 text-sm">{formatarData(estoque.DAT_ULTIMA_SAIDA)}</td>
-                                        </tr>
-                                      ))}
-                                    </tbody>
-                                  </table>
-                                )}
-                              </div>
+                          <div className="overflow-x-auto">
+                            {estoquesDerivacao.length === 0 ? (
+                              <p className="text-sm text-gray-500 text-center py-8">
+                                Nenhum estoque encontrado
+                              </p>
+                            ) : (
+                              <table className="min-w-full text-sm divide-y divide-gray-100">
+                                <thead className="bg-gray-50">
+                                  <tr>
+                                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-700 border-b border-gray-100">
+                                      Depósito
+                                    </th>
+                                    <th className="px-2 py-1 text-right text-xs font-medium text-gray-700 border-b border-gray-100">
+                                      Qtd. Atual
+                                    </th>
+                                    <th className="px-2 py-1 text-right text-xs font-medium text-gray-700 border-b border-gray-100">
+                                      Qtd. Reservada
+                                    </th>
+                                    <th className="px-2 py-1 text-right text-xs font-medium text-gray-700 border-b border-gray-100">
+                                      Qtd. Bloqueada
+                                    </th>
+                                    <th className="px-2 py-1 text-right text-xs font-medium text-gray-700 border-b border-gray-100">
+                                      Qtd. Ordem Compra
+                                    </th>
+                                    <th className="px-2 py-1 text-right text-xs font-medium text-gray-700 border-b border-gray-100">
+                                      Qtd. Mínima
+                                    </th>
+                                    <th className="px-2 py-1 text-right text-xs font-medium text-gray-700 border-b border-gray-100">
+                                      Qtd. Máxima
+                                    </th>
+                                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-700 border-b border-gray-100">
+                                      Última Entrada
+                                    </th>
+                                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-700 border-b border-gray-100">
+                                      Última Saída
+                                    </th>
+                                  </tr>
+                                </thead>
+                                <tbody className="bg-white divide-y divide-gray-100">
+                                  {estoquesDerivacao.map((estoque, idx) => (
+                                    <tr
+                                      key={idx}
+                                      className="hover:bg-gray-50 border-b border-gray-100"
+                                    >
+                                      <td className="px-2 py-1 text-sm">
+                                        {estoque.DES_DEPOSITO ||
+                                          estoque.COD_DEPOSITO}
+                                      </td>
+                                      <td className="px-2 py-1 text-sm text-right">
+                                        {formatarQuantidade(estoque.QTD_ATUAL)}
+                                      </td>
+                                      <td className="px-2 py-1 text-sm text-right">
+                                        {formatarQuantidade(
+                                          estoque.QTD_RESERVADA
+                                        )}
+                                      </td>
+                                      <td className="px-2 py-1 text-sm text-right">
+                                        {formatarQuantidade(
+                                          estoque.QTD_BLOQUEADA
+                                        )}
+                                      </td>
+                                      <td className="px-2 py-1 text-sm text-right">
+                                        {formatarQuantidade(
+                                          estoque.QTD_ORDEM_COMPRA
+                                        )}
+                                      </td>
+                                      <td className="px-2 py-1 text-sm text-right">
+                                        {formatarQuantidade(
+                                          estoque.QTD_MINIMA_REPOSICAO
+                                        )}
+                                      </td>
+                                      <td className="px-2 py-1 text-sm text-right">
+                                        {formatarQuantidade(
+                                          estoque.QTD_MAXIMA_REPOSICAO
+                                        )}
+                                      </td>
+                                      <td className="px-2 py-1 text-sm">
+                                        {formatarData(
+                                          estoque.DAT_ULTIMA_ENTRADA
+                                        )}
+                                      </td>
+                                      <td className="px-2 py-1 text-sm">
+                                        {formatarData(estoque.DAT_ULTIMA_SAIDA)}
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
                             )}
+                          </div>
+                        )}
 
-                            {abaDerivacaoAtiva === "precos" && (
-                              <div className="overflow-x-auto">
-                                {precosDerivacao.length === 0 ? (
-                                  <p className="text-sm text-gray-500 text-center py-8">Nenhuma tabela de preço encontrada</p>
-                                ) : (
-                                  <table className="min-w-full text-sm divide-y divide-gray-100">
-                                    <thead className="bg-gray-50">
-                                      <tr>
-                                        <th className="px-2 py-1 text-left text-xs font-medium text-gray-700 border-b border-gray-100">Tabela de Preço</th>
-                                        <th className="px-2 py-1 text-left text-xs font-medium text-gray-700 border-b border-gray-100">Data Inicial</th>
-                                        <th className="px-2 py-1 text-left text-xs font-medium text-gray-700 border-b border-gray-100">Data Final</th>
-                                        <th className="px-2 py-1 text-right text-xs font-medium text-gray-700 border-b border-gray-100">Preço Unitário</th>
-                                        <th className="px-2 py-1 text-right text-xs font-medium text-gray-700 border-b border-gray-100">% Desconto</th>
-                                        <th className="px-2 py-1 text-right text-xs font-medium text-gray-700 border-b border-gray-100">% Acréscimo</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody className="bg-white divide-y divide-gray-100">
-                                      {precosDerivacao.map((tabela, idx) => (
-                                        <tr key={idx} className="hover:bg-gray-50 border-b border-gray-100">
-                                          <td className="px-2 py-1 text-sm">{tabela.DES_TABELA_PRECO || tabela.COD_TABELA_PRECO}</td>
-                                          <td className="px-2 py-1 text-sm">{formatarData(tabela.DAT_INICIAL)}</td>
-                                          <td className="px-2 py-1 text-sm">{formatarData(tabela.DAT_FINAL)}</td>
-                                          <td className="px-2 py-1 text-sm text-right">{formatarMoeda(tabela.VLR_PRECO_UNITARIO)}</td>
-                                          <td className="px-2 py-1 text-sm text-right">{tabela.PER_DESCONTO ? `${tabela.PER_DESCONTO.toFixed(2)}%` : "-"}</td>
-                                          <td className="px-2 py-1 text-sm text-right">{tabela.PER_ACRESCIMO ? `${tabela.PER_ACRESCIMO.toFixed(2)}%` : "-"}</td>
-                                        </tr>
-                                      ))}
-                                    </tbody>
-                                  </table>
-                                )}
-                              </div>
+                        {abaDerivacaoAtiva === "precos" && (
+                          <div className="overflow-x-auto">
+                            {precosDerivacao.length === 0 ? (
+                              <p className="text-sm text-gray-500 text-center py-8">
+                                Nenhuma tabela de preço encontrada
+                              </p>
+                            ) : (
+                              <table className="min-w-full text-sm divide-y divide-gray-100">
+                                <thead className="bg-gray-50">
+                                  <tr>
+                                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-700 border-b border-gray-100">
+                                      Tabela de Preço
+                                    </th>
+                                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-700 border-b border-gray-100">
+                                      Data Inicial
+                                    </th>
+                                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-700 border-b border-gray-100">
+                                      Data Final
+                                    </th>
+                                    <th className="px-2 py-1 text-right text-xs font-medium text-gray-700 border-b border-gray-100">
+                                      Preço Unitário
+                                    </th>
+                                    <th className="px-2 py-1 text-right text-xs font-medium text-gray-700 border-b border-gray-100">
+                                      % Desconto
+                                    </th>
+                                    <th className="px-2 py-1 text-right text-xs font-medium text-gray-700 border-b border-gray-100">
+                                      % Acréscimo
+                                    </th>
+                                  </tr>
+                                </thead>
+                                <tbody className="bg-white divide-y divide-gray-100">
+                                  {precosDerivacao.map((tabela, idx) => (
+                                    <tr
+                                      key={idx}
+                                      className="hover:bg-gray-50 border-b border-gray-100"
+                                    >
+                                      <td className="px-2 py-1 text-sm">
+                                        {tabela.DES_TABELA_PRECO ||
+                                          tabela.COD_TABELA_PRECO}
+                                      </td>
+                                      <td className="px-2 py-1 text-sm">
+                                        {formatarData(tabela.DAT_INICIAL)}
+                                      </td>
+                                      <td className="px-2 py-1 text-sm">
+                                        {formatarData(tabela.DAT_FINAL)}
+                                      </td>
+                                      <td className="px-2 py-1 text-sm text-right">
+                                        {formatarMoeda(
+                                          tabela.VLR_PRECO_UNITARIO
+                                        )}
+                                      </td>
+                                      <td className="px-2 py-1 text-sm text-right">
+                                        {tabela.PER_DESCONTO
+                                          ? `${tabela.PER_DESCONTO.toFixed(2)}%`
+                                          : "-"}
+                                      </td>
+                                      <td className="px-2 py-1 text-sm text-right">
+                                        {tabela.PER_ACRESCIMO
+                                          ? `${tabela.PER_ACRESCIMO.toFixed(2)}%`
+                                          : "-"}
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
                             )}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>

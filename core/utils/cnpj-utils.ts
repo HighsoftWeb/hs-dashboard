@@ -20,7 +20,9 @@ export function limparCnpj(cnpj: string): string {
  */
 export function validarFormatoCnpj(cnpj: string): boolean {
   const cnpjLimpo = limparCnpj(cnpj);
-  return cnpjLimpo.length === CNPJ_LENGTH && CNPJ_NUMBERS_ONLY_REGEX.test(cnpjLimpo);
+  return (
+    cnpjLimpo.length === CNPJ_LENGTH && CNPJ_NUMBERS_ONLY_REGEX.test(cnpjLimpo)
+  );
 }
 
 /**
@@ -29,7 +31,7 @@ export function validarFormatoCnpj(cnpj: string): boolean {
  */
 export function validarDigitosVerificadoresCnpj(cnpj: string): boolean {
   const cnpjLimpo = limparCnpj(cnpj);
-  
+
   if (cnpjLimpo.length !== CNPJ_LENGTH) {
     return false;
   }
@@ -91,12 +93,15 @@ export function validarCnpjCompleto(cnpj: string): boolean {
  */
 export function formatarCnpj(cnpj: string): string {
   const cnpjLimpo = limparCnpj(cnpj);
-  
+
   if (cnpjLimpo.length !== CNPJ_LENGTH) {
     return cnpj;
   }
-  
-  return cnpjLimpo.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, "$1.$2.$3/$4-$5");
+
+  return cnpjLimpo.replace(
+    /^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/,
+    "$1.$2.$3/$4-$5"
+  );
 }
 
 /**
@@ -110,9 +115,9 @@ export function validarELimparCnpj(
   if (!cnpj || typeof cnpj !== "string") {
     return null;
   }
-  
+
   const cnpjLimpo = limparCnpj(cnpj);
-  
+
   if (!validarFormatoCnpj(cnpjLimpo)) {
     return null;
   }
@@ -120,6 +125,6 @@ export function validarELimparCnpj(
   if (opcoes?.validarDigitos && !validarDigitosVerificadoresCnpj(cnpjLimpo)) {
     return null;
   }
-  
+
   return cnpjLimpo;
 }

@@ -56,7 +56,13 @@ export function verificarRefreshToken(token: string): RefreshTokenPayload {
   try {
     const decoded = jwt.verify(token, secret) as RefreshTokenPayload;
 
-    if (!decoded.jti || !decoded.iat || !decoded.codUsuario || !decoded.codEmpresa || !decoded.cnpj) {
+    if (
+      !decoded.jti ||
+      !decoded.iat ||
+      !decoded.codUsuario ||
+      !decoded.codEmpresa ||
+      !decoded.cnpj
+    ) {
       throw new Error("Refresh token inválido: faltam campos obrigatórios");
     }
 

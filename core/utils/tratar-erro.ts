@@ -27,7 +27,10 @@ export function tratarErroAPI(
   let status = 500;
   let codigo: ErrorCode = ERROR_CODES.INTERNAL_ERROR;
 
-  if (mensagem === ERROR_CODES.TOKEN_REVOGADO || mensagem.includes(ERROR_CODES.TOKEN_REVOGADO)) {
+  if (
+    mensagem === ERROR_CODES.TOKEN_REVOGADO ||
+    mensagem.includes(ERROR_CODES.TOKEN_REVOGADO)
+  ) {
     status = 401;
     codigo = ERROR_CODES.TOKEN_REVOGADO;
   } else if (mensagem.includes("Token") || mensagem.includes("não fornecido")) {
@@ -41,14 +44,10 @@ export function tratarErroAPI(
     codigo = ERROR_CODES.VALIDATION_ERROR;
   }
 
-  logger.error(
-    `Erro em ${opcoes?.endpoint || "endpoint desconhecido"}`,
-    erro,
-    {
-      method: opcoes?.method || "UNKNOWN",
-      ...opcoes?.contexto,
-    }
-  );
+  logger.error(`Erro em ${opcoes?.endpoint || "endpoint desconhecido"}`, erro, {
+    method: opcoes?.method || "UNKNOWN",
+    ...opcoes?.contexto,
+  });
 
   return NextResponse.json(
     {

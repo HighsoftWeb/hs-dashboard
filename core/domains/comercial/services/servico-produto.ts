@@ -1,5 +1,9 @@
 import { clienteHttp } from "@/core/http/cliente-http";
-import { ProdutoHttpService, FiltrosProduto, RespostaListagemProdutos } from "@/core/infrastructure/http/services/produto-http-service";
+import {
+  ProdutoHttpService,
+  FiltrosProduto,
+  RespostaListagemProdutos,
+} from "@/core/infrastructure/http/services/produto-http-service";
 import { ProdutoServicoDB } from "@/core/tipos/produto-db";
 
 export type { FiltrosProduto, RespostaListagemProdutos };
@@ -17,9 +21,7 @@ class ServicoProduto {
     return this.produtoService.listarProdutos(filtros);
   }
 
-  async obterProdutoPorCodigo(
-    codProduto: number
-  ): Promise<ProdutoServicoDB> {
+  async obterProdutoPorCodigo(codProduto: number): Promise<ProdutoServicoDB> {
     return this.produtoService.obterProdutoPorCodigo(codProduto);
   }
 

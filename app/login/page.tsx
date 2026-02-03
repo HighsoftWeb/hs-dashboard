@@ -30,7 +30,9 @@ export default function PaginaLogin(): React.JSX.Element {
   const [cnpj, setCnpj] = useState<string>("");
   const [cnpjValidado, setCnpjValidado] = useState<boolean>(false);
   const [empresasBanco, setEmpresasBanco] = useState<EmpresaBanco[]>([]);
-  const [empresaSelecionada, setEmpresaSelecionada] = useState<number | null>(null);
+  const [empresaSelecionada, setEmpresaSelecionada] = useState<number | null>(
+    null
+  );
   const [carregandoEmpresas, setCarregandoEmpresas] = useState<boolean>(false);
   const [credenciais, setCredenciais] = useState<CredenciaisLogin>({
     login: "",
@@ -57,79 +59,88 @@ export default function PaginaLogin(): React.JSX.Element {
     setIsTokenRevogado(false);
   }, []);
 
-  const carregarEmpresasBanco = useCallback(async (cnpj: string): Promise<void> => {
-    setCarregandoEmpresas(true);
-    setErro("");
+  const carregarEmpresasBanco = useCallback(
+    async (cnpj: string): Promise<void> => {
+      setCarregandoEmpresas(true);
+      setErro("");
 
-    try {
-      const resposta = await clienteHttp.get<EmpresaBanco[]>(
-        `/admin/empresas/cnpj/${cnpj}/empresas-banco`
-      );
-      
-      if (!resposta.success || !resposta.data) {
-        throw new Error(resposta.error?.message || "Erro ao carregar empresas");
-      }
+      try {
+        const resposta = await clienteHttp.get<EmpresaBanco[]>(
+          `/admin/empresas/cnpj/${cnpj}/empresas-banco`
+        );
 
-      if (Array.isArray(resposta.data)) {
-        setEmpresasBanco(resposta.data);
-        
-        if (resposta.data.length === 1) {
-          const codEmpresa = resposta.data[0].COD_EMPRESA;
-          setEmpresaSelecionada(codEmpresa);
-          setCredenciais((prev) => ({ ...prev, codEmpresa }));
+        if (!resposta.success || !resposta.data) {
+          throw new Error(
+            resposta.error?.message || "Erro ao carregar empresas"
+          );
         }
+
+        if (Array.isArray(resposta.data)) {
+          setEmpresasBanco(resposta.data);
+
+          if (resposta.data.length === 1) {
+            const codEmpresa = resposta.data[0].COD_EMPRESA;
+            setEmpresaSelecionada(codEmpresa);
+            setCredenciais((prev) => ({ ...prev, codEmpresa }));
+          }
+        }
+        setCarregandoInicial(false);
+      } catch (erroCarregar) {
+        const mensagemErro =
+          erroCarregar instanceof Error
+            ? erroCarregar.message
+            : "Erro ao carregar empresas";
+        setErro(mensagemErro);
+        setCarregandoInicial(false);
+      } finally {
+        setCarregandoEmpresas(false);
       }
-      setCarregandoInicial(false);
-    } catch (erroCarregar) {
-      const mensagemErro = erroCarregar instanceof Error 
-        ? erroCarregar.message 
-        : "Erro ao carregar empresas";
-      setErro(mensagemErro);
-      setCarregandoInicial(false);
-    } finally {
-      setCarregandoEmpresas(false);
-    }
-  }, []);
+    },
+    []
+  );
 
-  const validarCnpjAutomatico = useCallback(async (cnpjParaValidar: string): Promise<void> => {
-    setValidandoCnpj(true);
-    setErro("");
+  const validarCnpjAutomatico = useCallback(
+    async (cnpjParaValidar: string): Promise<void> => {
+      setValidandoCnpj(true);
+      setErro("");
 
-    try {
-      const cnpjLimpo = validarELimparCnpj(cnpjParaValidar);
-      if (!cnpjLimpo) {
+      try {
+        const cnpjLimpo = validarELimparCnpj(cnpjParaValidar);
+        if (!cnpjLimpo) {
+          limparEstadoLogin();
+          setCarregandoInicial(false);
+          return;
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
+        const resposta = await clienteHttp.get<{ nomeEmpresa: string }>(
+          `/admin/empresas/cnpj/${cnpjLimpo}`
+        );
+
+        if (!resposta.success || !resposta.data) {
+          limparEstadoLogin();
+          setCarregandoInicial(false);
+          return;
+        }
+
+        setNomeEmpresa(resposta.data.nomeEmpresa || "");
+        setCnpjValidado(true);
+        await carregarEmpresasBanco(cnpjLimpo);
+      } catch (erro) {
+        logger.error("Erro ao validar CNPJ", erro, {
+          endpoint: "/login",
+          method: "validarCnpj",
+        });
         limparEstadoLogin();
         setCarregandoInicial(false);
-        return;
+        setErro(erro instanceof Error ? erro.message : "Erro ao validar CNPJ");
+      } finally {
+        setValidandoCnpj(false);
       }
-
-      await new Promise((resolve) => setTimeout(resolve, 100));
-
-      const resposta = await clienteHttp.get<{ nomeEmpresa: string }>(
-        `/admin/empresas/cnpj/${cnpjLimpo}`
-      );
-      
-      if (!resposta.success || !resposta.data) {
-        limparEstadoLogin();
-        setCarregandoInicial(false);
-        return;
-      }
-
-      setNomeEmpresa(resposta.data.nomeEmpresa || "");
-      setCnpjValidado(true);
-      await carregarEmpresasBanco(cnpjLimpo);
-    } catch (erro) {
-      logger.error("Erro ao validar CNPJ", erro, {
-        endpoint: "/login",
-        method: "validarCnpj",
-      });
-      limparEstadoLogin();
-      setCarregandoInicial(false);
-      setErro(erro instanceof Error ? erro.message : "Erro ao validar CNPJ");
-    } finally {
-      setValidandoCnpj(false);
-    }
-  }, [carregarEmpresasBanco, limparEstadoLogin]);
+    },
+    [carregarEmpresasBanco, limparEstadoLogin]
+  );
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -140,14 +151,19 @@ export default function PaginaLogin(): React.JSX.Element {
       const mensagemRevogacao = sessionStorage.getItem(MENSAGEM_REVOGACAO_KEY);
 
       if (tokenRevogado === "true") {
-        const mensagem = mensagemRevogacao || "Outro usuário acessou o sistema com este mesmo login e empresa. Você foi desconectado por segurança.";
-        
+        const mensagem =
+          mensagemRevogacao ||
+          "Outro usuário acessou o sistema com este mesmo login e empresa. Você foi desconectado por segurança.";
+
         // Log para debug
-        console.log("[Login] Token revogado detectado. Exibindo mensagem:", mensagem);
-        
+        console.log(
+          "[Login] Token revogado detectado. Exibindo mensagem:",
+          mensagem
+        );
+
         setErro(mensagem);
         setIsTokenRevogado(true);
-        
+
         // Limpar apenas após um pequeno delay para garantir que a mensagem seja exibida
         setTimeout(() => {
           sessionStorage.removeItem(TOKEN_REVOGADO_KEY);
@@ -163,11 +179,16 @@ export default function PaginaLogin(): React.JSX.Element {
     const intervalId = setInterval(() => {
       const tokenRevogado = sessionStorage.getItem(TOKEN_REVOGADO_KEY);
       if (tokenRevogado === "true") {
-        const mensagem = sessionStorage.getItem(MENSAGEM_REVOGACAO_KEY) || "Outro usuário acessou o sistema com este mesmo login e empresa. Você foi desconectado por segurança.";
+        const mensagem =
+          sessionStorage.getItem(MENSAGEM_REVOGACAO_KEY) ||
+          "Outro usuário acessou o sistema com este mesmo login e empresa. Você foi desconectado por segurança.";
         // Usar função de atualização para evitar dependência
         setErro((prevErro) => {
           if (prevErro !== mensagem) {
-            console.log("[Login] Detectando token revogado via polling. Mensagem:", mensagem);
+            console.log(
+              "[Login] Detectando token revogado via polling. Mensagem:",
+              mensagem
+            );
             setIsTokenRevogado(true);
             return mensagem;
           }
@@ -186,7 +207,7 @@ export default function PaginaLogin(): React.JSX.Element {
       setCarregandoInicial(true);
       const cnpjSalvo = obterCnpjDoCookie();
       const codEmpresaSalvo = obterCodEmpresaDoCookie();
-      
+
       if (cnpjSalvo) {
         setCnpj(cnpjSalvo);
         if (codEmpresaSalvo) {
@@ -210,7 +231,7 @@ export default function PaginaLogin(): React.JSX.Element {
 
     try {
       const cnpjLimpo = validarELimparCnpj(cnpj);
-      
+
       if (!cnpjLimpo) {
         setErro("CNPJ inválido. Deve conter 14 dígitos.");
         setValidandoCnpj(false);
@@ -222,7 +243,7 @@ export default function PaginaLogin(): React.JSX.Element {
       const resposta = await clienteHttp.get<{ nomeEmpresa: string }>(
         `/admin/empresas/cnpj/${cnpjLimpo}`
       );
-      
+
       if (!resposta.success || !resposta.data) {
         throw new Error(resposta.error?.message || "Empresa não encontrada");
       }
@@ -232,9 +253,10 @@ export default function PaginaLogin(): React.JSX.Element {
       setCnpjValidado(true);
       await carregarEmpresasBanco(cnpjLimpo);
     } catch (erroValidacao) {
-      const mensagemErro = erroValidacao instanceof Error
-        ? erroValidacao.message
-        : "Erro ao validar CNPJ";
+      const mensagemErro =
+        erroValidacao instanceof Error
+          ? erroValidacao.message
+          : "Erro ao validar CNPJ";
       setErro(mensagemErro);
     } finally {
       setValidandoCnpj(false);
@@ -254,13 +276,13 @@ export default function PaginaLogin(): React.JSX.Element {
 
     try {
       const cnpjLimpo = validarELimparCnpj(cnpj);
-      
+
       if (!cnpjLimpo) {
         setErro("CNPJ inválido.");
         setCarregando(false);
         return;
       }
-      
+
       if (!empresaSelecionada) {
         setErro("Selecione uma empresa");
         setCarregando(false);
@@ -272,7 +294,7 @@ export default function PaginaLogin(): React.JSX.Element {
         codEmpresa: empresaSelecionada,
         cnpj: cnpjLimpo,
       });
-      
+
       salvarCnpjNoCookie(cnpjLimpo);
       salvarCodEmpresaNoCookie(empresaSelecionada);
       // Limpar mensagem de token revogado após login bem-sucedido
@@ -280,9 +302,10 @@ export default function PaginaLogin(): React.JSX.Element {
       setErro("");
       router.push("/dashboard");
     } catch (erroLogin) {
-      const mensagemErro = erroLogin instanceof Error
-        ? erroLogin.message
-        : "Erro ao fazer login. Verifique suas credenciais.";
+      const mensagemErro =
+        erroLogin instanceof Error
+          ? erroLogin.message
+          : "Erro ao fazer login. Verifique suas credenciais.";
       // Só atualizar erro se não for token revogado (para manter a mensagem original)
       if (!isTokenRevogado) {
         setErro(mensagemErro);
@@ -305,7 +328,9 @@ export default function PaginaLogin(): React.JSX.Element {
             <div className="w-20 h-20 border-4 border-[#04B2D9]/20 rounded-full"></div>
             <div className="w-20 h-20 border-4 border-[#094A73] border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div>
           </div>
-          <p className="text-sm text-gray-600 font-medium mt-6 animate-pulse">Carregando...</p>
+          <p className="text-sm text-gray-600 font-medium mt-6 animate-pulse">
+            Carregando...
+          </p>
         </div>
       </div>
     );
@@ -324,14 +349,14 @@ export default function PaginaLogin(): React.JSX.Element {
           <div className="text-center space-y-6">
             <div className="flex justify-center">
               <div className="relative">
-                  <Image
-                    src="/logo.png"
-                    alt="HighSoft Sistemas"
-                    width={200}
-                    height={64}
-                    className="h-16 w-auto object-contain"
-                    unoptimized
-                  />
+                <Image
+                  src="/logo.png"
+                  alt="HighSoft Sistemas"
+                  width={200}
+                  height={64}
+                  className="h-16 w-auto object-contain"
+                  unoptimized
+                />
               </div>
             </div>
           </div>
@@ -339,13 +364,20 @@ export default function PaginaLogin(): React.JSX.Element {
           {!cnpjValidado ? (
             <form className="space-y-6" onSubmit={handleValidarCnpj}>
               {(erro || isTokenRevogado) && (
-                <div className={`${isTokenRevogado ? "bg-yellow-50 border-l-4 border-yellow-500" : "bg-red-50 border-l-4 border-red-500"} rounded-lg p-4 animate-shake`}>
-                  <p className={`text-sm ${isTokenRevogado ? "text-yellow-800" : "text-red-800"} font-medium`}>
-                    {erro || (isTokenRevogado ? "Outro usuário acessou o sistema com este mesmo login e empresa. Você foi desconectado por segurança." : "")}
+                <div
+                  className={`${isTokenRevogado ? "bg-yellow-50 border-l-4 border-yellow-500" : "bg-red-50 border-l-4 border-red-500"} rounded-lg p-4 animate-shake`}
+                >
+                  <p
+                    className={`text-sm ${isTokenRevogado ? "text-yellow-800" : "text-red-800"} font-medium`}
+                  >
+                    {erro ||
+                      (isTokenRevogado
+                        ? "Outro usuário acessou o sistema com este mesmo login e empresa. Você foi desconectado por segurança."
+                        : "")}
                   </p>
                 </div>
               )}
-              
+
               {validandoCnpj && (
                 <div className="bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 rounded-xl p-4 shadow-sm">
                   <div className="flex items-center gap-3">
@@ -406,9 +438,16 @@ export default function PaginaLogin(): React.JSX.Element {
           ) : (
             <form className="space-y-6" onSubmit={handleSubmit}>
               {(erro || isTokenRevogado) && (
-                <div className={`${isTokenRevogado ? "bg-yellow-50 border-l-4 border-yellow-500" : "bg-red-50 border-l-4 border-red-500"} rounded-lg p-4 animate-shake`}>
-                  <p className={`text-sm ${isTokenRevogado ? "text-yellow-800" : "text-red-800"} font-medium`}>
-                    {erro || (isTokenRevogado ? "Outro usuário acessou o sistema com este mesmo login e empresa. Você foi desconectado por segurança." : "")}
+                <div
+                  className={`${isTokenRevogado ? "bg-yellow-50 border-l-4 border-yellow-500" : "bg-red-50 border-l-4 border-red-500"} rounded-lg p-4 animate-shake`}
+                >
+                  <p
+                    className={`text-sm ${isTokenRevogado ? "text-yellow-800" : "text-red-800"} font-medium`}
+                  >
+                    {erro ||
+                      (isTokenRevogado
+                        ? "Outro usuário acessou o sistema com este mesmo login e empresa. Você foi desconectado por segurança."
+                        : "")}
                   </p>
                 </div>
               )}
@@ -450,8 +489,12 @@ export default function PaginaLogin(): React.JSX.Element {
                       >
                         <option value="">Selecione uma empresa</option>
                         {empresasBanco.map((empresa) => (
-                          <option key={empresa.COD_EMPRESA} value={empresa.COD_EMPRESA}>
-                           {empresa.COD_EMPRESA} - {empresa.FAN_EMPRESA || empresa.NOM_EMPRESA}
+                          <option
+                            key={empresa.COD_EMPRESA}
+                            value={empresa.COD_EMPRESA}
+                          >
+                            {empresa.COD_EMPRESA} -{" "}
+                            {empresa.FAN_EMPRESA || empresa.NOM_EMPRESA}
                           </option>
                         ))}
                       </select>
@@ -471,7 +514,10 @@ export default function PaginaLogin(): React.JSX.Element {
                       required
                       value={credenciais.login}
                       onChange={(e) =>
-                        setCredenciais({ ...credenciais, login: e.target.value })
+                        setCredenciais({
+                          ...credenciais,
+                          login: e.target.value,
+                        })
                       }
                       placeholder="Login ou nome de usuário"
                       className="w-full pl-10 pr-4 py-3 border-2 border-[#A4A5A6] rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#094A73] focus:border-[#094A73] transition-all duration-200"
@@ -492,7 +538,10 @@ export default function PaginaLogin(): React.JSX.Element {
                       required
                       value={credenciais.senha}
                       onChange={(e) =>
-                        setCredenciais({ ...credenciais, senha: e.target.value })
+                        setCredenciais({
+                          ...credenciais,
+                          senha: e.target.value,
+                        })
                       }
                       placeholder="••••••••"
                       className="w-full pl-10 pr-4 py-3 border-2 border-[#A4A5A6] rounded-xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#094A73] focus:border-[#094A73] transition-all duration-200"
@@ -534,7 +583,8 @@ export default function PaginaLogin(): React.JSX.Element {
 
       <style jsx>{`
         @keyframes blob {
-          0%, 100% {
+          0%,
+          100% {
             transform: translate(0, 0) scale(1);
           }
           33% {
@@ -554,13 +604,21 @@ export default function PaginaLogin(): React.JSX.Element {
           animation-delay: 4s;
         }
         @keyframes shake {
-          0%, 100% {
+          0%,
+          100% {
             transform: translateX(0);
           }
-          10%, 30%, 50%, 70%, 90% {
+          10%,
+          30%,
+          50%,
+          70%,
+          90% {
             transform: translateX(-5px);
           }
-          20%, 40%, 60%, 80% {
+          20%,
+          40%,
+          60%,
+          80% {
             transform: translateX(5px);
           }
         }

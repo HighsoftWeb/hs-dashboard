@@ -5,14 +5,20 @@ import { LoginSchema } from "@/core/schemas/auth-schemas";
 import { rateLimitLogin } from "@/core/middleware/rate-limit";
 import { logger } from "@/core/utils/logger";
 import { criarHandler } from "@/core/utils/api-handler";
-import { criarRespostaSucesso, criarRespostaErro } from "@/core/utils/resposta-api";
+import {
+  criarRespostaSucesso,
+  criarRespostaErro,
+} from "@/core/utils/resposta-api";
 
 try {
   validarVariaveisAmbiente();
 } catch (erro) {
-  logger.warn("Algumas variáveis de ambiente não estão definidas (sistema de empresas pode ser usado)", {
-    error: erro instanceof Error ? erro.message : String(erro),
-  });
+  logger.warn(
+    "Algumas variáveis de ambiente não estão definidas (sistema de empresas pode ser usado)",
+    {
+      error: erro instanceof Error ? erro.message : String(erro),
+    }
+  );
 }
 
 export const POST = criarHandler(

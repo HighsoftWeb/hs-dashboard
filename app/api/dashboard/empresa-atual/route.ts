@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validarAutenticacao } from "@/core/middleware/auth-middleware";
-import { obterEmpresaConfigDoCookie, obterCodEmpresaDoCookie } from "@/core/utils/obter-empresa-cookie";
+import {
+  obterEmpresaConfigDoCookie,
+  obterCodEmpresaDoCookie,
+} from "@/core/utils/obter-empresa-cookie";
 import { poolBanco } from "@/core/db/pool-banco";
 import { tratarErroAPI } from "@/core/utils/tratar-erro";
-import { criarRespostaSucesso, criarRespostaErro } from "@/core/utils/resposta-api";
+import {
+  criarRespostaSucesso,
+  criarRespostaErro,
+} from "@/core/utils/resposta-api";
 
 interface EmpresaAtual {
   COD_EMPRESA: number;
@@ -28,7 +34,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     if (!codEmpresa) {
       return NextResponse.json(
-        criarRespostaErro("Código da empresa não encontrado", "VALIDATION_ERROR"),
+        criarRespostaErro(
+          "Código da empresa não encontrado",
+          "VALIDATION_ERROR"
+        ),
         { status: 400 }
       );
     }

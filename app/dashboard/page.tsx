@@ -5,7 +5,10 @@ import { useRouter } from "next/navigation";
 import { Building2, Package, FileText, User } from "lucide-react";
 import { LayoutDashboard } from "@/core/layouts/layout-dashboard";
 import { Orcamento } from "@/core/tipos";
-import { servicoDashboard, ContaVencendo } from "@/core/domains/dashboard/services/dashboard-client";
+import {
+  servicoDashboard,
+  ContaVencendo,
+} from "@/core/domains/dashboard/services/dashboard-client";
 import { EstatisticasDashboard } from "@/core/tipos/dashboard-db";
 import { DEFAULT_COD_EMPRESA } from "@/core/db/validar-env";
 import { formatarData } from "@/core/utils/formatar-data";
@@ -57,22 +60,30 @@ export default function PaginaDashboard(): React.JSX.Element {
     }).format(valor);
   };
 
-
   const obterCorStatus = (status: string): string => {
     const statusUpper = status.toUpperCase();
-    
-    if (statusUpper.includes("APROVADO") || statusUpper.includes("PROCESSADO") || statusUpper.includes("FATURADO")) {
+
+    if (
+      statusUpper.includes("APROVADO") ||
+      statusUpper.includes("PROCESSADO") ||
+      statusUpper.includes("FATURADO")
+    ) {
       return "bg-[#10B981]/20 text-[#10B981]";
     }
-    
+
     if (statusUpper.includes("CANCELADO")) {
       return "bg-[#EF4444]/20 text-[#EF4444]";
     }
-    
-    if (statusUpper.includes("ABERTO") || statusUpper.includes("AGUARDANDO") || statusUpper.includes("ROMANEIO") || statusUpper.includes("ORDEM")) {
+
+    if (
+      statusUpper.includes("ABERTO") ||
+      statusUpper.includes("AGUARDANDO") ||
+      statusUpper.includes("ROMANEIO") ||
+      statusUpper.includes("ORDEM")
+    ) {
       return "bg-[#F59E0B]/20 text-[#F59E0B]";
     }
-    
+
     return "bg-[#A4A5A6]/20 text-[#A4A5A6]";
   };
 
@@ -115,12 +126,10 @@ export default function PaginaDashboard(): React.JSX.Element {
         <div className="flex-shrink-0 mb-4">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                Dashboard
-              </h1>
+              <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
             </div>
             <div className="text-sm text-gray-500">
-            {formatarData(new Date())}
+              {formatarData(new Date())}
             </div>
           </div>
         </div>
@@ -233,10 +242,17 @@ export default function PaginaDashboard(): React.JSX.Element {
                     ) : (
                       orcamentosRecentes.map((orcamento) => {
                         const partesId = orcamento.id.split("-");
-                        const codEmpresa = partesId.length >= 3 ? Number.parseInt(partesId[0], 10) : DEFAULT_COD_EMPRESA;
-                        const indOrcamentoOS = partesId.length >= 3 ? partesId[1] : "OR";
-                        const numOrcamentoOS = partesId.length >= 3 ? Number.parseInt(partesId[2], 10) : 0;
-                        
+                        const codEmpresa =
+                          partesId.length >= 3
+                            ? Number.parseInt(partesId[0], 10)
+                            : DEFAULT_COD_EMPRESA;
+                        const indOrcamentoOS =
+                          partesId.length >= 3 ? partesId[1] : "OR";
+                        const numOrcamentoOS =
+                          partesId.length >= 3
+                            ? Number.parseInt(partesId[2], 10)
+                            : 0;
+
                         return (
                           <tr
                             key={orcamento.id}
@@ -249,28 +265,28 @@ export default function PaginaDashboard(): React.JSX.Element {
                               }
                             }}
                           >
-                          <td className="px-2 py-1 whitespace-nowrap text-sm font-medium text-[#094A73]">
-                            {obterNomeDocumento(orcamento.tipo)}
-                          </td>
-                          <td className="px-2 py-1 whitespace-nowrap text-sm font-medium text-gray-900">
-                            {orcamento.numero}
-                          </td>
-                          <td className="px-2 py-1 whitespace-nowrap text-sm text-gray-500">
-                            {formatarData(orcamento.data)}
-                          </td>
-                          <td className="px-2 py-1 whitespace-nowrap text-sm font-medium text-gray-900 text-right">
-                            {formatarMoeda(orcamento.valorTotal)}
-                          </td>
-                          <td className="px-2 py-1 whitespace-nowrap">
-                            <span
-                              className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${obterCorStatus(
-                                orcamento.status
-                              )}`}
-                            >
-                              {orcamento.status}
-                            </span>
-                          </td>
-                        </tr>
+                            <td className="px-2 py-1 whitespace-nowrap text-sm font-medium text-[#094A73]">
+                              {obterNomeDocumento(orcamento.tipo)}
+                            </td>
+                            <td className="px-2 py-1 whitespace-nowrap text-sm font-medium text-gray-900">
+                              {orcamento.numero}
+                            </td>
+                            <td className="px-2 py-1 whitespace-nowrap text-sm text-gray-500">
+                              {formatarData(orcamento.data)}
+                            </td>
+                            <td className="px-2 py-1 whitespace-nowrap text-sm font-medium text-gray-900 text-right">
+                              {formatarMoeda(orcamento.valorTotal)}
+                            </td>
+                            <td className="px-2 py-1 whitespace-nowrap">
+                              <span
+                                className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${obterCorStatus(
+                                  orcamento.status
+                                )}`}
+                              >
+                                {orcamento.status}
+                              </span>
+                            </td>
+                          </tr>
                         );
                       })
                     )}
@@ -281,13 +297,17 @@ export default function PaginaDashboard(): React.JSX.Element {
 
             <div className="flex-shrink-0 grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
               <div className="bg-gradient-to-br from-[#094A73] to-[#048ABF] rounded-lg shadow-sm p-4 text-white">
-                <p className="text-xs font-medium opacity-90">Receitas do Mês</p>
+                <p className="text-xs font-medium opacity-90">
+                  Receitas do Mês
+                </p>
                 <p className="text-xl font-bold mt-1">
                   {formatarMoeda(estatisticas.receitasMes)}
                 </p>
               </div>
               <div className="bg-gradient-to-br from-[#EF4444] to-[#DC2626] rounded-lg shadow-sm p-4 text-white">
-                <p className="text-xs font-medium opacity-90">Despesas do Mês</p>
+                <p className="text-xs font-medium opacity-90">
+                  Despesas do Mês
+                </p>
                 <p className="text-xl font-bold mt-1">
                   {formatarMoeda(estatisticas.despesasMes)}
                 </p>

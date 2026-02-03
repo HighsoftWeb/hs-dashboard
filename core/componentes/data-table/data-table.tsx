@@ -56,7 +56,9 @@ export function DataTable<T extends Record<string, unknown>>({
   const [carregando, setCarregando] = useState<boolean>(true);
   const [erro, setErro] = useState<string>("");
   const [pagina, setPagina] = useState<number>(1);
-  const [tamanhoPagina, setTamanhoPagina] = useState<number>(PAGINACAO_PADRAO.PAGE_SIZE);
+  const [tamanhoPagina, setTamanhoPagina] = useState<number>(
+    PAGINACAO_PADRAO.PAGE_SIZE
+  );
   const [total, setTotal] = useState<number>(0);
   const [ordenacao, setOrdenacao] = useState<{
     campo: string;
@@ -79,7 +81,11 @@ export function DataTable<T extends Record<string, unknown>>({
   }, [valoresFiltros]);
 
   const valoresFiltrosString = useMemo(
-    () => Object.entries(valoresFiltros).sort().map(([k, v]) => `${k}:${v}`).join("|"),
+    () =>
+      Object.entries(valoresFiltros)
+        .sort()
+        .map(([k, v]) => `${k}:${v}`)
+        .join("|"),
     [valoresFiltros]
   );
 
@@ -131,7 +137,9 @@ export function DataTable<T extends Record<string, unknown>>({
           total: number;
         }
 
-        const resposta = await clienteHttp.get<RespostaConsulta>(`${endpoint}?${queryString}`);
+        const resposta = await clienteHttp.get<RespostaConsulta>(
+          `${endpoint}?${queryString}`
+        );
 
         if (cancelado) return;
 
@@ -140,7 +148,11 @@ export function DataTable<T extends Record<string, unknown>>({
           if (dadosResposta && typeof dadosResposta === "object") {
             if ("data" in dadosResposta && Array.isArray(dadosResposta.data)) {
               setDados(dadosResposta.data);
-              setTotal(typeof dadosResposta.total === "number" ? dadosResposta.total : 0);
+              setTotal(
+                typeof dadosResposta.total === "number"
+                  ? dadosResposta.total
+                  : 0
+              );
             } else if (Array.isArray(dadosResposta)) {
               setDados(dadosResposta);
               setTotal(dadosResposta.length);
@@ -155,7 +167,8 @@ export function DataTable<T extends Record<string, unknown>>({
             setTotal(0);
           }
         } else {
-          const mensagemErro = resposta.error?.message || "Erro ao carregar dados";
+          const mensagemErro =
+            resposta.error?.message || "Erro ao carregar dados";
           setErro(mensagemErro);
           setDados([]);
           setTotal(0);
@@ -179,13 +192,20 @@ export function DataTable<T extends Record<string, unknown>>({
     return () => {
       cancelado = true;
     };
-  }, [endpoint, pagina, tamanhoPagina, ordenacao.campo, ordenacao.ordem, buscaTexto, valoresFiltrosString]);
+  }, [
+    endpoint,
+    pagina,
+    tamanhoPagina,
+    ordenacao.campo,
+    ordenacao.ordem,
+    buscaTexto,
+    valoresFiltrosString,
+  ]);
 
   const handleOrdenar = (campo: string): void => {
     setOrdenacao((prev) => ({
       campo,
-      ordem:
-        prev.campo === campo && prev.ordem === "asc" ? "desc" : "asc",
+      ordem: prev.campo === campo && prev.ordem === "asc" ? "desc" : "asc",
     }));
   };
 
@@ -286,7 +306,13 @@ export function DataTable<T extends Record<string, unknown>>({
                     </select>
                   ) : (
                     <input
-                      type={filtro.tipo === "numero" ? "number" : filtro.tipo === "data" ? "date" : "text"}
+                      type={
+                        filtro.tipo === "numero"
+                          ? "number"
+                          : filtro.tipo === "data"
+                            ? "date"
+                            : "text"
+                      }
                       value={valoresFiltros[filtro.chave] || ""}
                       onChange={(e) =>
                         setValoresFiltros((prev) => ({
@@ -294,7 +320,11 @@ export function DataTable<T extends Record<string, unknown>>({
                           [filtro.chave]: e.target.value,
                         }))
                       }
-                      placeholder={filtro.placeholder || filtro.tipo === "data" ? "dd/mm/aaaa" : ""}
+                      placeholder={
+                        filtro.placeholder || filtro.tipo === "data"
+                          ? "dd/mm/aaaa"
+                          : ""
+                      }
                       className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent"
                     />
                   )}
@@ -334,16 +364,22 @@ export function DataTable<T extends Record<string, unknown>>({
                 {colunas.map((coluna) => {
                   const chaveColuna = String(coluna.chave);
                   const isValorMonetario = chaveColuna.startsWith("VLR_");
-                  const alinhamento = coluna.alinhamento || (isValorMonetario ? "direita" : "esquerda");
-                  const textAlignClass = 
-                    alinhamento === "direita" ? "text-right" :
-                    alinhamento === "centro" ? "text-center" :
-                    "text-left";
-                  
+                  const alinhamento =
+                    coluna.alinhamento ||
+                    (isValorMonetario ? "direita" : "esquerda");
+                  const textAlignClass =
+                    alinhamento === "direita"
+                      ? "text-right"
+                      : alinhamento === "centro"
+                        ? "text-center"
+                        : "text-left";
+
                   return (
                     <th
                       key={String(coluna.chave)}
-                      style={coluna.largura ? { width: coluna.largura } : undefined}
+                      style={
+                        coluna.largura ? { width: coluna.largura } : undefined
+                      }
                       className={`px-2 py-1 ${textAlignClass} text-xs font-medium text-gray-500 border-b border-gray-100 ${
                         coluna.ordenavel !== false
                           ? "cursor-pointer hover:bg-gray-100"
@@ -354,7 +390,9 @@ export function DataTable<T extends Record<string, unknown>>({
                         handleOrdenar(String(coluna.chave))
                       }
                     >
-                      <div className={`flex items-center gap-1 ${alinhamento === "direita" ? "justify-end" : alinhamento === "centro" ? "justify-center" : ""}`}>
+                      <div
+                        className={`flex items-center gap-1 ${alinhamento === "direita" ? "justify-end" : alinhamento === "centro" ? "justify-center" : ""}`}
+                      >
                         <span>{coluna.titulo}</span>
                         {coluna.ordenavel !== false &&
                           ordenacao.campo === String(coluna.chave) && (
@@ -397,12 +435,16 @@ export function DataTable<T extends Record<string, unknown>>({
                     {colunas.map((coluna) => {
                       const chaveColuna = String(coluna.chave);
                       const isValorMonetario = chaveColuna.startsWith("VLR_");
-                      const alinhamento = coluna.alinhamento || (isValorMonetario ? "direita" : "esquerda");
-                      const textAlignClass = 
-                        alinhamento === "direita" ? "text-right" :
-                        alinhamento === "centro" ? "text-center" :
-                        "text-left";
-                      
+                      const alinhamento =
+                        coluna.alinhamento ||
+                        (isValorMonetario ? "direita" : "esquerda");
+                      const textAlignClass =
+                        alinhamento === "direita"
+                          ? "text-right"
+                          : alinhamento === "centro"
+                            ? "text-center"
+                            : "text-left";
+
                       return (
                         <td
                           key={String(coluna.chave)}
@@ -425,31 +467,37 @@ export function DataTable<T extends Record<string, unknown>>({
                   {colunas.map((coluna) => {
                     const chaveColuna = String(coluna.chave);
                     const isValorMonetario = chaveColuna.startsWith("VLR_");
-                    const alinhamento = coluna.alinhamento || (isValorMonetario ? "direita" : "esquerda");
-                    const textAlignClass = 
-                      alinhamento === "direita" ? "text-right" :
-                      alinhamento === "centro" ? "text-center" :
-                      "text-left";
-                    
-                    const deveTotalizar = colunasTotalizar.includes(chaveColuna);
-                    
+                    const alinhamento =
+                      coluna.alinhamento ||
+                      (isValorMonetario ? "direita" : "esquerda");
+                    const textAlignClass =
+                      alinhamento === "direita"
+                        ? "text-right"
+                        : alinhamento === "centro"
+                          ? "text-center"
+                          : "text-left";
+
+                    const deveTotalizar =
+                      colunasTotalizar.includes(chaveColuna);
+
                     return (
                       <td
                         key={String(coluna.chave)}
                         className={`px-2 py-1 whitespace-nowrap text-sm text-gray-900 ${textAlignClass}`}
                       >
-                        {deveTotalizar ? (
-                          coluna.renderizar ? (
-                            coluna.renderizar(calcularTotais[chaveColuna] || 0, {} as T)
-                          ) : (
-                            new Intl.NumberFormat("pt-BR", {
-                              style: "currency",
-                              currency: "BRL",
-                            }).format(calcularTotais[chaveColuna] || 0)
-                          )
-                        ) : (
-                          chaveColuna === colunas[0].chave ? "TOTAL" : ""
-                        )}
+                        {deveTotalizar
+                          ? coluna.renderizar
+                            ? coluna.renderizar(
+                                calcularTotais[chaveColuna] || 0,
+                                {} as T
+                              )
+                            : new Intl.NumberFormat("pt-BR", {
+                                style: "currency",
+                                currency: "BRL",
+                              }).format(calcularTotais[chaveColuna] || 0)
+                          : chaveColuna === colunas[0].chave
+                            ? "TOTAL"
+                            : ""}
                       </td>
                     );
                   })}
@@ -462,8 +510,9 @@ export function DataTable<T extends Record<string, unknown>>({
         {mostrarPaginacao && totalPaginas > 1 && (
           <div className="bg-white px-3 py-2 border-t border-gray-200 flex items-center justify-between">
             <div className="text-xs text-gray-700">
-              Mostrando {dados.length > 0 ? (pagina - 1) * tamanhoPagina + 1 : 0}{" "}
-              até {Math.min(pagina * tamanhoPagina, total)} de {total} registros
+              Mostrando{" "}
+              {dados.length > 0 ? (pagina - 1) * tamanhoPagina + 1 : 0} até{" "}
+              {Math.min(pagina * tamanhoPagina, total)} de {total} registros
             </div>
             <div className="flex items-center gap-2">
               <button

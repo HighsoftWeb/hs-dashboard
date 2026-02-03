@@ -42,14 +42,18 @@ class RefreshTokenRepository {
     this.initialized = true;
   }
 
-  private cleanupExpiredTokens(db: ReturnType<typeof obterBancoEmpresas>): void {
+  private cleanupExpiredTokens(
+    db: ReturnType<typeof obterBancoEmpresas>
+  ): void {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - this.RETENTION_DAYS);
 
-    db.prepare(`
+    db.prepare(
+      `
       DELETE FROM refresh_tokens 
       WHERE criado_em < ?
-    `).run(cutoffDate.toISOString());
+    `
+    ).run(cutoffDate.toISOString());
   }
 
   /**
@@ -63,10 +67,12 @@ class RefreshTokenRepository {
     this.ensureInitialized();
     const db = obterBancoEmpresas();
 
-    db.prepare(`
+    db.prepare(
+      `
       INSERT INTO refresh_tokens (jti, cod_usuario, cod_empresa, criado_em)
       VALUES (?, ?, ?, CURRENT_TIMESTAMP)
-    `).run(jti, codUsuario, codEmpresa);
+    `
+    ).run(jti, codUsuario, codEmpresa);
   }
 
   /**
@@ -77,13 +83,15 @@ class RefreshTokenRepository {
     const db = obterBancoEmpresas();
 
     const resultado = db
-      .prepare(`
+      .prepare(
+        `
         SELECT jti 
         FROM refresh_tokens 
         WHERE jti = ? 
           AND usado_em IS NULL 
           AND revogado_em IS NULL
-      `)
+      `
+      )
       .get(jti) as RefreshTokenRecord | undefined;
 
     return !!resultado;
@@ -96,11 +104,13 @@ class RefreshTokenRepository {
     this.ensureInitialized();
     const db = obterBancoEmpresas();
 
-    db.prepare(`
+    db.prepare(
+      `
       UPDATE refresh_tokens 
       SET usado_em = CURRENT_TIMESTAMP 
       WHERE jti = ?
-    `).run(jti);
+    `
+    ).run(jti);
   }
 
   /**
@@ -113,13 +123,15 @@ class RefreshTokenRepository {
     this.ensureInitialized();
     const db = obterBancoEmpresas();
 
-    db.prepare(`
+    db.prepare(
+      `
       UPDATE refresh_tokens 
       SET revogado_em = CURRENT_TIMESTAMP 
       WHERE cod_usuario = ? 
         AND cod_empresa = ? 
         AND revogado_em IS NULL
-    `).run(codUsuario, codEmpresa);
+    `
+    ).run(codUsuario, codEmpresa);
   }
 
   /**
@@ -129,11 +141,13 @@ class RefreshTokenRepository {
     this.ensureInitialized();
     const db = obterBancoEmpresas();
 
-    db.prepare(`
+    db.prepare(
+      `
       UPDATE refresh_tokens 
       SET revogado_em = CURRENT_TIMESTAMP 
       WHERE jti = ?
-    `).run(jti);
+    `
+    ).run(jti);
   }
 }
 

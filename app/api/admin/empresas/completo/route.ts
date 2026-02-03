@@ -33,7 +33,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       {
         success: false,
         error: {
-          message: erro instanceof Error ? erro.message : "Erro ao listar empresas",
+          message:
+            erro instanceof Error ? erro.message : "Erro ao listar empresas",
         },
       },
       { status: 500 }

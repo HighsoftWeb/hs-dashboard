@@ -3,7 +3,10 @@ import { validarAutenticacao } from "@/core/middleware/auth-middleware";
 import { autenticacaoService } from "@/core/domains/auth/server/auth-service";
 import { empresaConfigRepository } from "@/core/repository/empresa-config-repository";
 import { criarHandler } from "@/core/utils/api-handler";
-import { criarRespostaSucesso, criarRespostaErro } from "@/core/utils/resposta-api";
+import {
+  criarRespostaSucesso,
+  criarRespostaErro,
+} from "@/core/utils/resposta-api";
 
 export const GET = criarHandler(
   async (request: NextRequest): Promise<NextResponse> => {
@@ -12,7 +15,10 @@ export const GET = criarHandler(
     const cnpjCookie = request.cookies.get("empresa_cnpj")?.value;
     if (!cnpjCookie || cnpjCookie.length !== 14) {
       return NextResponse.json(
-        criarRespostaErro("CNPJ da empresa não encontrado", "EMPRESA_NOT_FOUND"),
+        criarRespostaErro(
+          "CNPJ da empresa não encontrado",
+          "EMPRESA_NOT_FOUND"
+        ),
         { status: 400 }
       );
     }

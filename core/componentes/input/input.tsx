@@ -39,9 +39,7 @@ export function Input({
         `}
         {...props}
       />
-      {erro && (
-        <p className="mt-1 text-sm text-red-600">{erro}</p>
-      )}
+      {erro && <p className="mt-1 text-sm text-red-600">{erro}</p>}
     </div>
   );
 }

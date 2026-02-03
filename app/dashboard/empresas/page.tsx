@@ -47,9 +47,7 @@ export default function PaginaEmpresas(): React.JSX.Element {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">
-              Empresas
-            </h1>
+            <h1 className="text-3xl font-bold text-gray-900">Empresas</h1>
             <p className="mt-2 text-gray-600">
               Gerencie as empresas do sistema
             </p>

@@ -27,7 +27,10 @@ export async function GET(
       );
     }
 
-    const empresa = await detalhesRepository.obterEmpresaCompleto(codEmpresaNum, empresaConfig);
+    const empresa = await detalhesRepository.obterEmpresaCompleto(
+      codEmpresaNum,
+      empresaConfig
+    );
 
     return NextResponse.json({
       success: true,

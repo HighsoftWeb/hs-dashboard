@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { empresaConfigRepository } from "@/core/repository/empresa-config-repository";
 import { EmpresaConfigInput } from "@/core/entities/EmpresaConfig";
 import { filtrarEmpresaSegura } from "@/core/utils/filtrar-empresa-segura";
-import { validarCnpjCompleto, validarELimparCnpj } from "@/core/utils/cnpj-utils";
+import {
+  validarCnpjCompleto,
+  validarELimparCnpj,
+} from "@/core/utils/cnpj-utils";
 import { CriarEmpresaSchema } from "@/core/schemas/empresa-schemas";
 import { tratarErroAPI } from "@/core/utils/tratar-erro";
 
@@ -19,7 +22,8 @@ export async function GET(): Promise<NextResponse> {
       {
         success: false,
         error: {
-          message: erro instanceof Error ? erro.message : "Erro ao listar empresas",
+          message:
+            erro instanceof Error ? erro.message : "Erro ao listar empresas",
         },
       },
       { status: 500 }
@@ -45,7 +49,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const cnpjLimpo = validarELimparCnpj(validacao.data.cnpj, { validarDigitos: true });
+    const cnpjLimpo = validarELimparCnpj(validacao.data.cnpj, {
+      validarDigitos: true,
+    });
 
     if (!cnpjLimpo) {
       return NextResponse.json(
@@ -81,7 +87,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       nomeBase: validacao.data.nomeBase,
       usuario: validacao.data.usuario,
       senha: validacao.data.senha,
-      codigosUsuariosPermitidos: validacao.data.codigosUsuariosPermitidos || undefined,
+      codigosUsuariosPermitidos:
+        validacao.data.codigosUsuariosPermitidos || undefined,
     };
 
     const empresaExistente = empresaConfigRepository.obterPorCnpj(empresa.cnpj);
