@@ -1,6 +1,4 @@
-const variaveisObrigatorias = [
-  "JWT_SECRET",
-] as const;
+const variaveisObrigatorias = ["JWT_SECRET"] as const;
 
 export function validarVariaveisAmbiente(): void {
   const variaveisFaltantes: string[] = [];

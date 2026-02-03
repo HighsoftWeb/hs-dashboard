@@ -25,10 +25,7 @@ const customJestConfig = {
       statements: 50,
     },
   },
-  testMatch: [
-    "**/__tests__/**/*.[jt]s?(x)",
-    "**/?(*.)+(spec|test).[jt]s?(x)",
-  ],
+  testMatch: ["**/__tests__/**/*.[jt]s?(x)", "**/?(*.)+(spec|test).[jt]s?(x)"],
 };
 
 module.exports = createJestConfig(customJestConfig);

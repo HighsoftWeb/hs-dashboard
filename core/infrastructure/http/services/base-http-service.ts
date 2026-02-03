@@ -1,6 +1,6 @@
-import { HttpClient } from '../client/http-client';
-import { RespostaApi } from '@/core/tipos/resposta-api';
-import { HttpServiceError } from '../exceptions/http-service-error';
+import { HttpClient } from "../client/http-client";
+import { RespostaApi } from "@/core/tipos/resposta-api";
+import { HttpServiceError } from "../exceptions/http-service-error";
 
 export interface BaseServiceOptions {
   dateFields?: string[];
@@ -14,7 +14,7 @@ export interface BaseServiceOptions {
 export abstract class BaseHttpService<
   TEntity,
   TCreateDto = Partial<TEntity>,
-  TUpdateDto = Partial<TEntity>
+  TUpdateDto = Partial<TEntity>,
 > {
   protected readonly dateFields: string[];
 
@@ -23,18 +23,16 @@ export abstract class BaseHttpService<
     protected readonly basePath: string,
     options: BaseServiceOptions = {}
   ) {
-    this.dateFields = options.dateFields || ['criadoEm', 'atualizadoEm'];
+    this.dateFields = options.dateFields || ["criadoEm", "atualizadoEm"];
   }
 
   /**
    * Lista todas as entidades
    */
   async listar(): Promise<TEntity[]> {
-    const response = await this.httpClient.get<TEntity[]>(
-      this.basePath
-    );
+    const response = await this.httpClient.get<TEntity[]>(this.basePath);
 
-    this.validateResponse(response, 'listar');
+    this.validateResponse(response, "listar");
 
     const data = response.data as TEntity[];
     return this.transformDates(data) as TEntity[];
@@ -48,7 +46,7 @@ export abstract class BaseHttpService<
       `${this.basePath}/${id}`
     );
 
-    this.validateResponse(response, 'obter');
+    this.validateResponse(response, "obter");
 
     const data = response.data as TEntity;
     return this.transformDates(data) as TEntity;
@@ -58,12 +56,9 @@ export abstract class BaseHttpService<
    * Cria uma nova entidade
    */
   async criar(dados: TCreateDto): Promise<TEntity> {
-    const response = await this.httpClient.post<TEntity>(
-      this.basePath,
-      dados
-    );
+    const response = await this.httpClient.post<TEntity>(this.basePath, dados);
 
-    this.validateResponse(response, 'criar');
+    this.validateResponse(response, "criar");
 
     const data = response.data as TEntity;
     return this.transformDates(data) as TEntity;
@@ -78,7 +73,7 @@ export abstract class BaseHttpService<
       dados
     );
 
-    this.validateResponse(response, 'atualizar');
+    this.validateResponse(response, "atualizar");
 
     const data = response.data as TEntity;
     return this.transformDates(data) as TEntity;
@@ -94,8 +89,7 @@ export abstract class BaseHttpService<
 
     if (!response.success) {
       throw new HttpServiceError(
-        response.error?.message ||
-          `Erro ao excluir ${this.getEntityName()}`,
+        response.error?.message || `Erro ao excluir ${this.getEntityName()}`,
         response.error?.code
       );
     }
@@ -106,7 +100,9 @@ export abstract class BaseHttpService<
    */
   protected transformDates(data: TEntity | TEntity[]): TEntity | TEntity[] {
     if (Array.isArray(data)) {
-      return data.map((item) => this.transformSingleDate(item as Record<string, unknown>)) as TEntity[];
+      return data.map((item) =>
+        this.transformSingleDate(item as Record<string, unknown>)
+      ) as TEntity[];
     }
     return this.transformSingleDate(data as Record<string, unknown>);
   }
@@ -117,7 +113,7 @@ export abstract class BaseHttpService<
   protected transformSingleDate(item: Record<string, unknown>): TEntity {
     const transformed = { ...item };
     this.dateFields.forEach((field) => {
-      if (transformed[field] && typeof transformed[field] === 'string') {
+      if (transformed[field] && typeof transformed[field] === "string") {
         transformed[field] = new Date(transformed[field] as string);
       }
     });
@@ -133,8 +129,7 @@ export abstract class BaseHttpService<
   ): void {
     if (!response.success || !response.data) {
       throw new HttpServiceError(
-        response.error?.message ||
-          `Erro ao ${action} ${this.getEntityName()}`,
+        response.error?.message || `Erro ao ${action} ${this.getEntityName()}`,
         response.error?.code
       );
     }

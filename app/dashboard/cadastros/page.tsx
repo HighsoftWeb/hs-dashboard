@@ -3,7 +3,11 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { LayoutDashboard } from "@/core/layouts/layout-dashboard";
-import { DataTable, ColunaDataTable, FiltroDataTable } from "@/core/componentes/data-table/data-table";
+import {
+  DataTable,
+  ColunaDataTable,
+  FiltroDataTable,
+} from "@/core/componentes/data-table/data-table";
 
 interface UsuarioDB extends Record<string, unknown> {
   COD_USUARIO: number;
@@ -53,13 +57,35 @@ interface ProdutoDB extends Record<string, unknown> {
 
 export default function PaginaCadastros(): React.JSX.Element {
   const router = useRouter();
-  const [abaAtiva, setAbaAtiva] = useState<"usuarios" | "empresas" | "clientes" | "produtos">("usuarios");
+  const [abaAtiva, setAbaAtiva] = useState<
+    "usuarios" | "empresas" | "clientes" | "produtos"
+  >("usuarios");
 
   const colunasUsuarios: ColunaDataTable<UsuarioDB>[] = [
-    { chave: "COD_USUARIO", titulo: "Código", ordenavel: true, alinhamento: "direita" },
-    { chave: "NOM_USUARIO", titulo: "Nome", ordenavel: true, alinhamento: "esquerda" },
-    { chave: "ABR_USUARIO", titulo: "Abreviação", ordenavel: true, alinhamento: "esquerda" },
-    { chave: "COD_GRUPO_USUARIO", titulo: "Grupo", ordenavel: true, alinhamento: "direita" },
+    {
+      chave: "COD_USUARIO",
+      titulo: "Código",
+      ordenavel: true,
+      alinhamento: "direita",
+    },
+    {
+      chave: "NOM_USUARIO",
+      titulo: "Nome",
+      ordenavel: true,
+      alinhamento: "esquerda",
+    },
+    {
+      chave: "ABR_USUARIO",
+      titulo: "Abreviação",
+      ordenavel: true,
+      alinhamento: "esquerda",
+    },
+    {
+      chave: "COD_GRUPO_USUARIO",
+      titulo: "Grupo",
+      ordenavel: true,
+      alinhamento: "direita",
+    },
     {
       chave: "IND_CRIPTOGRAFADO",
       titulo: "Criptografado",
@@ -91,14 +117,54 @@ export default function PaginaCadastros(): React.JSX.Element {
   ];
 
   const colunasEmpresas: ColunaDataTable<EmpresaDB>[] = [
-    { chave: "COD_EMPRESA", titulo: "Código", ordenavel: true, alinhamento: "direita" },
-    { chave: "NOM_EMPRESA", titulo: "Nome", ordenavel: true, alinhamento: "esquerda" },
-    { chave: "FAN_EMPRESA", titulo: "Fantasia", ordenavel: true, alinhamento: "esquerda" },
-    { chave: "CGC_EMPRESA", titulo: "CNPJ", ordenavel: true, alinhamento: "esquerda" },
-    { chave: "TEL_EMPRESA", titulo: "Telefone", ordenavel: true, alinhamento: "esquerda" },
-    { chave: "MAI_EMPRESA", titulo: "E-mail", ordenavel: true, alinhamento: "esquerda" },
-    { chave: "COD_CIDADE", titulo: "Cidade", ordenavel: true, alinhamento: "direita" },
-    { chave: "SIG_ESTADO", titulo: "Estado", ordenavel: true, alinhamento: "esquerda" },
+    {
+      chave: "COD_EMPRESA",
+      titulo: "Código",
+      ordenavel: true,
+      alinhamento: "direita",
+    },
+    {
+      chave: "NOM_EMPRESA",
+      titulo: "Nome",
+      ordenavel: true,
+      alinhamento: "esquerda",
+    },
+    {
+      chave: "FAN_EMPRESA",
+      titulo: "Fantasia",
+      ordenavel: true,
+      alinhamento: "esquerda",
+    },
+    {
+      chave: "CGC_EMPRESA",
+      titulo: "CNPJ",
+      ordenavel: true,
+      alinhamento: "esquerda",
+    },
+    {
+      chave: "TEL_EMPRESA",
+      titulo: "Telefone",
+      ordenavel: true,
+      alinhamento: "esquerda",
+    },
+    {
+      chave: "MAI_EMPRESA",
+      titulo: "E-mail",
+      ordenavel: true,
+      alinhamento: "esquerda",
+    },
+    {
+      chave: "COD_CIDADE",
+      titulo: "Cidade",
+      ordenavel: true,
+      alinhamento: "direita",
+    },
+    {
+      chave: "SIG_ESTADO",
+      titulo: "Estado",
+      ordenavel: true,
+      alinhamento: "esquerda",
+    },
     {
       chave: "SIT_EMPRESA",
       titulo: "Status",
@@ -121,10 +187,30 @@ export default function PaginaCadastros(): React.JSX.Element {
   ];
 
   const colunasClientes: ColunaDataTable<ClienteDB>[] = [
-    { chave: "COD_CLI_FOR", titulo: "Código", ordenavel: true, alinhamento: "direita" },
-    { chave: "RAZ_CLI_FOR", titulo: "Razão Social", ordenavel: true, alinhamento: "esquerda" },
-    { chave: "FAN_CLI_FOR", titulo: "Fantasia", ordenavel: true, alinhamento: "esquerda" },
-    { chave: "CGC_CPF", titulo: "CPF/CNPJ", ordenavel: true, alinhamento: "esquerda" },
+    {
+      chave: "COD_CLI_FOR",
+      titulo: "Código",
+      ordenavel: true,
+      alinhamento: "direita",
+    },
+    {
+      chave: "RAZ_CLI_FOR",
+      titulo: "Razão Social",
+      ordenavel: true,
+      alinhamento: "esquerda",
+    },
+    {
+      chave: "FAN_CLI_FOR",
+      titulo: "Fantasia",
+      ordenavel: true,
+      alinhamento: "esquerda",
+    },
+    {
+      chave: "CGC_CPF",
+      titulo: "CPF/CNPJ",
+      ordenavel: true,
+      alinhamento: "esquerda",
+    },
     {
       chave: "TIP_CLI_FOR",
       titulo: "Tipo Pessoa",
@@ -151,10 +237,30 @@ export default function PaginaCadastros(): React.JSX.Element {
         return tipos[tipo] || tipo;
       },
     },
-    { chave: "TEL_CLI_FOR", titulo: "Telefone", ordenavel: true, alinhamento: "esquerda" },
-    { chave: "END_ELETRONICO", titulo: "E-mail", ordenavel: true, alinhamento: "esquerda" },
-    { chave: "COD_CIDADE", titulo: "Cidade", ordenavel: true, alinhamento: "direita" },
-    { chave: "SIG_ESTADO", titulo: "Estado", ordenavel: true, alinhamento: "esquerda" },
+    {
+      chave: "TEL_CLI_FOR",
+      titulo: "Telefone",
+      ordenavel: true,
+      alinhamento: "esquerda",
+    },
+    {
+      chave: "END_ELETRONICO",
+      titulo: "E-mail",
+      ordenavel: true,
+      alinhamento: "esquerda",
+    },
+    {
+      chave: "COD_CIDADE",
+      titulo: "Cidade",
+      ordenavel: true,
+      alinhamento: "direita",
+    },
+    {
+      chave: "SIG_ESTADO",
+      titulo: "Estado",
+      ordenavel: true,
+      alinhamento: "esquerda",
+    },
     {
       chave: "SIT_CLI_FOR",
       titulo: "Status",
@@ -177,8 +283,18 @@ export default function PaginaCadastros(): React.JSX.Element {
   ];
 
   const colunasProdutos: ColunaDataTable<ProdutoDB>[] = [
-    { chave: "COD_PRODUTO", titulo: "Código", ordenavel: true, alinhamento: "direita" },
-    { chave: "DES_PRODUTO", titulo: "Descrição", ordenavel: true, alinhamento: "esquerda" },
+    {
+      chave: "COD_PRODUTO",
+      titulo: "Código",
+      ordenavel: true,
+      alinhamento: "direita",
+    },
+    {
+      chave: "DES_PRODUTO",
+      titulo: "Descrição",
+      ordenavel: true,
+      alinhamento: "esquerda",
+    },
     {
       chave: "IND_PRODUTO_SERVICO",
       titulo: "Tipo",
@@ -189,8 +305,18 @@ export default function PaginaCadastros(): React.JSX.Element {
         return ind === "P" ? "Produto" : ind === "S" ? "Serviço" : ind;
       },
     },
-    { chave: "COD_UNIDADE_MEDIDA", titulo: "Unidade", ordenavel: true, alinhamento: "esquerda" },
-    { chave: "COD_USUARIO", titulo: "Usuário", ordenavel: true, alinhamento: "direita" },
+    {
+      chave: "COD_UNIDADE_MEDIDA",
+      titulo: "Unidade",
+      ordenavel: true,
+      alinhamento: "esquerda",
+    },
+    {
+      chave: "COD_USUARIO",
+      titulo: "Usuário",
+      ordenavel: true,
+      alinhamento: "direita",
+    },
     {
       chave: "OBS_PRODUTO",
       titulo: "Observações",
@@ -206,7 +332,7 @@ export default function PaginaCadastros(): React.JSX.Element {
       ordenavel: true,
       renderizar: (valor) => {
         const sit = String(valor || "");
-    return (
+        return (
           <span
             className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
               sit === "A"
@@ -258,7 +384,7 @@ export default function PaginaCadastros(): React.JSX.Element {
   return (
     <LayoutDashboard>
       <div className="space-y-6">
-          <div>
+        <div>
           <h1 className="text-3xl font-bold text-gray-900">Cadastros</h1>
         </div>
 
@@ -323,7 +449,9 @@ export default function PaginaCadastros(): React.JSX.Element {
                 endpoint="/dashboard/cadastros/empresas"
                 ordenacaoPadrao={{ campo: "NOM_EMPRESA", ordem: "asc" }}
                 onRowClick={(empresa) => {
-                  router.push(`/dashboard/cadastros/empresas/${empresa.COD_EMPRESA}`);
+                  router.push(
+                    `/dashboard/cadastros/empresas/${empresa.COD_EMPRESA}`
+                  );
                 }}
               />
             )}
@@ -335,7 +463,9 @@ export default function PaginaCadastros(): React.JSX.Element {
                 filtros={filtrosClientes}
                 ordenacaoPadrao={{ campo: "RAZ_CLI_FOR", ordem: "asc" }}
                 onRowClick={(cliente) => {
-                  router.push(`/dashboard/cadastros/clientes/${cliente.COD_CLI_FOR}`);
+                  router.push(
+                    `/dashboard/cadastros/clientes/${cliente.COD_CLI_FOR}`
+                  );
                 }}
               />
             )}
@@ -347,7 +477,9 @@ export default function PaginaCadastros(): React.JSX.Element {
                 filtros={filtrosProdutos}
                 ordenacaoPadrao={{ campo: "DES_PRODUTO", ordem: "asc" }}
                 onRowClick={(produto) => {
-                  router.push(`/dashboard/cadastros/produtos/${produto.COD_PRODUTO}`);
+                  router.push(
+                    `/dashboard/cadastros/produtos/${produto.COD_PRODUTO}`
+                  );
                 }}
               />
             )}

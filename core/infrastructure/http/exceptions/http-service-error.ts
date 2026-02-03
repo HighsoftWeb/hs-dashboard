@@ -7,6 +7,6 @@ export class HttpServiceError extends Error {
     public readonly code?: string
   ) {
     super(message);
-    this.name = 'HttpServiceError';
+    this.name = "HttpServiceError";
   }
 }

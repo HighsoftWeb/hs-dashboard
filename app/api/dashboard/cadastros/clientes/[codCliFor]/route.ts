@@ -27,7 +27,10 @@ export async function GET(
       );
     }
 
-    const cliente = await detalhesRepository.obterClienteCompleto(codCliForNum, empresaConfig);
+    const cliente = await detalhesRepository.obterClienteCompleto(
+      codCliForNum,
+      empresaConfig
+    );
 
     return NextResponse.json({
       success: true,

@@ -43,7 +43,9 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
         );
 
         if (!resposta.success || !resposta.data) {
-          throw new Error(resposta.error?.message || "Erro ao carregar orçamento");
+          throw new Error(
+            resposta.error?.message || "Erro ao carregar orçamento"
+          );
         }
 
         setOrcamento(resposta.data.orcamento);
@@ -69,7 +71,6 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
       currency: "BRL",
     }).format(valor);
   };
-
 
   const obterTipoDocumento = (ind: string): string => {
     return ind === "OR" ? "Orçamento" : ind === "OS" ? "Ordem de Serviço" : ind;
@@ -116,7 +117,9 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
     return (
       <LayoutDashboard>
         <div className="bg-red-50 border-l-4 border-red-500 rounded-lg p-4">
-          <p className="text-sm text-red-800">{erro || "Orçamento não encontrado"}</p>
+          <p className="text-sm text-red-800">
+            {erro || "Orçamento não encontrado"}
+          </p>
           <button
             onClick={() => router.back()}
             className="mt-4 px-4 py-2 bg-[#094A73] text-white rounded hover:bg-[#073a5c]"
@@ -134,14 +137,21 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
         <div className="flex justify-between items-start">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">
-              {obterTipoDocumento(orcamento.IND_ORCAMENTO_OS)} - Nº {orcamento.NUM_ORCAMENTO_OS}
+              {obterTipoDocumento(orcamento.IND_ORCAMENTO_OS)} - Nº{" "}
+              {orcamento.NUM_ORCAMENTO_OS}
             </h1>
             <div className="mt-1 flex items-center gap-3 text-xs text-gray-600">
-              <span>Série: <strong>{orcamento.COD_SERIE_ORC_OS}</strong></span>
+              <span>
+                Série: <strong>{orcamento.COD_SERIE_ORC_OS}</strong>
+              </span>
               {orcamento.NUM_DOCUMENTO && (
-                <span>Documento: <strong>{orcamento.NUM_DOCUMENTO}</strong></span>
+                <span>
+                  Documento: <strong>{orcamento.NUM_DOCUMENTO}</strong>
+                </span>
               )}
-              <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${obterCorStatus(orcamento.SIT_ORCAMENTO_OS)}`}>
+              <span
+                className={`px-2 py-0.5 rounded-full text-xs font-semibold ${obterCorStatus(orcamento.SIT_ORCAMENTO_OS)}`}
+              >
                 {obterStatus(orcamento.SIT_ORCAMENTO_OS)}
               </span>
             </div>
@@ -157,7 +167,9 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2">
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Cliente</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Cliente
+              </label>
               <input
                 type="text"
                 value={`${orcamento.RAZ_CLI_FOR || "-"} (${orcamento.COD_CLI_FOR})`}
@@ -166,18 +178,24 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Cidade</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Cidade
+              </label>
               <input
                 type="text"
-                value={orcamento.NOM_CIDADE_CLIENTE && orcamento.SIG_ESTADO_CLIENTE
-                  ? `${orcamento.NOM_CIDADE_CLIENTE} / ${orcamento.SIG_ESTADO_CLIENTE}`
-                  : orcamento.NOM_CIDADE_CLIENTE || "-"}
+                value={
+                  orcamento.NOM_CIDADE_CLIENTE && orcamento.SIG_ESTADO_CLIENTE
+                    ? `${orcamento.NOM_CIDADE_CLIENTE} / ${orcamento.SIG_ESTADO_CLIENTE}`
+                    : orcamento.NOM_CIDADE_CLIENTE || "-"
+                }
                 readOnly
                 className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Emissão</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Emissão
+              </label>
               <input
                 type="text"
                 value={formatarDataHora(orcamento.HOR_EMISSAO)}
@@ -186,34 +204,53 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Representante</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Representante
+              </label>
               <input
                 type="text"
-                value={orcamento.DES_REPRESENTANTE || (orcamento.COD_REPRESENTANTE ? `Código: ${orcamento.COD_REPRESENTANTE}` : "-")}
+                value={
+                  orcamento.DES_REPRESENTANTE ||
+                  (orcamento.COD_REPRESENTANTE
+                    ? `Código: ${orcamento.COD_REPRESENTANTE}`
+                    : "-")
+                }
                 readOnly
                 className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Cond. Pagamento</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Cond. Pagamento
+              </label>
               <input
                 type="text"
-                value={orcamento.DES_CONDICAO_PAG || orcamento.COD_CONDICAO_PAG || "-"}
+                value={
+                  orcamento.DES_CONDICAO_PAG ||
+                  orcamento.COD_CONDICAO_PAG ||
+                  "-"
+                }
                 readOnly
                 className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Tipo Título</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Tipo Título
+              </label>
               <input
                 type="text"
-                value={orcamento.DES_TIPO_TITULO || orcamento.COD_TIPO_TITULO || "-"}
+                value={
+                  orcamento.DES_TIPO_TITULO || orcamento.COD_TIPO_TITULO || "-"
+                }
                 readOnly
                 className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Operação</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Operação
+              </label>
               <input
                 type="text"
                 value={orcamento.DES_OPERACAO || orcamento.COD_OPERACAO || "-"}
@@ -222,16 +259,25 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Transportadora</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Transportadora
+              </label>
               <input
                 type="text"
-                value={orcamento.DES_TRANSPORTADORA || (orcamento.COD_TRANSPORTADORA ? `Código: ${orcamento.COD_TRANSPORTADORA}` : "-")}
+                value={
+                  orcamento.DES_TRANSPORTADORA ||
+                  (orcamento.COD_TRANSPORTADORA
+                    ? `Código: ${orcamento.COD_TRANSPORTADORA}`
+                    : "-")
+                }
                 readOnly
                 className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Pedido Cliente</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Pedido Cliente
+              </label>
               <input
                 type="text"
                 value={orcamento.NUM_PEDIDO_CLIENTE || "-"}
@@ -240,7 +286,9 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Placa Veículo</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Placa Veículo
+              </label>
               <input
                 type="text"
                 value={orcamento.NUM_PLACA_VEICULO || "-"}
@@ -249,7 +297,9 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Previsão</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Previsão
+              </label>
               <input
                 type="text"
                 value={formatarData(orcamento.DAT_PREVISAO)}
@@ -258,16 +308,24 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Validade</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Validade
+              </label>
               <input
                 type="text"
-                value={orcamento.QTD_DIAS_VALIDADE ? `${orcamento.QTD_DIAS_VALIDADE} dias` : "-"}
+                value={
+                  orcamento.QTD_DIAS_VALIDADE
+                    ? `${orcamento.QTD_DIAS_VALIDADE} dias`
+                    : "-"
+                }
                 readOnly
                 className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">CIF/FOB</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                CIF/FOB
+              </label>
               <input
                 type="text"
                 value={orcamento.CIF_FOB === "C" ? "CIF" : "FOB"}
@@ -276,7 +334,9 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Usuário</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Usuário
+              </label>
               <input
                 type="text"
                 value={orcamento.NOM_USUARIO || "-"}
@@ -327,31 +387,63 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
               <table className="min-w-full divide-y divide-gray-100">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">Seq.</th>
-                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">Código</th>
-                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">Descrição</th>
-                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">Depósito</th>
-                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">Tabela</th>
-                    <th className="px-2 py-1 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">Qtd.</th>
-                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">Unidade</th>
-                    <th className="px-2 py-1 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">Preço Unit.</th>
-                    <th className="px-2 py-1 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">Desconto</th>
-                    <th className="px-2 py-1 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">Valor Bruto</th>
-                    <th className="px-2 py-1 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">IPI</th>
-                    <th className="px-2 py-1 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">ICMS</th>
-                    <th className="px-2 py-1 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">Valor Líquido</th>
+                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                      Seq.
+                    </th>
+                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                      Código
+                    </th>
+                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                      Descrição
+                    </th>
+                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                      Depósito
+                    </th>
+                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                      Tabela
+                    </th>
+                    <th className="px-2 py-1 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                      Qtd.
+                    </th>
+                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                      Unidade
+                    </th>
+                    <th className="px-2 py-1 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                      Preço Unit.
+                    </th>
+                    <th className="px-2 py-1 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                      Desconto
+                    </th>
+                    <th className="px-2 py-1 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                      Valor Bruto
+                    </th>
+                    <th className="px-2 py-1 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                      IPI
+                    </th>
+                    <th className="px-2 py-1 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                      ICMS
+                    </th>
+                    <th className="px-2 py-1 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                      Valor Líquido
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-100">
                   {itens.length === 0 ? (
                     <tr>
-                      <td colSpan={13} className="px-2 py-4 text-center text-sm text-gray-500">
+                      <td
+                        colSpan={13}
+                        className="px-2 py-4 text-center text-sm text-gray-500"
+                      >
                         Nenhum item encontrado
                       </td>
                     </tr>
                   ) : (
                     itens.map((item) => (
-                      <tr key={item.SEQ_ITEM_ORCAMENTO_OS} className="hover:bg-gray-50 border-b border-gray-100">
+                      <tr
+                        key={item.SEQ_ITEM_ORCAMENTO_OS}
+                        className="hover:bg-gray-50 border-b border-gray-100"
+                      >
                         <td className="px-2 py-1 whitespace-nowrap text-right text-sm text-gray-900">
                           {item.SEQ_ITEM_ORCAMENTO_OS}
                         </td>
@@ -362,7 +454,7 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
                           {item.DES_ITEM || item.DES_PRODUTO || "-"}
                         </td>
                         <td className="px-2 py-1 text-sm text-gray-900">
-                        {item.COD_DEPOSITO} - {item.DES_DEPOSITO}
+                          {item.COD_DEPOSITO} - {item.DES_DEPOSITO}
                         </td>
                         <td className="px-2 py-1 text-sm text-gray-900">
                           {item.COD_TABELA_PRECO} - {item.DES_TABELA_PRECO}
@@ -371,7 +463,7 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
                           {item.QTD_PEDIDA?.toFixed(4) || "-"}
                         </td>
                         <td className="px-2 py-1 whitespace-nowrap text-sm text-gray-900">
-                        {item.COD_UNIDADE_MEDIDA}
+                          {item.COD_UNIDADE_MEDIDA}
                         </td>
                         <td className="px-2 py-1 whitespace-nowrap text-sm text-right text-gray-900">
                           {formatarMoeda(item.VLR_PRECO_UNITARIO)}
@@ -403,23 +495,39 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
               <table className="min-w-full divide-y divide-gray-100">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">Seq. Item</th>
-                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">Seq. Apontamento</th>
-                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">Representante</th>
-                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">Hora Início</th>
-                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">Hora Término</th>
+                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                      Seq. Item
+                    </th>
+                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                      Seq. Apontamento
+                    </th>
+                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                      Representante
+                    </th>
+                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                      Hora Início
+                    </th>
+                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                      Hora Término
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-100">
                   {apontamentos.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="px-2 py-4 text-center text-sm text-gray-500">
+                      <td
+                        colSpan={5}
+                        className="px-2 py-4 text-center text-sm text-gray-500"
+                      >
                         Nenhum apontamento encontrado
                       </td>
                     </tr>
                   ) : (
                     apontamentos.map((ap, idx) => (
-                      <tr key={`${ap.SEQ_ITEM_ORCAMENTO_OS}-${ap.SEQ_APONTAMENTO_OS}-${idx}`} className="hover:bg-gray-50 border-b border-gray-100">
+                      <tr
+                        key={`${ap.SEQ_ITEM_ORCAMENTO_OS}-${ap.SEQ_APONTAMENTO_OS}-${idx}`}
+                        className="hover:bg-gray-50 border-b border-gray-100"
+                      >
                         <td className="px-2 py-1 whitespace-nowrap text-sm text-gray-900">
                           {ap.SEQ_ITEM_ORCAMENTO_OS}
                         </td>
@@ -427,13 +535,18 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
                           {ap.SEQ_APONTAMENTO_OS}
                         </td>
                         <td className="px-2 py-1 whitespace-nowrap text-sm text-gray-900">
-                          {ap.DES_REPRESENTANTE || `Código: ${ap.COD_REPRESENTANTE}`}
+                          {ap.DES_REPRESENTANTE ||
+                            `Código: ${ap.COD_REPRESENTANTE}`}
                         </td>
                         <td className="px-2 py-1 whitespace-nowrap text-sm text-gray-900">
-                          {ap.HORA_INICIO ? formatarDataHora(ap.HORA_INICIO) : "-"}
+                          {ap.HORA_INICIO
+                            ? formatarDataHora(ap.HORA_INICIO)
+                            : "-"}
                         </td>
                         <td className="px-2 py-1 whitespace-nowrap text-sm text-gray-900">
-                          {ap.HORA_TERMINO ? formatarDataHora(ap.HORA_TERMINO) : "-"}
+                          {ap.HORA_TERMINO
+                            ? formatarDataHora(ap.HORA_TERMINO)
+                            : "-"}
                         </td>
                       </tr>
                     ))
@@ -445,30 +558,60 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
               <table className="min-w-full divide-y divide-gray-100">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">Seq. Troca</th>
-                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">Código</th>
-                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">Descrição</th>
-                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">Depósito</th>
-                    <th className="px-2 py-1 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">Qtd. Trocada</th>
-                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">Unidade</th>
-                    <th className="px-2 py-1 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">Preço Unit.</th>
-                    <th className="px-2 py-1 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">Valor Bruto</th>
-                    <th className="px-2 py-1 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">Desconto</th>
-                    <th className="px-2 py-1 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">Valor Líquido</th>
-                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">Data Troca</th>
-                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">Usuário</th>
+                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                      Seq. Troca
+                    </th>
+                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                      Código
+                    </th>
+                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                      Descrição
+                    </th>
+                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                      Depósito
+                    </th>
+                    <th className="px-2 py-1 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                      Qtd. Trocada
+                    </th>
+                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                      Unidade
+                    </th>
+                    <th className="px-2 py-1 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                      Preço Unit.
+                    </th>
+                    <th className="px-2 py-1 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                      Valor Bruto
+                    </th>
+                    <th className="px-2 py-1 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                      Desconto
+                    </th>
+                    <th className="px-2 py-1 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                      Valor Líquido
+                    </th>
+                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                      Data Troca
+                    </th>
+                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                      Usuário
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-100">
                   {trocas.length === 0 ? (
                     <tr>
-                      <td colSpan={12} className="px-2 py-4 text-center text-sm text-gray-500">
+                      <td
+                        colSpan={12}
+                        className="px-2 py-4 text-center text-sm text-gray-500"
+                      >
                         Nenhuma troca encontrada
                       </td>
                     </tr>
                   ) : (
                     trocas.map((troca, idx) => (
-                      <tr key={`${troca.SEQ_ITEM_TROCA}-${idx}`} className="hover:bg-gray-50 border-b border-gray-100">
+                      <tr
+                        key={`${troca.SEQ_ITEM_TROCA}-${idx}`}
+                        className="hover:bg-gray-50 border-b border-gray-100"
+                      >
                         <td className="px-2 py-1 whitespace-nowrap text-sm text-gray-900">
                           {troca.SEQ_ITEM_TROCA}
                         </td>
@@ -486,7 +629,9 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
                           {troca.QTD_TROCADA?.toFixed(4) || "-"}
                         </td>
                         <td className="px-2 py-1 whitespace-nowrap text-sm text-gray-900">
-                          {troca.DES_UNIDADE_MEDIDA || troca.COD_UNIDADE_MEDIDA || "-"}
+                          {troca.DES_UNIDADE_MEDIDA ||
+                            troca.COD_UNIDADE_MEDIDA ||
+                            "-"}
                         </td>
                         <td className="px-2 py-1 whitespace-nowrap text-sm text-right text-gray-900">
                           {formatarMoeda(troca.VLR_PRECO_UNITARIO)}
@@ -503,7 +648,9 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
                           {formatarMoeda(troca.VLR_LIQUIDO)}
                         </td>
                         <td className="px-2 py-1 whitespace-nowrap text-sm text-gray-900">
-                          {troca.DAT_TROCA ? formatarData(troca.DAT_TROCA) : "-"}
+                          {troca.DAT_TROCA
+                            ? formatarData(troca.DAT_TROCA)
+                            : "-"}
                         </td>
                         <td className="px-2 py-1 whitespace-nowrap text-sm text-gray-900">
                           {troca.NOM_USUARIO || "-"}
@@ -519,11 +666,15 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
 
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3">
           <div className="mb-3">
-            <h2 className="text-base font-semibold text-gray-900">Totalizadores</h2>
+            <h2 className="text-base font-semibold text-gray-900">
+              Totalizadores
+            </h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2">
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Valor Bruto</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Valor Bruto
+              </label>
               <input
                 type="text"
                 value={formatarMoeda(orcamento.VLR_BRUTO)}
@@ -532,20 +683,28 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Desconto</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Desconto
+              </label>
               <input
                 type="text"
-                value={orcamento.VLR_DESCONTO && Number(orcamento.VLR_DESCONTO) !== 0
-                  ? formatarMoeda(-Math.abs(Number(orcamento.VLR_DESCONTO)))
-                  : formatarMoeda(0)}
+                value={
+                  orcamento.VLR_DESCONTO && Number(orcamento.VLR_DESCONTO) !== 0
+                    ? formatarMoeda(-Math.abs(Number(orcamento.VLR_DESCONTO)))
+                    : formatarMoeda(0)
+                }
                 readOnly
                 className={`w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white text-right ${
-                  orcamento.VLR_DESCONTO && Number(orcamento.VLR_DESCONTO) !== 0 ? "text-red-600 font-semibold" : ""
+                  orcamento.VLR_DESCONTO && Number(orcamento.VLR_DESCONTO) !== 0
+                    ? "text-red-600 font-semibold"
+                    : ""
                 }`}
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Valor Produtos</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Valor Produtos
+              </label>
               <input
                 type="text"
                 value={formatarMoeda(orcamento.VLR_PRODUTOS)}
@@ -554,7 +713,9 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Valor Serviços</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Valor Serviços
+              </label>
               <input
                 type="text"
                 value={formatarMoeda(orcamento.VLR_SERVICOS)}
@@ -563,7 +724,9 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Frete</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Frete
+              </label>
               <input
                 type="text"
                 value={formatarMoeda(orcamento.VLR_FRETE)}
@@ -572,7 +735,9 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Seguro</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Seguro
+              </label>
               <input
                 type="text"
                 value={formatarMoeda(orcamento.VLR_SEGURO)}
@@ -581,7 +746,9 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Outros</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Outros
+              </label>
               <input
                 type="text"
                 value={formatarMoeda(orcamento.VLR_OUTROS)}
@@ -590,7 +757,9 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">IPI</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                IPI
+              </label>
               <input
                 type="text"
                 value={formatarMoeda(orcamento.VLR_IPI)}
@@ -599,7 +768,9 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">ICMS</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                ICMS
+              </label>
               <input
                 type="text"
                 value={formatarMoeda(orcamento.VLR_ICMS)}
@@ -608,7 +779,9 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">ISS</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                ISS
+              </label>
               <input
                 type="text"
                 value={formatarMoeda(orcamento.VLR_ISS)}
@@ -617,7 +790,9 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col md:col-span-2 lg:col-span-3 xl:col-span-4 2xl:col-span-5">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Valor Líquido Total</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Valor Líquido Total
+              </label>
               <input
                 type="text"
                 value={formatarMoeda(orcamento.VLR_LIQUIDO)}

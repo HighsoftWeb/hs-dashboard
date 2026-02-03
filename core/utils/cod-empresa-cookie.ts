@@ -8,14 +8,18 @@ const RADIX_DECIMAL = 10;
  * Valida se um código de empresa é válido
  */
 function validarCodEmpresa(codEmpresa: number): boolean {
-  return typeof codEmpresa === "number" && Number.isInteger(codEmpresa) && codEmpresa > 0;
+  return (
+    typeof codEmpresa === "number" &&
+    Number.isInteger(codEmpresa) &&
+    codEmpresa > 0
+  );
 }
 
 export function salvarCodEmpresaNoCookie(codEmpresa: number): void {
   if (!validarCodEmpresa(codEmpresa)) {
     return;
   }
-  
+
   Cookies.set(COD_EMPRESA_COOKIE_NAME, codEmpresa.toString(RADIX_DECIMAL), {
     expires: COOKIE_EXPIRES_DAYS,
     sameSite: "strict",
@@ -24,13 +28,13 @@ export function salvarCodEmpresaNoCookie(codEmpresa: number): void {
 
 export function obterCodEmpresaDoCookie(): number | null {
   const codEmpresaStr = Cookies.get(COD_EMPRESA_COOKIE_NAME);
-  
+
   if (!codEmpresaStr) {
     return null;
   }
-  
+
   const codEmpresa = parseInt(codEmpresaStr, RADIX_DECIMAL);
-  
+
   return validarCodEmpresa(codEmpresa) ? codEmpresa : null;
 }
 

@@ -1,9 +1,16 @@
 import { poolBanco } from "../db/pool-banco";
-import { UsuarioDB, GrupoUsuarioDB, MenuGrupoUsuarioDB } from "../tipos/usuario-db";
+import {
+  UsuarioDB,
+  GrupoUsuarioDB,
+  MenuGrupoUsuarioDB,
+} from "../tipos/usuario-db";
 import { EmpresaConfig } from "../entities/EmpresaConfig";
 
 export class UsuarioRepository {
-  async obterPorLogin(login: string, empresaConfig: EmpresaConfig): Promise<UsuarioDB | null> {
+  async obterPorLogin(
+    login: string,
+    empresaConfig: EmpresaConfig
+  ): Promise<UsuarioDB | null> {
     const query = `
       SELECT 
         COD_USUARIO,
@@ -33,7 +40,10 @@ export class UsuarioRepository {
     return resultados[0] || null;
   }
 
-  async obterPorCodigo(codUsuario: number, empresaConfig: EmpresaConfig): Promise<UsuarioDB | null> {
+  async obterPorCodigo(
+    codUsuario: number,
+    empresaConfig: EmpresaConfig
+  ): Promise<UsuarioDB | null> {
     const query = `
       SELECT 
         COD_USUARIO,

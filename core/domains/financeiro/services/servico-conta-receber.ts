@@ -3,16 +3,22 @@ import { ContaReceber } from "@/core/tipos/financeiro";
 
 class ServicoContaReceber {
   async listarContasReceber(): Promise<ContaReceber[]> {
-    const resposta = await clienteHttp.get<ContaReceber[]>("/financeiro/contas-receber");
+    const resposta = await clienteHttp.get<ContaReceber[]>(
+      "/financeiro/contas-receber"
+    );
 
     if (!resposta.success || !resposta.data) {
-      throw new Error(resposta.error?.message || "Erro ao listar contas a receber");
+      throw new Error(
+        resposta.error?.message || "Erro ao listar contas a receber"
+      );
     }
 
     return resposta.data?.map((conta) => ({
       ...conta,
       dataVencimento: new Date(conta.dataVencimento),
-      dataPagamento: conta.dataPagamento ? new Date(conta.dataPagamento) : undefined,
+      dataPagamento: conta.dataPagamento
+        ? new Date(conta.dataPagamento)
+        : undefined,
       criadoEm: new Date(conta.criadoEm),
       atualizadoEm: new Date(conta.atualizadoEm),
     }));
@@ -24,7 +30,9 @@ class ServicoContaReceber {
     );
 
     if (!resposta.success || !resposta.data) {
-      throw new Error(resposta.error?.message || "Erro ao obter conta a receber");
+      throw new Error(
+        resposta.error?.message || "Erro ao obter conta a receber"
+      );
     }
 
     return {
@@ -47,7 +55,9 @@ class ServicoContaReceber {
     );
 
     if (!resposta.success || !resposta.data) {
-      throw new Error(resposta.error?.message || "Erro ao criar conta a receber");
+      throw new Error(
+        resposta.error?.message || "Erro ao criar conta a receber"
+      );
     }
 
     return {
@@ -71,7 +81,9 @@ class ServicoContaReceber {
     );
 
     if (!resposta.success || !resposta.data) {
-      throw new Error(resposta.error?.message || "Erro ao atualizar conta a receber");
+      throw new Error(
+        resposta.error?.message || "Erro ao atualizar conta a receber"
+      );
     }
 
     return {
@@ -86,11 +98,14 @@ class ServicoContaReceber {
   }
 
   async excluirContaReceber(id: string): Promise<void> {
-    const resposta = await clienteHttp.delete(`/financeiro/contas-receber/${id}`);
+    const resposta = await clienteHttp.delete(
+      `/financeiro/contas-receber/${id}`
+    );
 
-    
     if (!resposta.success) {
-      throw new Error(resposta.error?.message || "Erro ao excluir conta a receber");
+      throw new Error(
+        resposta.error?.message || "Erro ao excluir conta a receber"
+      );
     }
   }
 }

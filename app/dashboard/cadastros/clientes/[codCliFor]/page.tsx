@@ -26,7 +26,9 @@ export default function PaginaDetalhesCliente(): React.JSX.Element {
         );
 
         if (!resposta.success || !resposta.data) {
-          throw new Error(resposta.error?.message || "Erro ao carregar cliente");
+          throw new Error(
+            resposta.error?.message || "Erro ao carregar cliente"
+          );
         }
 
         setCliente(resposta.data);
@@ -56,7 +58,9 @@ export default function PaginaDetalhesCliente(): React.JSX.Element {
     return (
       <LayoutDashboard>
         <div className="bg-red-50 border-l-4 border-red-500 rounded-lg p-4">
-          <p className="text-sm text-red-800">{erro || "Cliente não encontrado"}</p>
+          <p className="text-sm text-red-800">
+            {erro || "Cliente não encontrado"}
+          </p>
           <button
             onClick={() => router.back()}
             className="mt-4 px-4 py-2 bg-[#094A73] text-white rounded hover:bg-[#073a5c]"
@@ -77,9 +81,20 @@ export default function PaginaDetalhesCliente(): React.JSX.Element {
               {cliente.RAZ_CLI_FOR || cliente.FAN_CLI_FOR || "Cliente"}
             </h1>
             <div className="mt-1 flex items-center gap-3 text-xs text-gray-600">
-              <span>Código: <strong>{cliente.COD_CLI_FOR}</strong></span>
+              <span>
+                Código: <strong>{cliente.COD_CLI_FOR}</strong>
+              </span>
               {cliente.TIP_CLI_FOR && (
-                <span>Tipo: <strong>{cliente.TIP_CLI_FOR === "J" ? "Jurídica" : cliente.TIP_CLI_FOR === "F" ? "Física" : cliente.TIP_CLI_FOR}</strong></span>
+                <span>
+                  Tipo:{" "}
+                  <strong>
+                    {cliente.TIP_CLI_FOR === "J"
+                      ? "Jurídica"
+                      : cliente.TIP_CLI_FOR === "F"
+                        ? "Física"
+                        : cliente.TIP_CLI_FOR}
+                  </strong>
+                </span>
               )}
             </div>
           </div>
@@ -94,7 +109,9 @@ export default function PaginaDetalhesCliente(): React.JSX.Element {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2">
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Razão Social</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Razão Social
+              </label>
               <input
                 type="text"
                 value={cliente.RAZ_CLI_FOR || "-"}
@@ -103,7 +120,9 @@ export default function PaginaDetalhesCliente(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Nome Fantasia</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Nome Fantasia
+              </label>
               <input
                 type="text"
                 value={cliente.FAN_CLI_FOR || "-"}
@@ -112,7 +131,9 @@ export default function PaginaDetalhesCliente(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">CPF/CNPJ</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                CPF/CNPJ
+              </label>
               <input
                 type="text"
                 value={cliente.CGC_CPF || "-"}
@@ -121,7 +142,9 @@ export default function PaginaDetalhesCliente(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Endereço</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Endereço
+              </label>
               <input
                 type="text"
                 value={cliente.END_CLI_FOR || "-"}
@@ -130,7 +153,9 @@ export default function PaginaDetalhesCliente(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Número</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Número
+              </label>
               <input
                 type="text"
                 value={cliente.NUM_END_CLI_FOR || "-"}
@@ -139,7 +164,9 @@ export default function PaginaDetalhesCliente(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Complemento</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Complemento
+              </label>
               <input
                 type="text"
                 value={cliente.COM_ENDERECO || "-"}
@@ -148,7 +175,9 @@ export default function PaginaDetalhesCliente(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Bairro</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Bairro
+              </label>
               <input
                 type="text"
                 value={cliente.BAI_CLI_FOR || "-"}
@@ -157,7 +186,9 @@ export default function PaginaDetalhesCliente(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">CEP</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                CEP
+              </label>
               <input
                 type="text"
                 value={cliente.CEP_CLI_FOR || "-"}
@@ -166,18 +197,24 @@ export default function PaginaDetalhesCliente(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Cidade</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Cidade
+              </label>
               <input
                 type="text"
-                value={cliente.NOM_CIDADE && cliente.SIG_ESTADO
-                  ? `${cliente.NOM_CIDADE} / ${cliente.SIG_ESTADO}`
-                  : cliente.NOM_CIDADE || "-"}
+                value={
+                  cliente.NOM_CIDADE && cliente.SIG_ESTADO
+                    ? `${cliente.NOM_CIDADE} / ${cliente.SIG_ESTADO}`
+                    : cliente.NOM_CIDADE || "-"
+                }
                 readOnly
                 className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Telefone</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Telefone
+              </label>
               <input
                 type="text"
                 value={cliente.TEL_CLI_FOR || "-"}
@@ -186,7 +223,9 @@ export default function PaginaDetalhesCliente(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Fax</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Fax
+              </label>
               <input
                 type="text"
                 value={cliente.FAX_CLI_FOR || "-"}
@@ -195,7 +234,9 @@ export default function PaginaDetalhesCliente(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Celular</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Celular
+              </label>
               <input
                 type="text"
                 value={cliente.CEL_CLI_FOR || "-"}
@@ -204,7 +245,9 @@ export default function PaginaDetalhesCliente(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">E-mail</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                E-mail
+              </label>
               <input
                 type="text"
                 value={cliente.END_ELETRONICO || "-"}
@@ -213,10 +256,18 @@ export default function PaginaDetalhesCliente(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">Situação</label>
+              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                Situação
+              </label>
               <input
                 type="text"
-                value={cliente.SIT_CLI_FOR === "A" ? "Ativo" : cliente.SIT_CLI_FOR === "I" ? "Inativo" : cliente.SIT_CLI_FOR || "-"}
+                value={
+                  cliente.SIT_CLI_FOR === "A"
+                    ? "Ativo"
+                    : cliente.SIT_CLI_FOR === "I"
+                      ? "Inativo"
+                      : cliente.SIT_CLI_FOR || "-"
+                }
                 readOnly
                 className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
               />

@@ -36,7 +36,10 @@ export interface DadosAutenticacao {
   }>;
 }
 
-const DEFAULT_COD_EMPRESA = parseInt(process.env.DEFAULT_COD_EMPRESA || "1", 10);
+const DEFAULT_COD_EMPRESA = parseInt(
+  process.env.DEFAULT_COD_EMPRESA || "1",
+  10
+);
 
 function validarCnpj(cnpj: string | undefined): string {
   if (!cnpj || typeof cnpj !== "string") {
@@ -44,7 +47,7 @@ function validarCnpj(cnpj: string | undefined): string {
   }
 
   const cnpjLimpo = validarELimparCnpj(cnpj, { validarDigitos: false });
-  
+
   if (!cnpjLimpo) {
     throw new Error("CNPJ inválido");
   }
@@ -75,7 +78,7 @@ function validarUsuarioPermitido(
 export class AutenticacaoService {
   async fazerLogin(dados: DadosLogin): Promise<DadosAutenticacao> {
     const cnpjLimpo = validarCnpj(dados.cnpj);
-    
+
     const empresaConfig = empresaConfigRepository.obterPorCnpj(cnpjLimpo);
     if (!empresaConfig) {
       throw new Error("Empresa não encontrada");
@@ -131,7 +134,10 @@ export class AutenticacaoService {
     }
 
     tokenRepository.revogarTodosTokensUsuario(usuario.COD_USUARIO, codEmpresa);
-    refreshTokenRepository.revogarTodosRefreshTokensUsuario(usuario.COD_USUARIO, codEmpresa);
+    refreshTokenRepository.revogarTodosRefreshTokensUsuario(
+      usuario.COD_USUARIO,
+      codEmpresa
+    );
 
     const payload: Omit<PayloadJWT, "jti" | "iat"> = {
       codUsuario: usuario.COD_USUARIO,
@@ -141,22 +147,26 @@ export class AutenticacaoService {
     };
 
     const token = gerarToken(payload);
-    const refreshToken = gerarRefreshToken(usuario.COD_USUARIO, codEmpresa, cnpjLimpo);
-    
+    const refreshToken = gerarRefreshToken(
+      usuario.COD_USUARIO,
+      codEmpresa,
+      cnpjLimpo
+    );
+
     const tokenDecoded = JSON.parse(
       Buffer.from(token.split(".")[1], "base64").toString()
     );
     const refreshTokenDecoded = JSON.parse(
       Buffer.from(refreshToken.split(".")[1], "base64").toString()
     );
-    
+
     const tokenIat = new Date(tokenDecoded.iat * 1000);
     tokenRepository.atualizarUltimoLogin(
       usuario.COD_USUARIO,
       codEmpresa,
       tokenIat
     );
-    
+
     refreshTokenRepository.salvarRefreshToken(
       refreshTokenDecoded.jti,
       usuario.COD_USUARIO,
@@ -177,15 +187,18 @@ export class AutenticacaoService {
     };
   }
 
-  async renovarToken(refreshToken: string): Promise<{ token: string; refreshToken: string }> {
-    
+  async renovarToken(
+    refreshToken: string
+  ): Promise<{ token: string; refreshToken: string }> {
     const refreshPayload = verificarRefreshToken(refreshToken);
 
     if (!refreshTokenRepository.isRefreshTokenValido(refreshPayload.jti)) {
       throw new Error("Refresh token inválido ou revogado");
     }
 
-    const empresaConfig = empresaConfigRepository.obterPorCnpj(refreshPayload.cnpj);
+    const empresaConfig = empresaConfigRepository.obterPorCnpj(
+      refreshPayload.cnpj
+    );
     if (!empresaConfig) {
       throw new Error("Empresa não encontrada");
     }
@@ -221,7 +234,7 @@ export class AutenticacaoService {
       Buffer.from(novoRefreshToken.split(".")[1], "base64").toString()
     );
 
-console.log(novoRefreshTokenDecoded);
+    console.log(novoRefreshTokenDecoded);
 
     refreshTokenRepository.salvarRefreshToken(
       novoRefreshTokenDecoded.jti,

@@ -22,7 +22,11 @@ export class ProdutoRepository {
     codProduto: number,
     empresaConfig: EmpresaConfig
   ): Promise<ProdutoServicoDB | null> {
-    return produtoRepositoryORM.obterPorCodigo(codEmpresa, codProduto, empresaConfig);
+    return produtoRepositoryORM.obterPorCodigo(
+      codEmpresa,
+      codProduto,
+      empresaConfig
+    );
   }
 
   async criar(
@@ -47,7 +51,12 @@ export class ProdutoRepository {
     >,
     empresaConfig: EmpresaConfig
   ): Promise<void> {
-    return produtoRepositoryORM.atualizar(codEmpresa, codProduto, dados, empresaConfig);
+    return produtoRepositoryORM.atualizar(
+      codEmpresa,
+      codProduto,
+      dados,
+      empresaConfig
+    );
   }
 
   async inativar(
@@ -63,7 +72,11 @@ export class ProdutoRepository {
     codProduto: number,
     empresaConfig: EmpresaConfig
   ): Promise<DerivacaoDB[]> {
-    return produtoRepositoryORM.listarDerivacoes(codEmpresa, codProduto, empresaConfig);
+    return produtoRepositoryORM.listarDerivacoes(
+      codEmpresa,
+      codProduto,
+      empresaConfig
+    );
   }
 
   async listarEstoques(
@@ -71,7 +84,11 @@ export class ProdutoRepository {
     codProduto: number,
     empresaConfig: EmpresaConfig
   ): Promise<EstoqueDB[]> {
-    return produtoRepositoryORM.listarEstoques(codEmpresa, codProduto, empresaConfig);
+    return produtoRepositoryORM.listarEstoques(
+      codEmpresa,
+      codProduto,
+      empresaConfig
+    );
   }
 }
 

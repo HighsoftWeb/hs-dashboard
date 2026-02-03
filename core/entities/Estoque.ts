@@ -14,12 +14,29 @@ export class Estoque {
   @PrimaryColumn({ name: "COD_DERIVACAO", type: "varchar", length: 5 })
   COD_DERIVACAO!: string;
 
-  @Column({ name: "QTD_ATUAL", type: "numeric", precision: 15, scale: 4, nullable: true })
+  @Column({
+    name: "QTD_ATUAL",
+    type: "numeric",
+    precision: 15,
+    scale: 4,
+    nullable: true,
+  })
   QTD_ATUAL!: number | null;
 
-  @Column({ name: "QTD_RESERVADA", type: "numeric", precision: 15, scale: 4, nullable: true })
+  @Column({
+    name: "QTD_RESERVADA",
+    type: "numeric",
+    precision: 15,
+    scale: 4,
+    nullable: true,
+  })
   QTD_RESERVADA!: number | null;
 
-  @Column({ name: "ACE_ESTOQUE_NEGATIVO", type: "varchar", length: 1, nullable: true })
+  @Column({
+    name: "ACE_ESTOQUE_NEGATIVO",
+    type: "varchar",
+    length: 1,
+    nullable: true,
+  })
   ACE_ESTOQUE_NEGATIVO!: string | null;
 }

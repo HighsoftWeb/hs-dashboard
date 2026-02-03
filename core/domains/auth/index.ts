@@ -1,6 +1,6 @@
 /**
  * Módulo de Autenticação
- * 
+ *
  * Estrutura:
  * - client/: Serviços do lado do cliente (chamadas HTTP)
  * - server/: Serviços do lado do servidor (lógica de negócio)

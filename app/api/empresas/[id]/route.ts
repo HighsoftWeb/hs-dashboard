@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validarAutenticacao } from "@/core/middleware/auth-middleware";
 import { tratarErroAPI } from "@/core/utils/tratar-erro";
-import { criarRespostaSucesso, criarRespostaErro } from "@/core/utils/resposta-api";
+import {
+  criarRespostaSucesso,
+  criarRespostaErro,
+} from "@/core/utils/resposta-api";
 import { detalhesRepository } from "@/core/repository/detalhes-repository";
 import { obterEmpresaConfigDoCookie } from "@/core/utils/obter-empresa-cookie";
 
@@ -43,7 +46,10 @@ export async function PUT(
   try {
     validarAutenticacao(request);
     return NextResponse.json(
-      criarRespostaErro("Método PUT não implementado. Use as rotas de dashboard.", "NOT_IMPLEMENTED"),
+      criarRespostaErro(
+        "Método PUT não implementado. Use as rotas de dashboard.",
+        "NOT_IMPLEMENTED"
+      ),
       { status: 501 }
     );
   } catch (erro) {
@@ -61,7 +67,10 @@ export async function DELETE(
   try {
     validarAutenticacao(_request);
     return NextResponse.json(
-      criarRespostaErro("Método DELETE não implementado. Use as rotas de dashboard.", "NOT_IMPLEMENTED"),
+      criarRespostaErro(
+        "Método DELETE não implementado. Use as rotas de dashboard.",
+        "NOT_IMPLEMENTED"
+      ),
       { status: 501 }
     );
   } catch (erro) {

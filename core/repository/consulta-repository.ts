@@ -36,9 +36,18 @@ export class ConsultaRepository {
 
     if (parametros.search) {
       const colunasBusca = colunas.filter((col) =>
-        ["RAZ_", "NOM_", "DES_", "FAN_", "ABR_", "CGC_CPF", "CGC_", "NUM_", "END_", "MAI_"].some(
-          (prefixo) => col.startsWith(prefixo)
-        )
+        [
+          "RAZ_",
+          "NOM_",
+          "DES_",
+          "FAN_",
+          "ABR_",
+          "CGC_CPF",
+          "CGC_",
+          "NUM_",
+          "END_",
+          "MAI_",
+        ].some((prefixo) => col.startsWith(prefixo))
       );
 
       if (colunasBusca.length > 0) {
@@ -113,8 +122,16 @@ export class ConsultaRepository {
     params.pageSize = pageSize;
 
     const [resultadoCount, resultadoData] = await Promise.all([
-      poolBanco.executarConsulta<{ total: number }>(queryCount, params as Record<string, string | number | boolean | Date | null>, empresaConfig),
-      poolBanco.executarConsulta<T>(queryData, params as Record<string, string | number | boolean | Date | null>, empresaConfig),
+      poolBanco.executarConsulta<{ total: number }>(
+        queryCount,
+        params as Record<string, string | number | boolean | Date | null>,
+        empresaConfig
+      ),
+      poolBanco.executarConsulta<T>(
+        queryData,
+        params as Record<string, string | number | boolean | Date | null>,
+        empresaConfig
+      ),
     ]);
 
     return {

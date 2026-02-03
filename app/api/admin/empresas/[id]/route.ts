@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { empresaConfigRepository } from "@/core/repository/empresa-config-repository";
 import { EmpresaConfigInput } from "@/core/entities/EmpresaConfig";
 import { filtrarEmpresaSegura } from "@/core/utils/filtrar-empresa-segura";
-import { validarELimparCnpj, validarCnpjCompleto } from "@/core/utils/cnpj-utils";
+import {
+  validarELimparCnpj,
+  validarCnpjCompleto,
+} from "@/core/utils/cnpj-utils";
 
 interface EmpresaRequestBody {
   cnpj?: string;
@@ -86,7 +89,10 @@ export async function PUT(
       );
     }
 
-    const porta = typeof body.porta === "string" ? parseInt(body.porta, 10) : body.porta || 1433;
+    const porta =
+      typeof body.porta === "string"
+        ? parseInt(body.porta, 10)
+        : body.porta || 1433;
 
     if (isNaN(porta) || porta <= 0 || porta > 65535) {
       return NextResponse.json(
@@ -148,7 +154,8 @@ export async function PUT(
       {
         success: false,
         error: {
-          message: erro instanceof Error ? erro.message : "Erro ao atualizar empresa",
+          message:
+            erro instanceof Error ? erro.message : "Erro ao atualizar empresa",
         },
       },
       { status: 500 }
@@ -197,7 +204,8 @@ export async function DELETE(
       {
         success: false,
         error: {
-          message: erro instanceof Error ? erro.message : "Erro ao excluir empresa",
+          message:
+            erro instanceof Error ? erro.message : "Erro ao excluir empresa",
         },
       },
       { status: 500 }

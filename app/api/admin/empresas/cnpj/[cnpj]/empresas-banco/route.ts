@@ -3,7 +3,10 @@ import { empresaConfigRepository } from "@/core/repository/empresa-config-reposi
 import { poolBanco } from "@/core/db/pool-banco";
 import { tratarErroAPI } from "@/core/utils/tratar-erro";
 import { validarELimparCnpj } from "@/core/utils/cnpj-utils";
-import { criarRespostaSucesso, criarRespostaErro } from "@/core/utils/resposta-api";
+import {
+  criarRespostaSucesso,
+  criarRespostaErro,
+} from "@/core/utils/resposta-api";
 import type { EmpresaBanco } from "@/core/tipos/empresa-banco";
 
 const QUERY_EMPRESAS = `

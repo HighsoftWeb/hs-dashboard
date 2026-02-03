@@ -17,7 +17,9 @@ class ServicoCliente {
   }
 
   async obterClientePorId(id: string): Promise<Cliente> {
-    const resposta = await clienteHttp.get<Cliente>(`/comercial/clientes/${id}`);
+    const resposta = await clienteHttp.get<Cliente>(
+      `/comercial/clientes/${id}`
+    );
 
     if (!resposta.success || !resposta.data) {
       throw new Error(resposta.error?.message || "Erro ao obter cliente");
@@ -33,7 +35,10 @@ class ServicoCliente {
   async criarCliente(
     dados: Omit<Cliente, "id" | "criadoEm" | "atualizadoEm">
   ): Promise<Cliente> {
-    const resposta = await clienteHttp.post<Cliente>("/comercial/clientes", dados);
+    const resposta = await clienteHttp.post<Cliente>(
+      "/comercial/clientes",
+      dados
+    );
 
     if (!resposta.success || !resposta.data) {
       throw new Error(resposta.error?.message || "Erro ao criar cliente");

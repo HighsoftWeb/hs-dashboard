@@ -38,7 +38,14 @@ export class DashboardRepositoryORM {
       amanha.setDate(amanha.getDate() + 1);
 
       const inicioMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
-      const fimMes = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0, 23, 59, 59);
+      const fimMes = new Date(
+        hoje.getFullYear(),
+        hoje.getMonth() + 1,
+        0,
+        23,
+        59,
+        59
+      );
 
       const [
         totalUsuarios,
@@ -50,48 +57,58 @@ export class DashboardRepositoryORM {
         despesasMes,
         totalEmpresasResult,
       ] = await Promise.all([
-      usuarioRepo.count({ where: { SIT_USUARIO: "A" } }),
-      clienteRepo
-        .createQueryBuilder("cliente")
-        .where("cliente.SIT_CLI_FOR = :sit", { sit: "A" })
-        .andWhere("cliente.CLI_FOR_AMBOS IN (:...tipos)", { tipos: ["C", "A"] })
-        .getCount(),
-      produtoRepo.count({
-        where: { COD_EMPRESA: codEmpresa, SIT_PRODUTO: "A" },
-      }),
-      orcamentoRepo.count({
-        where: {
-          COD_EMPRESA: codEmpresa,
-          DAT_EMISSAO: Between(hoje, amanha),
-        },
-      }),
-      orcamentoRepo.count({
-        where: {
-          COD_EMPRESA: codEmpresa,
-          DAT_EMISSAO: Between(inicioMes, fimMes),
-        },
-      }),
-      tituloReceberRepo
-        .createQueryBuilder("titulo")
-        .select("SUM(titulo.VLR_ABERTO)", "total")
-        .where("titulo.COD_EMPRESA = :codEmpresa", { codEmpresa })
-        .andWhere("titulo.SIT_TITULO = :sit", { sit: "AB" })
-        .andWhere("MONTH(titulo.VCT_ORIGINAL) = :mes", { mes: hoje.getMonth() + 1 })
-        .andWhere("YEAR(titulo.VCT_ORIGINAL) = :ano", { ano: hoje.getFullYear() })
-        .getRawOne(),
-      tituloPagarRepo
-        .createQueryBuilder("titulo")
-        .select("SUM(titulo.VLR_ABERTO)", "total")
-        .where("titulo.COD_EMPRESA = :codEmpresa", { codEmpresa })
-        .andWhere("titulo.SIT_TITULO = :sit", { sit: "AB" })
-        .andWhere("MONTH(titulo.VCT_ORIGINAL) = :mes", { mes: hoje.getMonth() + 1 })
-        .andWhere("YEAR(titulo.VCT_ORIGINAL) = :ano", { ano: hoje.getFullYear() })
-        .getRawOne(),
-      produtoRepo
-        .createQueryBuilder("produto")
-        .select("COUNT(DISTINCT produto.COD_EMPRESA)", "total")
-        .getRawOne(),
-    ]);
+        usuarioRepo.count({ where: { SIT_USUARIO: "A" } }),
+        clienteRepo
+          .createQueryBuilder("cliente")
+          .where("cliente.SIT_CLI_FOR = :sit", { sit: "A" })
+          .andWhere("cliente.CLI_FOR_AMBOS IN (:...tipos)", {
+            tipos: ["C", "A"],
+          })
+          .getCount(),
+        produtoRepo.count({
+          where: { COD_EMPRESA: codEmpresa, SIT_PRODUTO: "A" },
+        }),
+        orcamentoRepo.count({
+          where: {
+            COD_EMPRESA: codEmpresa,
+            DAT_EMISSAO: Between(hoje, amanha),
+          },
+        }),
+        orcamentoRepo.count({
+          where: {
+            COD_EMPRESA: codEmpresa,
+            DAT_EMISSAO: Between(inicioMes, fimMes),
+          },
+        }),
+        tituloReceberRepo
+          .createQueryBuilder("titulo")
+          .select("SUM(titulo.VLR_ABERTO)", "total")
+          .where("titulo.COD_EMPRESA = :codEmpresa", { codEmpresa })
+          .andWhere("titulo.SIT_TITULO = :sit", { sit: "AB" })
+          .andWhere("MONTH(titulo.VCT_ORIGINAL) = :mes", {
+            mes: hoje.getMonth() + 1,
+          })
+          .andWhere("YEAR(titulo.VCT_ORIGINAL) = :ano", {
+            ano: hoje.getFullYear(),
+          })
+          .getRawOne(),
+        tituloPagarRepo
+          .createQueryBuilder("titulo")
+          .select("SUM(titulo.VLR_ABERTO)", "total")
+          .where("titulo.COD_EMPRESA = :codEmpresa", { codEmpresa })
+          .andWhere("titulo.SIT_TITULO = :sit", { sit: "AB" })
+          .andWhere("MONTH(titulo.VCT_ORIGINAL) = :mes", {
+            mes: hoje.getMonth() + 1,
+          })
+          .andWhere("YEAR(titulo.VCT_ORIGINAL) = :ano", {
+            ano: hoje.getFullYear(),
+          })
+          .getRawOne(),
+        produtoRepo
+          .createQueryBuilder("produto")
+          .select("COUNT(DISTINCT produto.COD_EMPRESA)", "total")
+          .getRawOne(),
+      ]);
 
       const totalEmpresas = parseInt(totalEmpresasResult?.total || "1", 10);
 
@@ -178,9 +195,7 @@ export class DashboardRepositoryORM {
       const clientes = await clienteRepo.find({
         where: codigosClientes.map((cod) => ({ COD_CLI_FOR: cod })),
       });
-      const clientesMap = new Map(
-        clientes.map((c) => [c.COD_CLI_FOR, c])
-      );
+      const clientesMap = new Map(clientes.map((c) => [c.COD_CLI_FOR, c]));
 
       const orcamentosComCliente = orcamentos.map((orc) => {
         const cliente = clientesMap.get(orc.COD_CLI_FOR);
@@ -259,15 +274,11 @@ export class DashboardRepositoryORM {
       });
 
       const clienteRepo = dataSource.getRepository(ClienteFornecedor);
-      const codigosClientes = [
-        ...new Set(titulos.map((t) => t.COD_CLI_FOR)),
-      ];
+      const codigosClientes = [...new Set(titulos.map((t) => t.COD_CLI_FOR))];
       const clientes = await clienteRepo.find({
         where: codigosClientes.map((cod) => ({ COD_CLI_FOR: cod })),
       });
-      const clientesMap = new Map(
-        clientes.map((c) => [c.COD_CLI_FOR, c])
-      );
+      const clientesMap = new Map(clientes.map((c) => [c.COD_CLI_FOR, c]));
 
       const titulosComCliente = titulos.map((tit) => {
         const cliente = clientesMap.get(tit.COD_CLI_FOR);
@@ -287,11 +298,14 @@ export class DashboardRepositoryORM {
 
       return titulosComCliente;
     } catch (erro) {
-      logger.warn("Erro ao listar títulos receber com TypeORM, usando SQL raw", {
-        codEmpresa,
-        dias,
-        erro: erro instanceof Error ? erro.message : String(erro),
-      });
+      logger.warn(
+        "Erro ao listar títulos receber com TypeORM, usando SQL raw",
+        {
+          codEmpresa,
+          dias,
+          erro: erro instanceof Error ? erro.message : String(erro),
+        }
+      );
 
       const query = `
         SELECT TOP (25)
@@ -346,15 +360,11 @@ export class DashboardRepositoryORM {
       });
 
       const clienteRepo = dataSource.getRepository(ClienteFornecedor);
-      const codigosClientes = [
-        ...new Set(titulos.map((t) => t.COD_CLI_FOR)),
-      ];
+      const codigosClientes = [...new Set(titulos.map((t) => t.COD_CLI_FOR))];
       const clientes = await clienteRepo.find({
         where: codigosClientes.map((cod) => ({ COD_CLI_FOR: cod })),
       });
-      const clientesMap = new Map(
-        clientes.map((c) => [c.COD_CLI_FOR, c])
-      );
+      const clientesMap = new Map(clientes.map((c) => [c.COD_CLI_FOR, c]));
 
       const titulosComCliente = titulos.map((tit) => {
         const cliente = clientesMap.get(tit.COD_CLI_FOR);

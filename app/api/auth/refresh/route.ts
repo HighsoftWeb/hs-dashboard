@@ -8,9 +8,7 @@ const RefreshTokenSchema = z.object({
   refreshToken: z.string().min(1, "Refresh token é obrigatório"),
 });
 
-export async function POST(
-  request: NextRequest
-): Promise<NextResponse> {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const body = await request.json();
     const validacao = RefreshTokenSchema.safeParse(body);

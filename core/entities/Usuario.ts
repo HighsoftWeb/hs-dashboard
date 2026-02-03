@@ -14,7 +14,12 @@ export class Usuario {
   @Column({ name: "SEN_USUARIO", type: "varchar", length: 20, nullable: true })
   SEN_USUARIO!: string | null;
 
-  @Column({ name: "IND_CRIPTOGRAFADO", type: "varchar", length: 1, nullable: true })
+  @Column({
+    name: "IND_CRIPTOGRAFADO",
+    type: "varchar",
+    length: 1,
+    nullable: true,
+  })
   IND_CRIPTOGRAFADO!: string | null;
 
   @Column({ name: "SIT_USUARIO", type: "varchar", length: 1, nullable: true })

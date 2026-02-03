@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validarAutenticacao } from "@/core/middleware/auth-middleware";
 import { tratarErroAPI } from "@/core/utils/tratar-erro";
-import { criarRespostaSucesso, criarRespostaErro } from "@/core/utils/resposta-api";
+import {
+  criarRespostaSucesso,
+  criarRespostaErro,
+} from "@/core/utils/resposta-api";
 import { consultaRepository } from "@/core/repository/consulta-repository";
 import { obterEmpresaConfigDoCookie } from "@/core/utils/obter-empresa-cookie";
 import { schemaParametrosConsulta } from "@/core/schemas/consulta-schemas";
@@ -59,7 +62,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     validarAutenticacao(request);
     return NextResponse.json(
-      criarRespostaErro("Método POST não implementado. Use as rotas de dashboard.", "NOT_IMPLEMENTED"),
+      criarRespostaErro(
+        "Método POST não implementado. Use as rotas de dashboard.",
+        "NOT_IMPLEMENTED"
+      ),
       { status: 501 }
     );
   } catch (erro) {

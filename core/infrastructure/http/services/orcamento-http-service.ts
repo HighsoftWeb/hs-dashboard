@@ -1,23 +1,23 @@
-import { BaseHttpService } from './base-http-service';
-import { HttpClient } from '../client/http-client';
-import { Orcamento } from '@/core/tipos/comercial';
+import { BaseHttpService } from "./base-http-service";
+import { HttpClient } from "../client/http-client";
+import { Orcamento } from "@/core/tipos/comercial";
 
 /**
  * Serviço HTTP para gerenciamento de orçamentos
  */
 export class OrcamentoHttpService extends BaseHttpService<
   Orcamento,
-  Omit<Orcamento, 'id' | 'criadoEm' | 'atualizadoEm'>,
-  Partial<Omit<Orcamento, 'id' | 'criadoEm' | 'atualizadoEm'>>
+  Omit<Orcamento, "id" | "criadoEm" | "atualizadoEm">,
+  Partial<Omit<Orcamento, "id" | "criadoEm" | "atualizadoEm">>
 > {
   constructor(httpClient: HttpClient) {
-    super(httpClient, '/comercial/orcamentos', {
-      dateFields: ['data', 'criadoEm', 'atualizadoEm'],
+    super(httpClient, "/comercial/orcamentos", {
+      dateFields: ["data", "criadoEm", "atualizadoEm"],
     });
   }
 
   protected getEntityName(): string {
-    return 'orçamento';
+    return "orçamento";
   }
 
   /**
@@ -28,7 +28,7 @@ export class OrcamentoHttpService extends BaseHttpService<
       `${this.basePath}/${id}/aprovar`
     );
 
-    this.validateResponse(response, 'aprovar');
+    this.validateResponse(response, "aprovar");
 
     const data = response.data as Orcamento;
     return this.transformDates(data) as Orcamento;
@@ -42,7 +42,7 @@ export class OrcamentoHttpService extends BaseHttpService<
       `/comercial/ordens-servico/${id}/processar`
     );
 
-    this.validateResponse(response, 'processar ordem de serviço');
+    this.validateResponse(response, "processar ordem de serviço");
 
     const data = response.data as Orcamento;
     return this.transformDates(data) as Orcamento;

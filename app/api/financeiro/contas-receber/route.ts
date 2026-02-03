@@ -7,7 +7,10 @@ export async function GET(_request: NextRequest): Promise<NextResponse> {
   try {
     validarAutenticacao(_request);
     return NextResponse.json(
-      criarRespostaErro("Método GET não implementado. Use as rotas de dashboard.", "NOT_IMPLEMENTED"),
+      criarRespostaErro(
+        "Método GET não implementado. Use as rotas de dashboard.",
+        "NOT_IMPLEMENTED"
+      ),
       { status: 501 }
     );
   } catch (erro) {
@@ -22,7 +25,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     validarAutenticacao(request);
     return NextResponse.json(
-      criarRespostaErro("Método POST não implementado. Use as rotas de dashboard.", "NOT_IMPLEMENTED"),
+      criarRespostaErro(
+        "Método POST não implementado. Use as rotas de dashboard.",
+        "NOT_IMPLEMENTED"
+      ),
       { status: 501 }
     );
   } catch (erro) {

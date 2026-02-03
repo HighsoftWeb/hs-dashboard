@@ -64,7 +64,9 @@ class ServicoDashboard {
       return {
         id: `${orc.COD_EMPRESA}-${orc.IND_ORCAMENTO_OS}-${orc.NUM_ORCAMENTO_OS}`,
         clienteId: orc.COD_CLI_FOR.toString(),
-        numero: orc.NUM_DOCUMENTO || `${orc.IND_ORCAMENTO_OS}-${orc.NUM_ORCAMENTO_OS}`,
+        numero:
+          orc.NUM_DOCUMENTO ||
+          `${orc.IND_ORCAMENTO_OS}-${orc.NUM_ORCAMENTO_OS}`,
         data: dataEmissao,
         valorTotal: orc.VLR_LIQUIDO || 0,
         tipo: orc.IND_ORCAMENTO_OS === "OR" ? "orcamento" : "ordem-servico",
@@ -109,13 +111,11 @@ class ServicoDashboard {
     });
   }
 
-  private mapearStatus(
-    sitOrcamentoOS: string | null
-  ): string {
+  private mapearStatus(sitOrcamentoOS: string | null): string {
     if (!sitOrcamentoOS) return "Aberto Total";
 
     const sit = sitOrcamentoOS.toUpperCase();
-    
+
     const statusMap: Record<string, string> = {
       AB: "Aberto Total",
       AP: "Aprovado",

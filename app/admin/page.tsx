@@ -39,9 +39,13 @@ export default function PaginaAdmin(): React.JSX.Element {
   const [empresas, setEmpresas] = useState<EmpresaConfig[]>([]);
   const [mostrarModal, setMostrarModal] = useState(false);
   const [mostrarModalExcluir, setMostrarModalExcluir] = useState(false);
-  const [empresaExcluir, setEmpresaExcluir] = useState<EmpresaConfig | null>(null);
+  const [empresaExcluir, setEmpresaExcluir] = useState<EmpresaConfig | null>(
+    null
+  );
   const [senhaExcluir, setSenhaExcluir] = useState("");
-  const [empresaEditando, setEmpresaEditando] = useState<EmpresaConfig | null>(null);
+  const [empresaEditando, setEmpresaEditando] = useState<EmpresaConfig | null>(
+    null
+  );
   const [senhaEditando, setSenhaEditando] = useState(false);
   const [senhaImportada, setSenhaImportada] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -64,11 +68,14 @@ export default function PaginaAdmin(): React.JSX.Element {
 
   const carregarEmpresas = async () => {
     try {
-      const resposta = await clienteHttp.get<EmpresaConfig[]>("/admin/empresas/completo", {
-        headers: {
-          "X-Admin-Password": ADMIN_PASSWORD,
-        },
-      });
+      const resposta = await clienteHttp.get<EmpresaConfig[]>(
+        "/admin/empresas/completo",
+        {
+          headers: {
+            "X-Admin-Password": ADMIN_PASSWORD,
+          },
+        }
+      );
       if (resposta.success && resposta.data) {
         setEmpresas(resposta.data);
       }
@@ -116,7 +123,9 @@ export default function PaginaAdmin(): React.JSX.Element {
         const senhaDecodificada = decryptCfg(lines[15]?.trim() || "");
 
         if (!host || !usuario || !senhaDecodificada) {
-          setErro("Erro ao decodificar arquivo CFG. Verifique se o arquivo está correto.");
+          setErro(
+            "Erro ao decodificar arquivo CFG. Verifique se o arquivo está correto."
+          );
           return;
         }
 
@@ -217,8 +226,14 @@ export default function PaginaAdmin(): React.JSX.Element {
       };
 
       const resposta = empresaEditando
-        ? await clienteHttp.put<EmpresaConfig>(`/admin/empresas/${empresaEditando.id}`, dadosEmpresa)
-        : await clienteHttp.post<EmpresaConfig>("/admin/empresas", dadosEmpresa);
+        ? await clienteHttp.put<EmpresaConfig>(
+            `/admin/empresas/${empresaEditando.id}`,
+            dadosEmpresa
+          )
+        : await clienteHttp.post<EmpresaConfig>(
+            "/admin/empresas",
+            dadosEmpresa
+          );
 
       if (!resposta.success || !resposta.data) {
         throw new Error(resposta.error?.message || "Erro ao salvar empresa");
@@ -227,9 +242,7 @@ export default function PaginaAdmin(): React.JSX.Element {
       fecharModal();
       carregarEmpresas();
     } catch (erro) {
-      setErro(
-        erro instanceof Error ? erro.message : "Erro ao salvar empresa"
-      );
+      setErro(erro instanceof Error ? erro.message : "Erro ao salvar empresa");
     }
   };
 
@@ -254,7 +267,9 @@ export default function PaginaAdmin(): React.JSX.Element {
     }
 
     try {
-      const resposta = await clienteHttp.delete(`/admin/empresas/${empresaExcluir.id}`);
+      const resposta = await clienteHttp.delete(
+        `/admin/empresas/${empresaExcluir.id}`
+      );
 
       if (!resposta.success) {
         throw new Error(resposta.error?.message || "Erro ao excluir empresa");
@@ -263,9 +278,7 @@ export default function PaginaAdmin(): React.JSX.Element {
       fecharModalExcluir();
       carregarEmpresas();
     } catch (erro) {
-      setErro(
-        erro instanceof Error ? erro.message : "Erro ao excluir empresa"
-      );
+      setErro(erro instanceof Error ? erro.message : "Erro ao excluir empresa");
     }
   };
 
@@ -304,45 +317,41 @@ export default function PaginaAdmin(): React.JSX.Element {
               <div className="flex items-center justify-center gap-2">
                 <Shield className="w-5 h-5 text-[#094A73]" />
                 <h1 className="text-xl font-bold text-gray-800">
-            Acesso Administrativo
-          </h1>
+                  Acesso Administrativo
+                </h1>
               </div>
             </div>
 
-          <form onSubmit={handleLogin} className="space-y-4">
-            {erro && (
+            <form onSubmit={handleLogin} className="space-y-4">
+              {erro && (
                 <div className="bg-red-50 border-l-4 border-red-500 rounded-lg p-3 animate-shake">
                   <p className="text-sm text-red-800 font-medium">{erro}</p>
-              </div>
-            )}
+                </div>
+              )}
 
-            <div>
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">
                   Senha Administrativa
-              </label>
+                </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Lock className="w-4 h-4 text-gray-400" />
                   </div>
-              <input
-                type="password"
-                value={senha}
-                onChange={(e) => setSenha(e.target.value)}
+                  <input
+                    type="password"
+                    value={senha}
+                    onChange={(e) => setSenha(e.target.value)}
                     className="w-full pl-10 pr-4 py-2 border border-[#A4A5A6] rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#094A73] focus:border-[#094A73] transition-all"
                     placeholder="Digite a senha administrativa"
-                required
-              />
-            </div>
+                    required
+                  />
+                </div>
               </div>
 
-            <Botao
-              type="submit"
-              variante="primario"
-              className="w-full"
-            >
-              Entrar
-            </Botao>
-          </form>
+              <Botao type="submit" variante="primario" className="w-full">
+                Entrar
+              </Botao>
+            </form>
           </div>
         </div>
       </div>
@@ -356,8 +365,8 @@ export default function PaginaAdmin(): React.JSX.Element {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
-            Gerenciamento de Empresas
-          </h1>
+                Gerenciamento de Empresas
+              </h1>
               <p className="text-sm text-gray-600 mt-1">
                 Configure e gerencie as empresas do sistema
               </p>
@@ -380,30 +389,30 @@ export default function PaginaAdmin(): React.JSX.Element {
                 <Upload className="w-4 h-4" />
                 Importar CFG
               </Botao>
-            <Botao
+              <Botao
                 onClick={abrirModalNova}
-              variante="primario"
+                variante="primario"
                 className="inline-flex items-center gap-2"
-            >
+              >
                 <Plus className="w-4 h-4" />
                 Nova Empresa
-            </Botao>
-            <Botao
-              onClick={() => setAutenticado(false)}
-              variante="secundario"
+              </Botao>
+              <Botao
+                onClick={() => setAutenticado(false)}
+                variante="secundario"
                 className="inline-flex items-center gap-2"
-            >
+              >
                 <LogOut className="w-4 h-4" />
-              Sair
-            </Botao>
+                Sair
+              </Botao>
+            </div>
           </div>
-        </div>
 
-        {erro && (
+          {erro && (
             <div className="mt-4 bg-red-50 border-l-4 border-red-500 rounded-lg p-3 animate-shake">
               <p className="text-sm text-red-800 font-medium">{erro}</p>
-          </div>
-        )}
+            </div>
+          )}
 
           <div className="mt-4 overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
@@ -481,7 +490,9 @@ export default function PaginaAdmin(): React.JSX.Element {
             {empresas.length === 0 && (
               <div className="text-center py-8">
                 <Building2 className="w-10 h-10 text-gray-400 mx-auto mb-2" />
-                <p className="text-gray-500 font-medium">Nenhuma empresa cadastrada</p>
+                <p className="text-gray-500 font-medium">
+                  Nenhuma empresa cadastrada
+                </p>
                 <p className="text-sm text-gray-400 mt-1">
                   Clique em &quot;Nova Empresa&quot; para começar
                 </p>
@@ -496,8 +507,8 @@ export default function PaginaAdmin(): React.JSX.Element {
           <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
               <h2 className="text-xl font-bold text-gray-900">
-              {empresaEditando ? "Editar Empresa" : "Nova Empresa"}
-            </h2>
+                {empresaEditando ? "Editar Empresa" : "Nova Empresa"}
+              </h2>
               <button
                 onClick={fecharModal}
                 className="text-gray-400 hover:text-gray-600 transition-colors"
@@ -522,7 +533,10 @@ export default function PaginaAdmin(): React.JSX.Element {
                     type="text"
                     value={formulario.nomeEmpresa}
                     onChange={(e) =>
-                      setFormulario({ ...formulario, nomeEmpresa: e.target.value })
+                      setFormulario({
+                        ...formulario,
+                        nomeEmpresa: e.target.value,
+                      })
                     }
                     placeholder="Nome da empresa"
                     className="w-full px-3 py-2 border border-[#A4A5A6] rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#094A73] focus:border-[#094A73] transition-all"
@@ -624,11 +638,14 @@ export default function PaginaAdmin(): React.JSX.Element {
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <Lock className="w-4 h-4 text-gray-400" />
                       </div>
-                  <input
-                    type="password"
-                    value={formulario.senha}
+                      <input
+                        type="password"
+                        value={formulario.senha}
                         onChange={(e) => {
-                          setFormulario({ ...formulario, senha: e.target.value });
+                          setFormulario({
+                            ...formulario,
+                            senha: e.target.value,
+                          });
                           if (senhaImportada) {
                             setSenhaImportada("");
                           }
@@ -637,8 +654,8 @@ export default function PaginaAdmin(): React.JSX.Element {
                           empresaEditando && !senhaEditando
                             ? "Clique em 'Alterar Senha' para editar"
                             : senhaImportada
-                            ? "Senha importada do CFG (será usada ao salvar)"
-                            : "Digite a senha"
+                              ? "Senha importada do CFG (será usada ao salvar)"
+                              : "Digite a senha"
                         }
                         disabled={!!empresaEditando && !senhaEditando}
                         className="w-full pl-10 pr-3 py-2 border border-[#A4A5A6] rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#094A73] focus:border-[#094A73] transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
@@ -670,31 +687,32 @@ export default function PaginaAdmin(): React.JSX.Element {
                   )}
                   {empresaEditando && !senhaEditando && !senhaImportada && (
                     <p className="text-xs text-gray-500 mt-1.5">
-                      Por segurança, a senha não é exibida. Clique em &quot;Alterar Senha&quot; para definir uma nova.
+                      Por segurança, a senha não é exibida. Clique em
+                      &quot;Alterar Senha&quot; para definir uma nova.
                     </p>
                   )}
                 </div>
 
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Códigos de Usuários Permitidos (separados por vírgula)
-                </label>
-                <input
-                  type="text"
-                  value={formulario.codigosUsuariosPermitidos}
-                  onChange={(e) =>
-                    setFormulario({
-                      ...formulario,
-                      codigosUsuariosPermitidos: e.target.value,
-                    })
-                  }
-                  placeholder="1, 2, 3 (deixe vazio para permitir todos)"
+                    Códigos de Usuários Permitidos (separados por vírgula)
+                  </label>
+                  <input
+                    type="text"
+                    value={formulario.codigosUsuariosPermitidos}
+                    onChange={(e) =>
+                      setFormulario({
+                        ...formulario,
+                        codigosUsuariosPermitidos: e.target.value,
+                      })
+                    }
+                    placeholder="1, 2, 3 (deixe vazio para permitir todos)"
                     className="w-full px-3 py-2 border border-[#A4A5A6] rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#094A73] focus:border-[#094A73] transition-all"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  Deixe vazio para permitir login de qualquer usuário
-                </p>
-              </div>
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Deixe vazio para permitir login de qualquer usuário
+                  </p>
+                </div>
               </div>
 
               <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
@@ -705,31 +723,38 @@ export default function PaginaAdmin(): React.JSX.Element {
                 >
                   Cancelar
                 </Botao>
-              <Botao type="submit" variante="primario">
-                {empresaEditando ? "Atualizar" : "Salvar"}
-              </Botao>
+                <Botao type="submit" variante="primario">
+                  {empresaEditando ? "Atualizar" : "Salvar"}
+                </Botao>
               </div>
             </form>
           </div>
-          </div>
-        )}
+        </div>
+      )}
 
       {mostrarModalExcluir && empresaExcluir && (
         <div className="fixed inset-0 bg-gray-900/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
             <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-              <h2 className="text-xl font-bold text-gray-900">Confirmar Exclusão</h2>
-                    <button
+              <h2 className="text-xl font-bold text-gray-900">
+                Confirmar Exclusão
+              </h2>
+              <button
                 onClick={fecharModalExcluir}
                 className="text-gray-400 hover:text-gray-600 transition-colors"
-                    >
+              >
                 <X className="w-5 h-5" />
-                    </button>
+              </button>
             </div>
 
             <div className="p-6 space-y-4">
               <p className="text-sm text-gray-700">
-                Tem certeza que deseja excluir a empresa <strong>{empresaExcluir.nomeEmpresa || formatarCnpj(empresaExcluir.cnpj)}</strong>?
+                Tem certeza que deseja excluir a empresa{" "}
+                <strong>
+                  {empresaExcluir.nomeEmpresa ||
+                    formatarCnpj(empresaExcluir.cnpj)}
+                </strong>
+                ?
               </p>
               <p className="text-xs text-gray-500">
                 Esta ação não pode ser desfeita.
@@ -768,12 +793,8 @@ export default function PaginaAdmin(): React.JSX.Element {
                 >
                   Cancelar
                 </Botao>
-                <Botao
-                  type="button"
-                  onClick={handleExcluir}
-                  variante="perigo"
-                    >
-                      Excluir
+                <Botao type="button" onClick={handleExcluir} variante="perigo">
+                  Excluir
                 </Botao>
               </div>
             </div>

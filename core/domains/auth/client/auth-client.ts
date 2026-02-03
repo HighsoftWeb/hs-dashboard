@@ -8,9 +8,7 @@ import {
 import { removerCodEmpresaDoCookie } from "../../../utils/cod-empresa-cookie";
 
 class ServicoAutenticacao {
-  async fazerLogin(
-    credenciais: CredenciaisLogin
-  ): Promise<DadosAutenticacao> {
+  async fazerLogin(credenciais: CredenciaisLogin): Promise<DadosAutenticacao> {
     const dadosLogin: Record<string, string | number> = {
       login: credenciais.login,
       senha: credenciais.senha,
@@ -39,7 +37,10 @@ class ServicoAutenticacao {
 
       Cookies.set("token", token, { expires: 7, sameSite: "strict" });
       if (refreshToken) {
-        Cookies.set("refreshToken", refreshToken, { expires: 7, sameSite: "strict" });
+        Cookies.set("refreshToken", refreshToken, {
+          expires: 7,
+          sameSite: "strict",
+        });
       }
       Cookies.set("usuario", JSON.stringify(usuario), {
         expires: 7,
@@ -55,10 +56,9 @@ class ServicoAutenticacao {
       if (erro instanceof Error && erro.message) {
         throw erro;
       }
-      
+
       throw new Error("Erro ao fazer login. Verifique suas credenciais.");
     }
-
   }
 
   /**

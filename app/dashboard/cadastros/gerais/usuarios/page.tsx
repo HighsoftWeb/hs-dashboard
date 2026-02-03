@@ -2,7 +2,10 @@
 
 import React from "react";
 import { LayoutDashboard } from "@/core/layouts/layout-dashboard";
-import { DataTable, ColunaDataTable } from "@/core/componentes/data-table/data-table";
+import {
+  DataTable,
+  ColunaDataTable,
+} from "@/core/componentes/data-table/data-table";
 
 interface UsuarioDB extends Record<string, unknown> {
   COD_USUARIO: number;
@@ -14,10 +17,30 @@ interface UsuarioDB extends Record<string, unknown> {
 
 export default function PaginaUsuarios(): React.JSX.Element {
   const colunasUsuarios: ColunaDataTable<UsuarioDB>[] = [
-    { chave: "COD_USUARIO", titulo: "Código", ordenavel: true, alinhamento: "direita" },
-    { chave: "NOM_USUARIO", titulo: "Nome", ordenavel: true, alinhamento: "esquerda" },
-    { chave: "ABR_USUARIO", titulo: "Abreviação", ordenavel: true, alinhamento: "esquerda" },
-    { chave: "COD_GRUPO_USUARIO", titulo: "Grupo", ordenavel: true, alinhamento: "direita" },
+    {
+      chave: "COD_USUARIO",
+      titulo: "Código",
+      ordenavel: true,
+      alinhamento: "direita",
+    },
+    {
+      chave: "NOM_USUARIO",
+      titulo: "Nome",
+      ordenavel: true,
+      alinhamento: "esquerda",
+    },
+    {
+      chave: "ABR_USUARIO",
+      titulo: "Abreviação",
+      ordenavel: true,
+      alinhamento: "esquerda",
+    },
+    {
+      chave: "COD_GRUPO_USUARIO",
+      titulo: "Grupo",
+      ordenavel: true,
+      alinhamento: "direita",
+    },
     {
       chave: "SIT_USUARIO",
       titulo: "Status",

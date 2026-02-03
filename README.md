@@ -9,7 +9,7 @@ Sistema web de gestão empresarial desenvolvido com Next.js.
 - **Tailwind CSS** - Estilização
 - **TypeORM** - ORM para banco de dados
 - **SQLServer** - Banco de dados do cliente
-- **SQLite** - Banco de dados de configurações 
+- **SQLite** - Banco de dados de configurações
 - **JWT** - Autenticação
 - **Docker** - Containerização
 
@@ -86,9 +86,11 @@ hs-web/
 O sistema requer variáveis de ambiente para funcionar. Consulte o arquivo `.env.example` (se existir) ou a documentação do projeto.
 
 **Variáveis obrigatórias:**
+
 - `JWT_SECRET` - Secret para assinatura de tokens JWT
 
 **Variáveis opcionais:**
+
 - `JWT_EXPIRES_IN` - Expiração do token (padrão: 8h)
 - `DEFAULT_COD_EMPRESA` - Código padrão de empresa (padrão: 1)
 - `DB_POOL_MIN` / `DB_POOL_MAX` - Configuração do pool de conexões

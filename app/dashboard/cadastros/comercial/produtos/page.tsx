@@ -3,7 +3,11 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { LayoutDashboard } from "@/core/layouts/layout-dashboard";
-import { DataTable, ColunaDataTable, FiltroDataTable } from "@/core/componentes/data-table/data-table";
+import {
+  DataTable,
+  ColunaDataTable,
+  FiltroDataTable,
+} from "@/core/componentes/data-table/data-table";
 
 interface ProdutoDB extends Record<string, unknown> {
   COD_EMPRESA: number;
@@ -20,8 +24,18 @@ export default function PaginaProdutos(): React.JSX.Element {
   const router = useRouter();
 
   const colunasProdutos: ColunaDataTable<ProdutoDB>[] = [
-    { chave: "COD_PRODUTO", titulo: "Código", ordenavel: true, alinhamento: "direita" },
-    { chave: "DES_PRODUTO", titulo: "Descrição", ordenavel: true, alinhamento: "esquerda" },
+    {
+      chave: "COD_PRODUTO",
+      titulo: "Código",
+      ordenavel: true,
+      alinhamento: "direita",
+    },
+    {
+      chave: "DES_PRODUTO",
+      titulo: "Descrição",
+      ordenavel: true,
+      alinhamento: "esquerda",
+    },
     {
       chave: "IND_PRODUTO_SERVICO",
       titulo: "Tipo",
@@ -32,8 +46,18 @@ export default function PaginaProdutos(): React.JSX.Element {
         return ind === "P" ? "Produto" : ind === "S" ? "Serviço" : ind;
       },
     },
-    { chave: "COD_UNIDADE_MEDIDA", titulo: "Unidade", ordenavel: true, alinhamento: "esquerda" },
-    { chave: "COD_USUARIO", titulo: "Usuário", ordenavel: true, alinhamento: "direita" },
+    {
+      chave: "COD_UNIDADE_MEDIDA",
+      titulo: "Unidade",
+      ordenavel: true,
+      alinhamento: "esquerda",
+    },
+    {
+      chave: "COD_USUARIO",
+      titulo: "Usuário",
+      ordenavel: true,
+      alinhamento: "direita",
+    },
     {
       chave: "OBS_PRODUTO",
       titulo: "Observações",
@@ -91,7 +115,9 @@ export default function PaginaProdutos(): React.JSX.Element {
               filtros={filtrosProdutos}
               ordenacaoPadrao={{ campo: "DES_PRODUTO", ordem: "asc" }}
               onRowClick={(produto) => {
-                router.push(`/dashboard/cadastros/produtos/${produto.COD_PRODUTO}`);
+                router.push(
+                  `/dashboard/cadastros/produtos/${produto.COD_PRODUTO}`
+                );
               }}
             />
           </div>

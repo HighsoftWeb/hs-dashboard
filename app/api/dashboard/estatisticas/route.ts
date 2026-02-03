@@ -4,9 +4,7 @@ import { dashboardService } from "@/core/domains/dashboard/services/dashboard-se
 import { logger } from "@/core/utils/logger";
 import { obterEmpresaConfigDoCookie } from "@/core/utils/obter-empresa-cookie";
 
-export async function GET(
-  request: NextRequest
-): Promise<NextResponse> {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const payload = validarAutenticacao(request);
     const empresaConfig = obterEmpresaConfigDoCookie(request);

@@ -24,7 +24,10 @@ export function criarHandler<T = unknown>(
   handler: ApiHandler<T>,
   opcoes?: OpcoesHandler
 ): ApiHandler<T> {
-  return async (request: NextRequest, context?: T | { params?: Promise<Record<string, string>> }) => {
+  return async (
+    request: NextRequest,
+    context?: T | { params?: Promise<Record<string, string>> }
+  ) => {
     try {
       if (opcoes?.requerAutenticacao) {
         validarAutenticacao(request);

@@ -61,12 +61,16 @@ function criarDataSource(empresaConfig: EmpresaConfig): DataSource {
 
 export function getAppDataSource(): DataSource {
   if (!appDataSource) {
-    throw new Error("DataSource não inicializado. Chame inicializarDataSource primeiro.");
+    throw new Error(
+      "DataSource não inicializado. Chame inicializarDataSource primeiro."
+    );
   }
   return appDataSource;
 }
 
-export async function inicializarDataSource(empresaConfig: EmpresaConfig): Promise<void> {
+export async function inicializarDataSource(
+  empresaConfig: EmpresaConfig
+): Promise<void> {
   if (!empresaConfig) {
     throw new Error("Configuração de empresa é obrigatória");
   }
@@ -80,8 +84,7 @@ export async function inicializarDataSource(empresaConfig: EmpresaConfig): Promi
   if (appDataSource?.isInitialized && configuracaoAtual !== configKey) {
     try {
       await appDataSource.destroy();
-    } catch {
-    }
+    } catch {}
     appDataSource = null;
     configuracaoAtual = null;
     inicializacaoEmAndamento = null;
@@ -111,4 +114,3 @@ export async function inicializarDataSource(empresaConfig: EmpresaConfig): Promi
 
   return inicializacaoEmAndamento;
 }
-
