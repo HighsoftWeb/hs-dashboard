@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { LayoutDashboard } from "@/core/layouts/layout-dashboard";
-import { servicoEmpresa } from "@/core/empresas/servico-empresa";
+import { servicoEmpresa } from "@/core/domains/cadastros/services/servico-empresa";
 import { Empresa } from "@/core/tipos";
 import { Botao } from "@/core/componentes/botao/botao";
 
