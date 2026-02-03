@@ -1,8 +1,17 @@
-import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
+import axios, {
+  AxiosError,
+  AxiosInstance,
+  AxiosRequestConfig,
+  AxiosResponse,
+} from "axios";
 import Cookies from "js-cookie";
 import { RespostaApi } from "../tipos/resposta-api";
 import { removerCodEmpresaDoCookie } from "../utils/cod-empresa-cookie";
 
+const TOKEN_REVOGADO_KEY = "tokenRevogado";
+const MENSAGEM_REVOGACAO_KEY = "mensagemRevogacao";
+const TOKEN_REVOGADO_MESSAGE =
+  "Outro usuário acessou o sistema com este mesmo login e empresa. Você foi desconectado por segurança.";
 
 class ClienteHttp {
   private instancia: AxiosInstance;
@@ -26,60 +35,64 @@ class ClienteHttp {
         if (!config) {
           return Promise.reject(new Error("Configuração de requisição inválida"));
         }
-        
+
         const token = Cookies.get("token");
         if (token && config.headers) {
           config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
       },
-      (erro) => {
-        return Promise.reject(erro);
-      }
+      (erro) => Promise.reject(erro)
     );
 
     this.instancia.interceptors.response.use(
-      (resposta: AxiosResponse<RespostaApi<unknown>>) => {
-        return resposta;
-      },
+      (resposta: AxiosResponse<RespostaApi<unknown>>) => resposta,
       (erro: unknown) => {
         const axiosError = erro as AxiosError<RespostaApi<unknown>>;
-        
+
+        if (axiosError.response?.status === 401) {
+          this.tratarErro401(axiosError);
+        }
+
         if (axiosError.response?.data?.error?.message) {
           const mensagemErro = axiosError.response.data.error.message;
           const erroComMensagem = new Error(mensagemErro);
-          Object.assign(erroComMensagem, { 
+          Object.assign(erroComMensagem, {
             response: axiosError.response,
-            isAxiosError: true 
+            isAxiosError: true,
           });
-          
-          if (axiosError.response.status === 401) {
-            Cookies.remove("token");
-            Cookies.remove("usuario");
-            Cookies.remove("permissoes");
-            removerCodEmpresaDoCookie();
-            
-            if (typeof window !== "undefined" && !window.location.pathname.includes("/login")) {
-              window.location.href = "/login";
-            }
-          }
-          
           return Promise.reject(erroComMensagem);
         }
 
-        if (axiosError.response?.status === 401) {
-          Cookies.remove("token");
-          Cookies.remove("usuario");
-          Cookies.remove("permissoes");
-          removerCodEmpresaDoCookie();
-          
-          if (typeof window !== "undefined" && !window.location.pathname.includes("/login")) {
-            window.location.href = "/login";
-          }
-        }
         return Promise.reject(erro);
       }
     );
+  }
+
+  private tratarErro401(erro: AxiosError<RespostaApi<unknown>>): void {
+    const mensagemErro = erro.response?.data?.error?.message || "";
+    const codigoErro = erro.response?.data?.error?.code || "";
+    const isTokenRevogado =
+      mensagemErro === "TOKEN_REVOGADO" ||
+      codigoErro === "TOKEN_REVOGADO" ||
+      mensagemErro.includes("Token revogado");
+
+    this.limparSessao();
+
+    if (typeof window !== "undefined" && !window.location.pathname.includes("/login")) {
+      if (isTokenRevogado) {
+        sessionStorage.setItem(TOKEN_REVOGADO_KEY, "true");
+        sessionStorage.setItem(MENSAGEM_REVOGACAO_KEY, TOKEN_REVOGADO_MESSAGE);
+      }
+      window.location.href = "/login";
+    }
+  }
+
+  private limparSessao(): void {
+    Cookies.remove("token");
+    Cookies.remove("usuario");
+    Cookies.remove("permissoes");
+    removerCodEmpresaDoCookie();
   }
 
   async get<T>(

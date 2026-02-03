@@ -21,7 +21,7 @@ export function obterBancoEmpresas(): DatabaseType {
 
 function inicializarTabela(): void {
   const db = dbInstance!;
-  
+
   db.exec(`
     CREATE TABLE IF NOT EXISTS empresas (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -38,14 +38,15 @@ function inicializarTabela(): void {
     )
   `);
 
-  try {
-    const colunas = db.prepare("PRAGMA table_info(empresas)").all() as Array<{ name: string }>;
-    const temNomeEmpresa = colunas.some((col) => col.name === "nome_empresa");
-    
-    if (!temNomeEmpresa) {
-      db.exec("ALTER TABLE empresas ADD COLUMN nome_empresa TEXT NOT NULL DEFAULT ''");
-    }
-  } catch {
+  const colunas = db.prepare("PRAGMA table_info(empresas)").all() as Array<{
+    name: string;
+  }>;
+  const temNomeEmpresa = colunas.some((col) => col.name === "nome_empresa");
+
+  if (!temNomeEmpresa) {
+    db.exec(
+      "ALTER TABLE empresas ADD COLUMN nome_empresa TEXT NOT NULL DEFAULT ''"
+    );
   }
 }
 
