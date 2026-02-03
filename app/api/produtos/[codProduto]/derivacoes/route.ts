@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validarAutenticacao } from "@/core/middleware/auth-middleware";
-import { produtoService } from "@/core/service/produto-service";
+import { produtoService } from "@/core/domains/cadastros/services/produto-service";
 import { logger } from "@/core/utils/logger";
 import { obterEmpresaConfigDoCookie } from "@/core/utils/obter-empresa-cookie";
 
