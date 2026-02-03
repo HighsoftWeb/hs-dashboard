@@ -1,6 +1,6 @@
-import { clienteHttp } from "../http/cliente-http";
-import { UsuarioHttpService } from "../infrastructure/http/services/usuario-http-service";
-import { Usuario } from "../tipos/usuario";
+import { clienteHttp } from "@/core/http/cliente-http";
+import { UsuarioHttpService } from "@/core/infrastructure/http/services/usuario-http-service";
+import { Usuario } from "@/core/tipos/usuario";
 
 class ServicoUsuario {
   private readonly usuarioService: UsuarioHttpService;

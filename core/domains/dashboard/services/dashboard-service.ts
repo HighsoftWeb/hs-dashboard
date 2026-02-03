@@ -1,17 +1,17 @@
-import { dashboardRepository } from "../repository/dashboard-repository";
+import { dashboardRepository } from "@/core/repository/dashboard-repository";
 import {
   EstatisticasDashboard,
   OrcamentoOSDB,
   TituloReceberDB,
   TituloPagarDB,
-} from "../tipos/dashboard-db";
+} from "@/core/tipos/dashboard-db";
 import {
   EstatisticasDashboardSchema,
   OrcamentoOSSchema,
   TituloReceberSchema,
   TituloPagarSchema,
-} from "../schemas/dashboard-schemas";
-import type { EmpresaConfig } from "../entities/EmpresaConfig";
+} from "@/core/schemas/dashboard-schemas";
+import type { EmpresaConfig } from "@/core/entities/EmpresaConfig";
 
 export class DashboardService {
   async obterEstatisticas(

@@ -25,5 +25,6 @@ export interface Permissao {
 export interface DadosAutenticacao {
   usuario: Usuario;
   token: string;
+  refreshToken?: string;
   permissoes: Permissao[];
 }

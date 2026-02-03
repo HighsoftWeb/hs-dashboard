@@ -1,5 +1,5 @@
-import { clienteHttp } from "../http/cliente-http";
-import { Cliente } from "../tipos/comercial";
+import { clienteHttp } from "@/core/http/cliente-http";
+import { Cliente } from "@/core/tipos/comercial";
 
 class ServicoCliente {
   async listarClientes(): Promise<Cliente[]> {

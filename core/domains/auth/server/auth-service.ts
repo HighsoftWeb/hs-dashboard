@@ -1,10 +1,13 @@
-import { usuarioRepository } from "../repository/usuario-repository";
-import { gerarToken, PayloadJWT } from "../auth/jwt";
-import { validarSenhaHS } from "../auth/senha";
-import { empresaConfigRepository } from "../repository/empresa-config-repository";
-import { poolBanco } from "../db/pool-banco";
-import { tokenRepository } from "../repository/token-repository";
-import type { EmpresaConfig } from "../entities/EmpresaConfig";
+import { usuarioRepository } from "../../../repository/usuario-repository";
+import { gerarToken, PayloadJWT } from "../jwt/jwt";
+import { gerarRefreshToken, verificarRefreshToken } from "../jwt/refresh-token";
+import { validarSenhaHS } from "../jwt/senha";
+import { empresaConfigRepository } from "../../../repository/empresa-config-repository";
+import { poolBanco } from "../../../db/pool-banco";
+import { tokenRepository } from "../../../repository/token-repository";
+import { refreshTokenRepository } from "../../../repository/refresh-token-repository";
+import type { EmpresaConfig } from "../../../entities/EmpresaConfig";
+import { validarELimparCnpj } from "../../../utils/cnpj-utils";
 
 export interface DadosLogin {
   login: string;
@@ -15,6 +18,7 @@ export interface DadosLogin {
 
 export interface DadosAutenticacao {
   token: string;
+  refreshToken: string;
   usuario: {
     codUsuario: number;
     nome: string;
@@ -33,16 +37,15 @@ export interface DadosAutenticacao {
 }
 
 const DEFAULT_COD_EMPRESA = parseInt(process.env.DEFAULT_COD_EMPRESA || "1", 10);
-const CNPJ_LENGTH = 14;
 
 function validarCnpj(cnpj: string | undefined): string {
   if (!cnpj || typeof cnpj !== "string") {
     throw new Error("CNPJ é obrigatório");
   }
 
-  const cnpjLimpo = cnpj.replace(/\D/g, "");
+  const cnpjLimpo = validarELimparCnpj(cnpj, { validarDigitos: false });
   
-  if (cnpjLimpo.length !== CNPJ_LENGTH) {
+  if (!cnpjLimpo) {
     throw new Error("CNPJ inválido");
   }
 
@@ -128,6 +131,7 @@ export class AutenticacaoService {
     }
 
     tokenRepository.revogarTodosTokensUsuario(usuario.COD_USUARIO, codEmpresa);
+    refreshTokenRepository.revogarTodosRefreshTokensUsuario(usuario.COD_USUARIO, codEmpresa);
 
     const payload: Omit<PayloadJWT, "jti" | "iat"> = {
       codUsuario: usuario.COD_USUARIO,
@@ -137,9 +141,31 @@ export class AutenticacaoService {
     };
 
     const token = gerarToken(payload);
+    const refreshToken = gerarRefreshToken(usuario.COD_USUARIO, codEmpresa, cnpjLimpo);
+    
+    const tokenDecoded = JSON.parse(
+      Buffer.from(token.split(".")[1], "base64").toString()
+    );
+    const refreshTokenDecoded = JSON.parse(
+      Buffer.from(refreshToken.split(".")[1], "base64").toString()
+    );
+    
+    const tokenIat = new Date(tokenDecoded.iat * 1000);
+    tokenRepository.atualizarUltimoLogin(
+      usuario.COD_USUARIO,
+      codEmpresa,
+      tokenIat
+    );
+    
+    refreshTokenRepository.salvarRefreshToken(
+      refreshTokenDecoded.jti,
+      usuario.COD_USUARIO,
+      codEmpresa
+    );
 
     return {
       token,
+      refreshToken,
       usuario: {
         codUsuario: usuario.COD_USUARIO,
         nome: usuario.NOM_USUARIO || "",
@@ -148,6 +174,64 @@ export class AutenticacaoService {
         codEmpresa,
       },
       permissoes,
+    };
+  }
+
+  async renovarToken(refreshToken: string): Promise<{ token: string; refreshToken: string }> {
+    
+    const refreshPayload = verificarRefreshToken(refreshToken);
+
+    if (!refreshTokenRepository.isRefreshTokenValido(refreshPayload.jti)) {
+      throw new Error("Refresh token inválido ou revogado");
+    }
+
+    const empresaConfig = empresaConfigRepository.obterPorCnpj(refreshPayload.cnpj);
+    if (!empresaConfig) {
+      throw new Error("Empresa não encontrada");
+    }
+
+    await poolBanco.configurar(empresaConfig);
+
+    const usuario = await usuarioRepository.obterPorCodigo(
+      refreshPayload.codUsuario,
+      empresaConfig
+    );
+
+    if (!usuario || usuario.SIT_USUARIO !== "A") {
+      throw new Error("Usuário não encontrado ou inativo");
+    }
+
+    refreshTokenRepository.marcarComoUsado(refreshPayload.jti);
+
+    const payload: Omit<PayloadJWT, "jti" | "iat"> = {
+      codUsuario: usuario.COD_USUARIO,
+      codEmpresa: refreshPayload.codEmpresa,
+      codGrupoUsuario: usuario.COD_GRUPO_USUARIO || undefined,
+      login: usuario.ABR_USUARIO || usuario.NOM_USUARIO || "",
+    };
+
+    const novoToken = gerarToken(payload);
+    const novoRefreshToken = gerarRefreshToken(
+      usuario.COD_USUARIO,
+      refreshPayload.codEmpresa,
+      refreshPayload.cnpj
+    );
+
+    const novoRefreshTokenDecoded = JSON.parse(
+      Buffer.from(novoRefreshToken.split(".")[1], "base64").toString()
+    );
+
+console.log(novoRefreshTokenDecoded);
+
+    refreshTokenRepository.salvarRefreshToken(
+      novoRefreshTokenDecoded.jti,
+      usuario.COD_USUARIO,
+      refreshPayload.codEmpresa
+    );
+
+    return {
+      token: novoToken,
+      refreshToken: novoRefreshToken,
     };
   }
 

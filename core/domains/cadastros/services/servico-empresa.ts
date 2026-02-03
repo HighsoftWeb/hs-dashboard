@@ -1,6 +1,6 @@
-import { clienteHttp } from "../http/cliente-http";
-import { EmpresaHttpService } from "../infrastructure/http/services/empresa-http-service";
-import { Empresa } from "../tipos/empresa";
+import { clienteHttp } from "@/core/http/cliente-http";
+import { EmpresaHttpService } from "@/core/infrastructure/http/services/empresa-http-service";
+import { Empresa } from "@/core/tipos/empresa";
 
 class ServicoEmpresa {
   private readonly empresaService: EmpresaHttpService;

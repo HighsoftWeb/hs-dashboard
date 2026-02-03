@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validarAutenticacao } from "@/core/middleware/auth-middleware";
-import { produtoService } from "@/core/service/produto-service";
+import { produtoService } from "@/core/domains/cadastros/services/produto-service";
 import { ProdutoServicoDB } from "@/core/tipos/produto-db";
 import { AtualizarProdutoSchema } from "@/core/schemas/produto-schemas";
-import { logger } from "@/core/utils/logger";
 import { obterEmpresaConfigDoCookie } from "@/core/utils/obter-empresa-cookie";
+import { criarRespostaSucesso, criarRespostaErro } from "@/core/utils/resposta-api";
+import { tratarErroAPI } from "@/core/utils/tratar-erro";
 
 export async function GET(
   request: NextRequest,
@@ -18,13 +19,7 @@ export async function GET(
     const codProdutoNum = parseInt(codProduto, 10);
     if (isNaN(codProdutoNum)) {
       return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "VALIDATION_ERROR",
-            message: "COD_PRODUTO inválido",
-          },
-        },
+        criarRespostaErro("COD_PRODUTO inválido", "VALIDATION_ERROR"),
         { status: 400 }
       );
     }
@@ -35,35 +30,12 @@ export async function GET(
       empresaConfig
     );
 
-    return NextResponse.json({
-      success: true,
-      data: produto,
-    });
+    return NextResponse.json(criarRespostaSucesso(produto));
   } catch (erro) {
-    logger.error("Erro ao obter produto", erro, {
+    return tratarErroAPI(erro, {
       endpoint: "/api/produtos/[codProduto]",
       method: "GET",
     });
-
-    const mensagem =
-      erro instanceof Error ? erro.message : "Erro ao processar requisição";
-
-    const status = mensagem.includes("Token")
-      ? 401
-      : mensagem.includes("não encontrado")
-      ? 404
-      : 500;
-
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          code: "PRODUCT_GET_ERROR",
-          message: mensagem,
-        },
-      },
-      { status }
-    );
   }
 }
 
@@ -80,13 +52,7 @@ export async function PUT(
     const codProdutoNum = parseInt(codProduto, 10);
     if (isNaN(codProdutoNum)) {
       return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "VALIDATION_ERROR",
-            message: "COD_PRODUTO inválido",
-          },
-        },
+        criarRespostaErro("COD_PRODUTO inválido", "VALIDATION_ERROR"),
         { status: 400 }
       );
     }
@@ -95,13 +61,10 @@ export async function PUT(
 
     if (!validacao.success) {
       return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "VALIDATION_ERROR",
-            message: validacao.error.issues.map((e) => e.message).join(", "),
-          },
-        },
+        criarRespostaErro(
+          validacao.error.issues.map((e) => e.message).join(", "),
+          "VALIDATION_ERROR"
+        ),
         { status: 400 }
       );
     }
@@ -147,37 +110,12 @@ export async function PUT(
       payload.codUsuario
     );
 
-    return NextResponse.json({
-      success: true,
-      data: produto,
-    });
+    return NextResponse.json(criarRespostaSucesso(produto));
   } catch (erro) {
-    logger.error("Erro ao atualizar produto", erro, {
+    return tratarErroAPI(erro, {
       endpoint: "/api/produtos/[codProduto]",
       method: "PUT",
     });
-
-    const mensagem =
-      erro instanceof Error ? erro.message : "Erro ao processar requisição";
-
-    const status = mensagem.includes("Token")
-      ? 401
-      : mensagem.includes("não encontrado")
-      ? 404
-      : mensagem.includes("obrigatório") || mensagem.includes("máximo")
-      ? 400
-      : 500;
-
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          code: "PRODUCT_UPDATE_ERROR",
-          message: mensagem,
-        },
-      },
-      { status }
-    );
   }
 }
 
@@ -193,47 +131,20 @@ export async function DELETE(
     const codProdutoNum = parseInt(codProduto, 10);
     if (isNaN(codProdutoNum)) {
       return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "VALIDATION_ERROR",
-            message: "COD_PRODUTO inválido",
-          },
-        },
+        criarRespostaErro("COD_PRODUTO inválido", "VALIDATION_ERROR"),
         { status: 400 }
       );
     }
 
     await produtoService.excluir(payload.codEmpresa, codProdutoNum, empresaConfig);
 
-    return NextResponse.json({
-      success: true,
-      data: { message: "Produto excluído com sucesso" },
-    });
+    return NextResponse.json(
+      criarRespostaSucesso({ message: "Produto excluído com sucesso" })
+    );
   } catch (erro) {
-    logger.error("Erro ao excluir produto", erro, {
+    return tratarErroAPI(erro, {
       endpoint: "/api/produtos/[codProduto]",
       method: "DELETE",
     });
-
-    const mensagem =
-      erro instanceof Error ? erro.message : "Erro ao processar requisição";
-
-    const status = mensagem.includes("Token")
-      ? 401
-      : mensagem.includes("não encontrado")
-      ? 404
-      : 500;
-
-    return NextResponse.json(
-      {
-        success: false,
-        error: {
-          code: "PRODUCT_DELETE_ERROR",
-          message: mensagem,
-        },
-      },
-      { status }
-    );
   }
 }

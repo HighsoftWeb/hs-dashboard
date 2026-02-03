@@ -41,9 +41,16 @@ function criarDataSource(empresaConfig: EmpresaConfig): DataSource {
     },
     extra: {
       pool: {
-        min: 0,
-        max: 10,
-        idleTimeoutMillis: 30000,
+        min: parseInt(process.env.DB_POOL_MIN || "2", 10),
+        max: parseInt(process.env.DB_POOL_MAX || "20", 10),
+        idleTimeoutMillis: parseInt(
+          process.env.DB_POOL_IDLE_TIMEOUT || "30000",
+          10
+        ),
+        acquireTimeoutMillis: parseInt(
+          process.env.DB_POOL_ACQUIRE_TIMEOUT || "60000",
+          10
+        ),
       },
     },
     entities,

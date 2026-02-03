@@ -47,10 +47,61 @@ class ClienteHttp {
 
     this.instancia.interceptors.response.use(
       (resposta: AxiosResponse<RespostaApi<unknown>>) => resposta,
-      (erro: unknown) => {
+      async (erro: unknown) => {
         const axiosError = erro as AxiosError<RespostaApi<unknown>>;
 
         if (axiosError.response?.status === 401) {
+          const refreshToken = Cookies.get("refreshToken");
+          const mensagemErro = axiosError.response?.data?.error?.message || "";
+          const codigoErro = axiosError.response?.data?.error?.code || "";
+          const mensagemErroUpper = mensagemErro.toUpperCase();
+          const codigoErroUpper = codigoErro.toUpperCase();
+          
+          const isTokenRevogado =
+            mensagemErro === "TOKEN_REVOGADO" ||
+            codigoErro === "TOKEN_REVOGADO" ||
+            mensagemErroUpper === "TOKEN_REVOGADO" ||
+            codigoErroUpper === "TOKEN_REVOGADO" ||
+            mensagemErroUpper.includes("TOKEN_REVOGADO") ||
+            mensagemErroUpper.includes("TOKEN REVOGADO") ||
+            mensagemErroUpper.includes("REVOGADO") ||
+            mensagemErro.includes("revogado") ||
+            mensagemErro.includes("Revogado");
+
+          // Se for token revogado, não tentar refresh - ir direto para logout
+          if (isTokenRevogado) {
+            this.tratarErro401(axiosError);
+            return Promise.reject(axiosError);
+          }
+
+          // Tentar refresh apenas se não for token revogado
+          if (refreshToken) {
+            try {
+              const respostaRefresh = await axios.post<RespostaApi<{ token: string; refreshToken: string }>>(
+                "/api/auth/refresh",
+                { refreshToken },
+                { baseURL: "" }
+              );
+
+              if (respostaRefresh.data.success && respostaRefresh.data.data) {
+                Cookies.set("token", respostaRefresh.data.data.token, { expires: 7, sameSite: "strict" });
+                Cookies.set("refreshToken", respostaRefresh.data.data.refreshToken, { expires: 7, sameSite: "strict" });
+                
+                const configOriginal = axiosError.config;
+                if (configOriginal) {
+                  configOriginal.headers = configOriginal.headers || {};
+                  configOriginal.headers.Authorization = `Bearer ${respostaRefresh.data.data.token}`;
+                  return this.instancia.request(configOriginal);
+                }
+              }
+            } catch (refreshError) {
+              // Se refresh falhar, tratar como erro 401 normal
+              this.tratarErro401(axiosError);
+              return Promise.reject(refreshError);
+            }
+          }
+
+          // Se não tiver refresh token ou refresh falhou, tratar erro 401
           this.tratarErro401(axiosError);
         }
 
@@ -72,24 +123,45 @@ class ClienteHttp {
   private tratarErro401(erro: AxiosError<RespostaApi<unknown>>): void {
     const mensagemErro = erro.response?.data?.error?.message || "";
     const codigoErro = erro.response?.data?.error?.code || "";
+    const mensagemErroUpper = mensagemErro.toUpperCase();
+    const codigoErroUpper = codigoErro.toUpperCase();
+    
+    // Verificação mais abrangente para detectar token revogado
     const isTokenRevogado =
       mensagemErro === "TOKEN_REVOGADO" ||
       codigoErro === "TOKEN_REVOGADO" ||
-      mensagemErro.includes("Token revogado");
+      mensagemErroUpper === "TOKEN_REVOGADO" ||
+      codigoErroUpper === "TOKEN_REVOGADO" ||
+      mensagemErroUpper.includes("TOKEN_REVOGADO") ||
+      mensagemErroUpper.includes("TOKEN REVOGADO") ||
+      mensagemErroUpper.includes("REVOGADO") ||
+      mensagemErro.includes("revogado") ||
+      mensagemErro.includes("Revogado");
 
     this.limparSessao();
 
-    if (typeof window !== "undefined" && !window.location.pathname.includes("/login")) {
+    if (typeof window !== "undefined") {
+      // Sempre salvar a informação de token revogado se detectado
       if (isTokenRevogado) {
+        // Garantir que a mensagem seja salva
+        const mensagemFinal = TOKEN_REVOGADO_MESSAGE || "Outro usuário acessou o sistema com este mesmo login e empresa. Você foi desconectado por segurança.";
         sessionStorage.setItem(TOKEN_REVOGADO_KEY, "true");
-        sessionStorage.setItem(MENSAGEM_REVOGACAO_KEY, TOKEN_REVOGADO_MESSAGE);
+        sessionStorage.setItem(MENSAGEM_REVOGACAO_KEY, mensagemFinal);
+        
+        // Log para debug (remover em produção se necessário)
+        console.log("[ClienteHttp] Token revogado detectado. Mensagem salva:", mensagemFinal);
       }
-      window.location.href = "/login";
+      
+      // Redirecionar apenas se não estiver já na página de login
+      if (!window.location.pathname.includes("/login")) {
+        window.location.href = "/login";
+      }
     }
   }
 
   private limparSessao(): void {
     Cookies.remove("token");
+    Cookies.remove("refreshToken");
     Cookies.remove("usuario");
     Cookies.remove("permissoes");
     removerCodEmpresaDoCookie();

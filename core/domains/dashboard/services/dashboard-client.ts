@@ -1,7 +1,7 @@
-import { clienteHttp } from "../http/cliente-http";
-import { EstatisticasDashboard } from "../tipos/dashboard-db";
-import { Orcamento } from "../tipos/comercial";
-import { DASHBOARD_PADRAO } from "../constants/paginacao";
+import { EstatisticasDashboard } from "@/core/tipos/dashboard-db";
+import { Orcamento } from "@/core/tipos/comercial";
+import { DASHBOARD_PADRAO } from "@/core/constants/paginacao";
+import { clienteHttp } from "@/core/http/cliente-http";
 
 export interface ContaVencendo {
   id: string;

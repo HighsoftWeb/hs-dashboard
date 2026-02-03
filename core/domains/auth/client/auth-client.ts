@@ -1,11 +1,11 @@
 import Cookies from "js-cookie";
-import { clienteHttp } from "../http/cliente-http";
+import { clienteHttp } from "../../../http/cliente-http";
 import {
   CredenciaisLogin,
   DadosAutenticacao,
   Usuario,
-} from "../tipos/usuario";
-import { removerCodEmpresaDoCookie } from "../utils/cod-empresa-cookie";
+} from "../../../tipos/usuario";
+import { removerCodEmpresaDoCookie } from "../../../utils/cod-empresa-cookie";
 
 class ServicoAutenticacao {
   async fazerLogin(
@@ -35,9 +35,12 @@ class ServicoAutenticacao {
         throw new Error(errorMessage);
       }
 
-      const { usuario, token, permissoes } = resposta.data;
+      const { usuario, token, refreshToken, permissoes } = resposta.data;
 
       Cookies.set("token", token, { expires: 7, sameSite: "strict" });
+      if (refreshToken) {
+        Cookies.set("refreshToken", refreshToken, { expires: 7, sameSite: "strict" });
+      }
       Cookies.set("usuario", JSON.stringify(usuario), {
         expires: 7,
         sameSite: "strict",
@@ -67,6 +70,7 @@ class ServicoAutenticacao {
     } catch {
     } finally {
       Cookies.remove("token");
+      Cookies.remove("refreshToken");
       Cookies.remove("usuario");
       Cookies.remove("permissoes");
       removerCodEmpresaDoCookie();

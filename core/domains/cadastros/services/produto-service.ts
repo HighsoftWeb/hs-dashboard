@@ -1,7 +1,7 @@
-import { produtoRepository } from "../repository/produto-repository";
-import { ProdutoServicoDB, DerivacaoDB, EstoqueDB } from "../tipos/produto-db";
-import { PAGINACAO_PADRAO } from "../constants/paginacao";
-import type { EmpresaConfig } from "../entities/EmpresaConfig";
+import { produtoRepository } from "@/core/repository/produto-repository";
+import { ProdutoServicoDB, DerivacaoDB, EstoqueDB } from "@/core/tipos/produto-db";
+import { PAGINACAO_PADRAO } from "@/core/constants/paginacao";
+import type { EmpresaConfig } from "@/core/entities/EmpresaConfig";
 
 export interface FiltrosProduto {
   page?: number;

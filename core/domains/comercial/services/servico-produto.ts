@@ -1,6 +1,6 @@
-import { clienteHttp } from "../http/cliente-http";
-import { ProdutoHttpService, FiltrosProduto, RespostaListagemProdutos } from "../infrastructure/http/services/produto-http-service";
-import { ProdutoServicoDB } from "../tipos/produto-db";
+import { clienteHttp } from "@/core/http/cliente-http";
+import { ProdutoHttpService, FiltrosProduto, RespostaListagemProdutos } from "@/core/infrastructure/http/services/produto-http-service";
+import { ProdutoServicoDB } from "@/core/tipos/produto-db";
 
 export type { FiltrosProduto, RespostaListagemProdutos };
 

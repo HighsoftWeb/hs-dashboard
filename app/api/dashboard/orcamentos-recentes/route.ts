@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validarAutenticacao } from "@/core/middleware/auth-middleware";
-import { dashboardService } from "@/core/service/dashboard-service";
+import { dashboardService } from "@/core/domains/dashboard/services/dashboard-service";
 import { logger } from "@/core/utils/logger";
 import { DASHBOARD_PADRAO } from "@/core/constants/paginacao";
 import { obterEmpresaConfigDoCookie } from "@/core/utils/obter-empresa-cookie";
