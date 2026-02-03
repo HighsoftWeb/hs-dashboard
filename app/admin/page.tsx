@@ -1,21 +1,50 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import { EmpresaConfig } from "@/core/entities/EmpresaConfig";
 import { Botao } from "@/core/componentes/botao/botao";
 import { clienteHttp } from "@/core/http/cliente-http";
 import { validarELimparCnpj } from "@/core/utils/cnpj-utils";
 import { logger } from "@/core/utils/logger";
+import {
+  Check,
+  Upload,
+  Building2,
+  Lock,
+  Edit,
+  Trash2,
+  Plus,
+  LogOut,
+  Shield,
+  X,
+} from "lucide-react";
 
 const ADMIN_PASSWORD = "hs@010896@hs";
+
+function decryptCfg(value: string): string {
+  let result = "";
+  for (let i = 0; i < value.length; i++) {
+    result += String.fromCharCode(
+      i % 2 === 0 ? value.charCodeAt(i) + 13 : value.charCodeAt(i) - 9
+    );
+  }
+  return result.replace(/[\'\n\r\u0004\u00a0\u001a]/g, "");
+}
 
 export default function PaginaAdmin(): React.JSX.Element {
   const [autenticado, setAutenticado] = useState(false);
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState("");
   const [empresas, setEmpresas] = useState<EmpresaConfig[]>([]);
-  const [mostrarFormulario, setMostrarFormulario] = useState(false);
+  const [mostrarModal, setMostrarModal] = useState(false);
+  const [mostrarModalExcluir, setMostrarModalExcluir] = useState(false);
+  const [empresaExcluir, setEmpresaExcluir] = useState<EmpresaConfig | null>(null);
+  const [senhaExcluir, setSenhaExcluir] = useState("");
   const [empresaEditando, setEmpresaEditando] = useState<EmpresaConfig | null>(null);
+  const [senhaEditando, setSenhaEditando] = useState(false);
+  const [senhaImportada, setSenhaImportada] = useState<string>("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formulario, setFormulario] = useState({
     cnpj: "",
     nomeEmpresa: "",
@@ -61,6 +90,109 @@ export default function PaginaAdmin(): React.JSX.Element {
     }
   };
 
+  const handleImportarCfg = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.name.split(".").pop()?.toLowerCase() !== "cfg") {
+      setErro("Apenas arquivos .cfg são permitidos.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const content = event.target?.result as string;
+        const lines = content.split("\n");
+
+        if (lines.length < 16) {
+          setErro("O arquivo deve ter no mínimo 16 linhas.");
+          return;
+        }
+
+        const host = decryptCfg(lines[2]?.trim() || "");
+        const usuario = decryptCfg(lines[14]?.trim() || "");
+        const nomeBase = decryptCfg(lines[14]?.trim() || "");
+        const senhaDecodificada = decryptCfg(lines[15]?.trim() || "");
+
+        if (!host || !usuario || !senhaDecodificada) {
+          setErro("Erro ao decodificar arquivo CFG. Verifique se o arquivo está correto.");
+          return;
+        }
+
+        setSenhaImportada(senhaDecodificada);
+        setFormulario({
+          ...formulario,
+          host,
+          usuario,
+          nomeBase,
+          senha: "",
+        });
+
+        setMostrarModal(true);
+        setErro("");
+      } catch (erroProcessamento) {
+        setErro(
+          erroProcessamento instanceof Error
+            ? erroProcessamento.message
+            : "Erro ao processar arquivo CFG"
+        );
+      }
+    };
+
+    reader.onerror = () => {
+      setErro("Erro ao ler arquivo.");
+    };
+
+    reader.readAsText(file);
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const abrirModalNova = () => {
+    setEmpresaEditando(null);
+    setSenhaEditando(false);
+    setSenhaImportada("");
+    setFormulario({
+      cnpj: "",
+      nomeEmpresa: "",
+      host: "",
+      porta: 1433,
+      nomeBase: "",
+      usuario: "",
+      senha: "",
+      codigosUsuariosPermitidos: "",
+    });
+    setMostrarModal(true);
+  };
+
+  const abrirModalEditar = (empresa: EmpresaConfig) => {
+    setEmpresaEditando(empresa);
+    setSenhaEditando(false);
+    setSenhaImportada("");
+    setFormulario({
+      cnpj: empresa.cnpj,
+      nomeEmpresa: empresa.nomeEmpresa || "",
+      host: empresa.host,
+      porta: empresa.porta,
+      nomeBase: empresa.nomeBase,
+      usuario: empresa.usuario,
+      senha: "",
+      codigosUsuariosPermitidos: empresa.codigosUsuariosPermitidos || "",
+    });
+    setMostrarModal(true);
+  };
+
+  const fecharModal = () => {
+    setMostrarModal(false);
+    setEmpresaEditando(null);
+    setSenhaEditando(false);
+    setSenhaImportada("");
+    setErro("");
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErro("");
@@ -71,6 +203,8 @@ export default function PaginaAdmin(): React.JSX.Element {
         throw new Error("CNPJ inválido");
       }
 
+      const senhaFinal = senhaImportada || formulario.senha;
+
       const dadosEmpresa = {
         cnpj: cnpjLimpo,
         nomeEmpresa: formulario.nomeEmpresa,
@@ -78,7 +212,7 @@ export default function PaginaAdmin(): React.JSX.Element {
         porta: formulario.porta,
         nomeBase: formulario.nomeBase,
         usuario: formulario.usuario,
-        senha: formulario.senha,
+        senha: senhaFinal,
         codigosUsuariosPermitidos: formulario.codigosUsuariosPermitidos || null,
       };
 
@@ -90,18 +224,7 @@ export default function PaginaAdmin(): React.JSX.Element {
         throw new Error(resposta.error?.message || "Erro ao salvar empresa");
       }
 
-      setMostrarFormulario(false);
-      setEmpresaEditando(null);
-      setFormulario({
-        cnpj: "",
-        nomeEmpresa: "",
-        host: "",
-        porta: 1433,
-        nomeBase: "",
-        usuario: "",
-        senha: "",
-        codigosUsuariosPermitidos: "",
-      });
+      fecharModal();
       carregarEmpresas();
     } catch (erro) {
       setErro(
@@ -110,33 +233,34 @@ export default function PaginaAdmin(): React.JSX.Element {
     }
   };
 
-  const handleEditar = (empresa: EmpresaConfig) => {
-    setEmpresaEditando(empresa);
-    setFormulario({
-      cnpj: empresa.cnpj,
-      nomeEmpresa: empresa.nomeEmpresa || "",
-      host: empresa.host,
-      porta: empresa.porta,
-      nomeBase: empresa.nomeBase,
-      usuario: empresa.usuario,
-      senha: empresa.senha,
-      codigosUsuariosPermitidos: empresa.codigosUsuariosPermitidos || "",
-    });
-    setMostrarFormulario(true);
+  const abrirModalExcluir = (empresa: EmpresaConfig) => {
+    setEmpresaExcluir(empresa);
+    setSenhaExcluir("");
+    setMostrarModalExcluir(true);
   };
 
-  const handleExcluir = async (id: number) => {
-    if (!confirm("Tem certeza que deseja excluir esta empresa?")) {
+  const fecharModalExcluir = () => {
+    setMostrarModalExcluir(false);
+    setEmpresaExcluir(null);
+    setSenhaExcluir("");
+  };
+
+  const handleExcluir = async () => {
+    if (!empresaExcluir) return;
+
+    if (senhaExcluir !== ADMIN_PASSWORD) {
+      setErro("Senha incorreta");
       return;
     }
 
     try {
-      const resposta = await clienteHttp.delete(`/admin/empresas/${id}`);
+      const resposta = await clienteHttp.delete(`/admin/empresas/${empresaExcluir.id}`);
 
       if (!resposta.success) {
         throw new Error(resposta.error?.message || "Erro ao excluir empresa");
       }
 
+      fecharModalExcluir();
       carregarEmpresas();
     } catch (erro) {
       setErro(
@@ -155,29 +279,62 @@ export default function PaginaAdmin(): React.JSX.Element {
 
   if (!autenticado) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#04B2D9]/10 via-[#048ABF]/10 to-[#094A73]/10 px-4">
-        <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 p-8 w-full max-w-md">
-          <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+      <div className="min-h-screen relative flex items-center justify-center overflow-hidden bg-gradient-to-br from-[#04B2D9]/10 via-[#048ABF]/10 to-[#094A73]/10 px-4">
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#04B2D9] rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-[#048ABF] rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-[#094A73] rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-blob animation-delay-4000"></div>
+        </div>
+
+        <div className="relative z-10 w-full max-w-md animate-fade-in">
+          <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-2xl p-8 space-y-6">
+            <div className="text-center space-y-4">
+              <div className="flex justify-center">
+                <div className="relative">
+                  <Image
+                    src="/logo.png"
+                    alt="HighSoft Sistemas"
+                    width={200}
+                    height={64}
+                    className="h-16 w-auto object-contain"
+                    unoptimized
+                  />
+                </div>
+              </div>
+              <div className="flex items-center justify-center gap-2">
+                <Shield className="w-5 h-5 text-[#094A73]" />
+                <h1 className="text-xl font-bold text-gray-800">
             Acesso Administrativo
           </h1>
+              </div>
+            </div>
+
           <form onSubmit={handleLogin} className="space-y-4">
             {erro && (
-              <div className="bg-red-50 border-l-4 border-red-500 rounded-lg p-4">
-                <p className="text-sm text-red-800">{erro}</p>
+                <div className="bg-red-50 border-l-4 border-red-500 rounded-lg p-3 animate-shake">
+                  <p className="text-sm text-red-800 font-medium">{erro}</p>
               </div>
             )}
+
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Senha
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Senha Administrativa
               </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Lock className="w-4 h-4 text-gray-400" />
+                  </div>
               <input
                 type="password"
                 value={senha}
                 onChange={(e) => setSenha(e.target.value)}
-                className="w-full px-4 py-3 border-2 border-[#A4A5A6] rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#094A73] focus:border-[#094A73]"
+                    className="w-full pl-10 pr-4 py-2 border border-[#A4A5A6] rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#094A73] focus:border-[#094A73] transition-all"
+                    placeholder="Digite a senha administrativa"
                 required
               />
             </div>
+              </div>
+
             <Botao
               type="submit"
               variante="primario"
@@ -186,62 +343,179 @@ export default function PaginaAdmin(): React.JSX.Element {
               Entrar
             </Botao>
           </form>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto p-4 space-y-4">
+        <div className="bg-white rounded-lg shadow border border-gray-200 p-4">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">
             Gerenciamento de Empresas
           </h1>
-          <div className="space-x-4">
+              <p className="text-sm text-gray-600 mt-1">
+                Configure e gerencie as empresas do sistema
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".cfg"
+                onChange={handleImportarCfg}
+                className="hidden"
+                id="file-cfg-input"
+              />
+              <Botao
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                variante="primario"
+                className="inline-flex items-center gap-2"
+              >
+                <Upload className="w-4 h-4" />
+                Importar CFG
+              </Botao>
             <Botao
-              onClick={() => {
-                setMostrarFormulario(!mostrarFormulario);
-                setEmpresaEditando(null);
-                setFormulario({
-                  cnpj: "",
-                  nomeEmpresa: "",
-                  host: "",
-                  porta: 1433,
-                  nomeBase: "",
-                  usuario: "",
-                  senha: "",
-                  codigosUsuariosPermitidos: "",
-                });
-              }}
+                onClick={abrirModalNova}
               variante="primario"
+                className="inline-flex items-center gap-2"
             >
-              {mostrarFormulario ? "Cancelar" : "Nova Empresa"}
+                <Plus className="w-4 h-4" />
+                Nova Empresa
             </Botao>
             <Botao
               onClick={() => setAutenticado(false)}
               variante="secundario"
+                className="inline-flex items-center gap-2"
             >
+                <LogOut className="w-4 h-4" />
               Sair
             </Botao>
           </div>
         </div>
 
         {erro && (
-          <div className="bg-red-50 border-l-4 border-red-500 rounded-lg p-4 mb-6">
-            <p className="text-sm text-red-800">{erro}</p>
+            <div className="mt-4 bg-red-50 border-l-4 border-red-500 rounded-lg p-3 animate-shake">
+              <p className="text-sm text-red-800 font-medium">{erro}</p>
           </div>
         )}
 
-        {mostrarFormulario && (
-          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">
+          <div className="mt-4 overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Nome da Empresa
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    CNPJ
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Host
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Porta
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Base
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Usuários Permitidos
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Ações
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {empresas.map((empresa) => (
+                  <tr
+                    key={empresa.id}
+                    className="hover:bg-gray-50 transition-colors"
+                  >
+                    <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {empresa.nomeEmpresa || "—"}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                      {formatarCnpj(empresa.cnpj)}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                      {empresa.host}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                      {empresa.porta}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                      {empresa.nomeBase}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                      {empresa.codigosUsuariosPermitidos || "Todos"}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => abrirModalEditar(empresa)}
+                          className="p-1.5 text-[#094A73] hover:text-[#048ABF] hover:bg-blue-50 rounded transition-colors"
+                          title="Editar"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => abrirModalExcluir(empresa)}
+                          className="p-1.5 text-red-600 hover:text-red-800 hover:bg-red-50 rounded transition-colors"
+                          title="Excluir"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {empresas.length === 0 && (
+              <div className="text-center py-8">
+                <Building2 className="w-10 h-10 text-gray-400 mx-auto mb-2" />
+                <p className="text-gray-500 font-medium">Nenhuma empresa cadastrada</p>
+                <p className="text-sm text-gray-400 mt-1">
+                  Clique em &quot;Nova Empresa&quot; para começar
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {mostrarModal && (
+        <div className="fixed inset-0 bg-gray-900/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+              <h2 className="text-xl font-bold text-gray-900">
               {empresaEditando ? "Editar Empresa" : "Nova Empresa"}
             </h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <button
+                onClick={fecharModal}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+              {erro && (
+                <div className="bg-red-50 border-l-4 border-red-500 rounded-lg p-3">
+                  <p className="text-sm text-red-800 font-medium">{erro}</p>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
                     Nome da Empresa *
                   </label>
                   <input
@@ -251,12 +525,13 @@ export default function PaginaAdmin(): React.JSX.Element {
                       setFormulario({ ...formulario, nomeEmpresa: e.target.value })
                     }
                     placeholder="Nome da empresa"
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#094A73] focus:border-[#094A73]"
+                    className="w-full px-3 py-2 border border-[#A4A5A6] rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#094A73] focus:border-[#094A73] transition-all"
                     required
                   />
                 </div>
+
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
                     CNPJ *
                   </label>
                   <input
@@ -269,12 +544,13 @@ export default function PaginaAdmin(): React.JSX.Element {
                       }
                     }}
                     placeholder="00.000.000/0000-00"
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#094A73] focus:border-[#094A73]"
+                    className="w-full px-3 py-2 border border-[#A4A5A6] rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#094A73] focus:border-[#094A73] transition-all"
                     required
                   />
                 </div>
+
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
                     Host *
                   </label>
                   <input
@@ -283,12 +559,14 @@ export default function PaginaAdmin(): React.JSX.Element {
                     onChange={(e) =>
                       setFormulario({ ...formulario, host: e.target.value })
                     }
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#094A73] focus:border-[#094A73]"
+                    placeholder="ex: 192.168.1.100"
+                    className="w-full px-3 py-2 border border-[#A4A5A6] rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#094A73] focus:border-[#094A73] transition-all"
                     required
                   />
                 </div>
+
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
                     Porta *
                   </label>
                   <input
@@ -300,12 +578,13 @@ export default function PaginaAdmin(): React.JSX.Element {
                         porta: parseInt(e.target.value) || 1433,
                       })
                     }
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#094A73] focus:border-[#094A73]"
+                    className="w-full px-3 py-2 border border-[#A4A5A6] rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#094A73] focus:border-[#094A73] transition-all"
                     required
                   />
                 </div>
+
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
                     Nome da Base *
                   </label>
                   <input
@@ -314,12 +593,14 @@ export default function PaginaAdmin(): React.JSX.Element {
                     onChange={(e) =>
                       setFormulario({ ...formulario, nomeBase: e.target.value })
                     }
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#094A73] focus:border-[#094A73]"
+                    placeholder="Nome do banco de dados"
+                    className="w-full px-3 py-2 border border-[#A4A5A6] rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#094A73] focus:border-[#094A73] transition-all"
                     required
                   />
                 </div>
+
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
                     Usuário *
                   </label>
                   <input
@@ -328,27 +609,74 @@ export default function PaginaAdmin(): React.JSX.Element {
                     onChange={(e) =>
                       setFormulario({ ...formulario, usuario: e.target.value })
                     }
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#094A73] focus:border-[#094A73]"
+                    placeholder="Usuário do banco"
+                    className="w-full px-3 py-2 border border-[#A4A5A6] rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#094A73] focus:border-[#094A73] transition-all"
                     required
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
                     Senha *
                   </label>
+                  <div className="flex gap-2">
+                    <div className="flex-1 relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <Lock className="w-4 h-4 text-gray-400" />
+                      </div>
                   <input
                     type="password"
                     value={formulario.senha}
-                    onChange={(e) =>
-                      setFormulario({ ...formulario, senha: e.target.value })
-                    }
-                    className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#094A73] focus:border-[#094A73]"
-                    required
-                  />
+                        onChange={(e) => {
+                          setFormulario({ ...formulario, senha: e.target.value });
+                          if (senhaImportada) {
+                            setSenhaImportada("");
+                          }
+                        }}
+                        placeholder={
+                          empresaEditando && !senhaEditando
+                            ? "Clique em 'Alterar Senha' para editar"
+                            : senhaImportada
+                            ? "Senha importada do CFG (será usada ao salvar)"
+                            : "Digite a senha"
+                        }
+                        disabled={!!empresaEditando && !senhaEditando}
+                        className="w-full pl-10 pr-3 py-2 border border-[#A4A5A6] rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#094A73] focus:border-[#094A73] transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+                        required={!senhaImportada ? true : undefined}
+                      />
+                    </div>
+                    {empresaEditando && !senhaEditando && (
+                      <Botao
+                        type="button"
+                        onClick={() => {
+                          setSenhaEditando(true);
+                          setFormulario({ ...formulario, senha: "" });
+                          setSenhaImportada("");
+                        }}
+                        variante="secundario"
+                        className="whitespace-nowrap"
+                      >
+                        Alterar Senha
+                      </Botao>
+                    )}
+                  </div>
+                  {senhaImportada && (
+                    <div className="mt-2 bg-green-50 border border-green-200 rounded-lg p-2 flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+                      <p className="text-xs text-green-700 font-medium">
+                        Senha importada do arquivo CFG. Será usada ao salvar.
+                      </p>
+                    </div>
+                  )}
+                  {empresaEditando && !senhaEditando && !senhaImportada && (
+                    <p className="text-xs text-gray-500 mt-1.5">
+                      Por segurança, a senha não é exibida. Clique em &quot;Alterar Senha&quot; para definir uma nova.
+                    </p>
+                  )}
                 </div>
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
                   Códigos de Usuários Permitidos (separados por vírgula)
                 </label>
                 <input
@@ -361,92 +689,97 @@ export default function PaginaAdmin(): React.JSX.Element {
                     })
                   }
                   placeholder="1, 2, 3 (deixe vazio para permitir todos)"
-                  className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#094A73] focus:border-[#094A73]"
+                    className="w-full px-3 py-2 border border-[#A4A5A6] rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#094A73] focus:border-[#094A73] transition-all"
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   Deixe vazio para permitir login de qualquer usuário
                 </p>
               </div>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+                <Botao
+                  type="button"
+                  onClick={fecharModal}
+                  variante="secundario"
+                >
+                  Cancelar
+                </Botao>
               <Botao type="submit" variante="primario">
                 {empresaEditando ? "Atualizar" : "Salvar"}
               </Botao>
+              </div>
             </form>
+          </div>
           </div>
         )}
 
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Nome da Empresa
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  CNPJ
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Host
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Porta
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Base
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Usuários Permitidos
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Ações
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {empresas.map((empresa) => (
-                <tr key={empresa.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {empresa.nomeEmpresa || "—"}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {formatarCnpj(empresa.cnpj)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {empresa.host}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {empresa.porta}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {empresa.nomeBase}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {empresa.codigosUsuariosPermitidos || "Todos"}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+      {mostrarModalExcluir && empresaExcluir && (
+        <div className="fixed inset-0 bg-gray-900/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+            <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+              <h2 className="text-xl font-bold text-gray-900">Confirmar Exclusão</h2>
                     <button
-                      onClick={() => handleEditar(empresa)}
-                      className="text-[#094A73] hover:text-[#048ABF]"
+                onClick={fecharModalExcluir}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
                     >
-                      Editar
+                <X className="w-5 h-5" />
                     </button>
-                    <button
-                      onClick={() => handleExcluir(empresa.id)}
-                      className="text-red-600 hover:text-red-800"
+            </div>
+
+            <div className="p-6 space-y-4">
+              <p className="text-sm text-gray-700">
+                Tem certeza que deseja excluir a empresa <strong>{empresaExcluir.nomeEmpresa || formatarCnpj(empresaExcluir.cnpj)}</strong>?
+              </p>
+              <p className="text-xs text-gray-500">
+                Esta ação não pode ser desfeita.
+              </p>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Digite a senha para confirmar *
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Lock className="w-4 h-4 text-gray-400" />
+                  </div>
+                  <input
+                    type="password"
+                    value={senhaExcluir}
+                    onChange={(e) => setSenhaExcluir(e.target.value)}
+                    className="w-full pl-10 pr-3 py-2 border border-[#A4A5A6] rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#094A73] focus:border-[#094A73] transition-all"
+                    placeholder="Senha administrativa"
+                    autoFocus
+                  />
+                </div>
+              </div>
+
+              {erro && (
+                <div className="bg-red-50 border-l-4 border-red-500 rounded-lg p-3">
+                  <p className="text-sm text-red-800 font-medium">{erro}</p>
+                </div>
+              )}
+
+              <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+                <Botao
+                  type="button"
+                  onClick={fecharModalExcluir}
+                  variante="secundario"
+                >
+                  Cancelar
+                </Botao>
+                <Botao
+                  type="button"
+                  onClick={handleExcluir}
+                  variante="perigo"
                     >
                       Excluir
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {empresas.length === 0 && (
-            <div className="text-center py-8 text-gray-500">
-              Nenhuma empresa cadastrada
+                </Botao>
+              </div>
             </div>
-          )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
