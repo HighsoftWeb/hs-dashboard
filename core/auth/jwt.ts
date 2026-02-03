@@ -15,15 +15,16 @@ interface DecodedToken extends PayloadJWT {
   jti: string;
 }
 
-const JWT_SECRET_ENV = process.env.JWT_SECRET;
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "8h";
 const JTI_BYTES = 16;
 
-if (!JWT_SECRET_ENV) {
-  throw new Error("JWT_SECRET não definido");
+function obterJwtSecret(): string {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error("JWT_SECRET não definido");
+  }
+  return secret;
 }
-
-const JWT_SECRET: string = JWT_SECRET_ENV;
 
 function gerarJTI(): string {
   return randomBytes(JTI_BYTES).toString("hex");
@@ -31,20 +32,23 @@ function gerarJTI(): string {
 
 export function gerarToken(payload: Omit<PayloadJWT, "jti" | "iat">): string {
   const jti = gerarJTI();
+  const secret = obterJwtSecret();
 
   return jwt.sign(
     {
       ...payload,
       jti,
     },
-    JWT_SECRET,
+    secret,
     { expiresIn: JWT_EXPIRES_IN }
   );
 }
 
 export function verificarToken(token: string): DecodedToken {
+  const secret = obterJwtSecret();
+
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as DecodedToken;
+    const decoded = jwt.verify(token, secret) as DecodedToken;
 
     if (!decoded.jti || !decoded.iat) {
       throw new Error("Token inválido: faltam campos obrigatórios");
