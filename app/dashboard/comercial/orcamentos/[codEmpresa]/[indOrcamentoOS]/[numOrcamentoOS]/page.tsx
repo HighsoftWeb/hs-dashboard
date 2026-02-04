@@ -781,7 +781,7 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
             <div className="flex flex-col">
               <label className="block text-xs font-medium text-gray-700 mb-0.5 text-right">
                 ISS
-              </label>  
+              </label>
               <input
                 type="text"
                 value={formatarMoeda(orcamento.VLR_ISS)}
