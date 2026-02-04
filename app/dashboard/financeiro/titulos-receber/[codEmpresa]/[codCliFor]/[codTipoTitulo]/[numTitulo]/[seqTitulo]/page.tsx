@@ -136,25 +136,25 @@ export default function PaginaDetalhesTituloReceber(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+              <label className="block text-xs font-medium text-gray-700 mb-0.5 text-right">
                 Número Título
               </label>
               <input
                 type="text"
                 value={titulo.NUM_TITULO || "-"}
                 readOnly
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white text-right"
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+              <label className="block text-xs font-medium text-gray-700 mb-0.5 text-right">
                 Sequência
               </label>
               <input
                 type="text"
                 value={titulo.SEQ_TITULO || "-"}
                 readOnly
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white text-right"
               />
             </div>
             <div className="flex flex-col">
@@ -237,36 +237,36 @@ export default function PaginaDetalhesTituloReceber(): React.JSX.Element {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2">
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+              <label className="block text-xs font-medium text-gray-700 mb-0.5 text-right">
                 Valor Original
               </label>
               <input
                 type="text"
                 value={formatarMoeda(titulo.VLR_ORIGINAL)}
                 readOnly
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white text-right"
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+              <label className="block text-xs font-medium text-gray-700 mb-0.5 text-right">
                 Valor Aberto
               </label>
               <input
                 type="text"
                 value={formatarMoeda(titulo.VLR_ABERTO)}
                 readOnly
-                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white text-right"
               />
             </div>
             <div className="flex flex-col md:col-span-2 lg:col-span-3 xl:col-span-4 2xl:col-span-5">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+              <label className="block text-xs font-medium text-gray-700 mb-0.5 text-right">
                 Valor Total
               </label>
               <input
                 type="text"
                 value={formatarMoeda(titulo.VLR_ORIGINAL)}
                 readOnly
-                className="w-full px-2 py-1.5 text-base font-bold border-2 border-[#094A73] rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-[#094A73] text-white"
+                className="w-full px-2 py-1.5 text-base font-bold border-2 border-[#094A73] rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-[#094A73] text-white text-right"
               />
             </div>
           </div>
