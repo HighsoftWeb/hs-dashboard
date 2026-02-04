@@ -356,7 +356,7 @@ export default function PaginaDetalhesProduto(): React.JSX.Element {
                           />
                         </div>
                         <div className="flex flex-col">
-                          <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                          <label className="block text-xs font-medium text-gray-700 mb-0.5 text-right">
                             Preço Custo Última Entrada
                           </label>
                           <input
@@ -369,7 +369,7 @@ export default function PaginaDetalhesProduto(): React.JSX.Element {
                           />
                         </div>
                         <div className="flex flex-col">
-                          <label className="block text-xs font-medium text-gray-700 mb-0.5">
+                          <label className="block text-xs font-medium text-gray-700 mb-0.5 text-right">
                             Preço Custo Médio
                           </label>
                           <input

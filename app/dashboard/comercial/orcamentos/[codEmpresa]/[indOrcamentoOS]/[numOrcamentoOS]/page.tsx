@@ -387,10 +387,10 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
               <table className="min-w-full divide-y divide-gray-100">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                    <th className="px-2 py-1 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">
                       Seq.
                     </th>
-                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                    <th className="px-2 py-1 text-right text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">
                       Código
                     </th>
                     <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">
@@ -672,7 +672,7 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2">
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+              <label className="block text-xs font-medium text-gray-700 mb-0.5 text-right">
                 Valor Bruto
               </label>
               <input
@@ -683,7 +683,7 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+              <label className="block text-xs font-medium text-gray-700 mb-0.5 text-right">
                 Desconto
               </label>
               <input
@@ -702,7 +702,7 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+              <label className="block text-xs font-medium text-gray-700 mb-0.5 text-right">
                 Valor Produtos
               </label>
               <input
@@ -713,7 +713,7 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+              <label className="block text-xs font-medium text-gray-700 mb-0.5 text-right">
                 Valor Serviços
               </label>
               <input
@@ -724,7 +724,7 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+              <label className="block text-xs font-medium text-gray-700 mb-0.5 text-right">
                 Frete
               </label>
               <input
@@ -735,7 +735,7 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+              <label className="block text-xs font-medium text-gray-700 mb-0.5 text-right">
                 Seguro
               </label>
               <input
@@ -746,7 +746,7 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+              <label className="block text-xs font-medium text-gray-700 mb-0.5 text-right">
                 Outros
               </label>
               <input
@@ -757,7 +757,7 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+              <label className="block text-xs font-medium text-gray-700 mb-0.5 text-right">
                 IPI
               </label>
               <input
@@ -768,7 +768,7 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+              <label className="block text-xs font-medium text-gray-700 mb-0.5 text-right">
                 ICMS
               </label>
               <input
@@ -779,7 +779,7 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+              <label className="block text-xs font-medium text-gray-700 mb-0.5 text-right">
                 ISS
               </label>
               <input
@@ -790,7 +790,7 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
               />
             </div>
             <div className="flex flex-col md:col-span-2 lg:col-span-3 xl:col-span-4 2xl:col-span-5">
-              <label className="block text-xs font-medium text-gray-700 mb-0.5">
+              <label className="block text-xs font-medium text-gray-700 mb-0.5 text-right">
                 Valor Líquido Total
               </label>
               <input
