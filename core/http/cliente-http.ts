@@ -70,13 +70,11 @@ class ClienteHttp {
             mensagemErro.includes("revogado") ||
             mensagemErro.includes("Revogado");
 
-          // Se for token revogado, não tentar refresh - ir direto para logout
           if (isTokenRevogado) {
             this.tratarErro401(axiosError);
             return Promise.reject(axiosError);
           }
 
-          // Tentar refresh apenas se não for token revogado
           if (refreshToken) {
             try {
               const respostaRefresh = await axios.post<
@@ -102,13 +100,11 @@ class ClienteHttp {
                 }
               }
             } catch (refreshError) {
-              // Se refresh falhar, tratar como erro 401 normal
               this.tratarErro401(axiosError);
               return Promise.reject(refreshError);
             }
           }
 
-          // Se não tiver refresh token ou refresh falhou, tratar erro 401
           this.tratarErro401(axiosError);
         }
 
@@ -133,7 +129,6 @@ class ClienteHttp {
     const mensagemErroUpper = mensagemErro.toUpperCase();
     const codigoErroUpper = codigoErro.toUpperCase();
 
-    // Verificação mais abrangente para detectar token revogado
     const isTokenRevogado =
       mensagemErro === "TOKEN_REVOGADO" ||
       codigoErro === "TOKEN_REVOGADO" ||
@@ -148,23 +143,19 @@ class ClienteHttp {
     this.limparSessao();
 
     if (typeof window !== "undefined") {
-      // Sempre salvar a informação de token revogado se detectado
       if (isTokenRevogado) {
-        // Garantir que a mensagem seja salva
         const mensagemFinal =
           TOKEN_REVOGADO_MESSAGE ||
           "Outro usuário acessou o sistema com este mesmo login e empresa. Você foi desconectado por segurança.";
         sessionStorage.setItem(TOKEN_REVOGADO_KEY, "true");
         sessionStorage.setItem(MENSAGEM_REVOGACAO_KEY, mensagemFinal);
 
-        // Log para debug (remover em produção se necessário)
         console.log(
           "[ClienteHttp] Token revogado detectado. Mensagem salva:",
           mensagemFinal
         );
       }
 
-      // Redirecionar apenas se não estiver já na página de login
       if (!window.location.pathname.includes("/login")) {
         window.location.href = "/login";
       }
