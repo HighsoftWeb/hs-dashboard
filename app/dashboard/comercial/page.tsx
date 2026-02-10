@@ -9,6 +9,8 @@ import {
   FiltroDataTable,
 } from "@/core/componentes/data-table/data-table";
 import { formatarData } from "@/core/utils/formatar-data";
+import { formatarMoeda } from "@/core/utils/formatar-moeda";
+import { obterStatus, obterCorStatus } from "@/core/utils/status-utils";
 
 interface OrcamentoOSDB extends Record<string, unknown> {
   COD_EMPRESA: number;
@@ -91,13 +93,7 @@ export default function PaginaComercial(): React.JSX.Element {
       titulo: "Valor Líquido",
       ordenavel: true,
       alinhamento: "direita",
-      renderizar: (valor) => {
-        const vlr = Number(valor || 0);
-        return new Intl.NumberFormat("pt-BR", {
-          style: "currency",
-          currency: "BRL",
-        }).format(vlr);
-      },
+      renderizar: (valor) => formatarMoeda(Number(valor || 0)),
     },
     {
       chave: "SIT_ORCAMENTO_OS",
@@ -105,27 +101,11 @@ export default function PaginaComercial(): React.JSX.Element {
       ordenavel: true,
       renderizar: (valor) => {
         const sit = String(valor || "");
-        const status: Record<string, string> = {
-          AB: "Aberto Total",
-          AP: "Aprovado",
-          PR: "Processado",
-          CA: "Cancelado",
-          RO: "Romaneio",
-          AA: "Aguardando Aprovação",
-          FP: "Faturado Parcial",
-          OP: "Ordem de Produção",
-        };
-        const cor =
-          sit === "AP" || sit === "PR"
-            ? "bg-green-100 text-green-800"
-            : sit === "CA"
-              ? "bg-red-100 text-red-800"
-              : "bg-yellow-100 text-yellow-800";
         return (
           <span
-            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${cor}`}
+            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${obterCorStatus(sit)}`}
           >
-            {status[sit] || sit}
+            {obterStatus(sit)}
           </span>
         );
       },

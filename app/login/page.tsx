@@ -145,7 +145,6 @@ export default function PaginaLogin(): React.JSX.Element {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    // Verificar imediatamente ao montar o componente
     const verificarTokenRevogado = (): void => {
       const tokenRevogado = sessionStorage.getItem(TOKEN_REVOGADO_KEY);
       const mensagemRevogacao = sessionStorage.getItem(MENSAGEM_REVOGACAO_KEY);
@@ -155,7 +154,6 @@ export default function PaginaLogin(): React.JSX.Element {
           mensagemRevogacao ||
           "Outro usuário acessou o sistema com este mesmo login e empresa. Você foi desconectado por segurança.";
 
-        // Log para debug
         console.log(
           "[Login] Token revogado detectado. Exibindo mensagem:",
           mensagem
@@ -164,7 +162,6 @@ export default function PaginaLogin(): React.JSX.Element {
         setErro(mensagem);
         setIsTokenRevogado(true);
 
-        // Limpar apenas após um pequeno delay para garantir que a mensagem seja exibida
         setTimeout(() => {
           sessionStorage.removeItem(TOKEN_REVOGADO_KEY);
           sessionStorage.removeItem(MENSAGEM_REVOGACAO_KEY);
@@ -172,17 +169,14 @@ export default function PaginaLogin(): React.JSX.Element {
       }
     };
 
-    // Verificar imediatamente
     verificarTokenRevogado();
 
-    // Verificar periodicamente também (fallback caso o storage seja setado depois)
     const intervalId = setInterval(() => {
       const tokenRevogado = sessionStorage.getItem(TOKEN_REVOGADO_KEY);
       if (tokenRevogado === "true") {
         const mensagem =
           sessionStorage.getItem(MENSAGEM_REVOGACAO_KEY) ||
           "Outro usuário acessou o sistema com este mesmo login e empresa. Você foi desconectado por segurança.";
-        // Usar função de atualização para evitar dependência
         setErro((prevErro) => {
           if (prevErro !== mensagem) {
             console.log(
@@ -267,7 +261,6 @@ export default function PaginaLogin(): React.JSX.Element {
     evento: React.FormEvent<HTMLFormElement>
   ): Promise<void> => {
     evento.preventDefault();
-    // Limpar apenas erros que não sejam de token revogado
     if (!isTokenRevogado) {
       setErro("");
       setIsTokenRevogado(false);
@@ -297,7 +290,6 @@ export default function PaginaLogin(): React.JSX.Element {
 
       salvarCnpjNoCookie(cnpjLimpo);
       salvarCodEmpresaNoCookie(empresaSelecionada);
-      // Limpar mensagem de token revogado após login bem-sucedido
       setIsTokenRevogado(false);
       setErro("");
       router.push("/dashboard");
@@ -306,7 +298,6 @@ export default function PaginaLogin(): React.JSX.Element {
         erroLogin instanceof Error
           ? erroLogin.message
           : "Erro ao fazer login. Verifique suas credenciais.";
-      // Só atualizar erro se não for token revogado (para manter a mensagem original)
       if (!isTokenRevogado) {
         setErro(mensagemErro);
       }

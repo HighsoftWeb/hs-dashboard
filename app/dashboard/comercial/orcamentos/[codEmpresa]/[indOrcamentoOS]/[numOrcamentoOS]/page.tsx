@@ -11,6 +11,8 @@ import {
   ItemTrocaOrcamentoDB,
 } from "@/core/repository/orcamento-repository";
 import { formatarData, formatarDataHora } from "@/core/utils/formatar-data";
+import { formatarMoeda } from "@/core/utils/formatar-moeda";
+import { obterStatus, obterCorStatus } from "@/core/utils/status-utils";
 
 export default function PaginaDetalhesOrcamento(): React.JSX.Element {
   const params = useParams();
@@ -64,43 +66,8 @@ export default function PaginaDetalhesOrcamento(): React.JSX.Element {
     }
   }, [codEmpresa, indOrcamentoOS, numOrcamentoOS]);
 
-  const formatarMoeda = (valor: number | null | undefined): string => {
-    if (valor === null || valor === undefined) return "-";
-    return new Intl.NumberFormat("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    }).format(valor);
-  };
-
   const obterTipoDocumento = (ind: string): string => {
     return ind === "OR" ? "Orçamento" : ind === "OS" ? "Ordem de Serviço" : ind;
-  };
-
-  const obterStatus = (sit: string | null): string => {
-    if (!sit) return "-";
-    const status: Record<string, string> = {
-      AB: "Aberto Total",
-      AP: "Aprovado",
-      PR: "Processado",
-      CA: "Cancelado",
-      RO: "Romaneio",
-      AA: "Aguardando Aprovação",
-      FP: "Faturado Parcial",
-      OP: "Ordem de Produção",
-    };
-    return status[sit] || sit;
-  };
-
-  const obterCorStatus = (sit: string | null): string => {
-    if (!sit) return "bg-gray-100 text-gray-800";
-    const sitUpper = sit.toUpperCase();
-    if (sitUpper === "AP" || sitUpper === "PR") {
-      return "bg-green-100 text-green-800";
-    }
-    if (sitUpper === "CA") {
-      return "bg-red-100 text-red-800";
-    }
-    return "bg-yellow-100 text-yellow-800";
   };
 
   if (carregando) {
