@@ -321,9 +321,8 @@ export function DataTable<T extends Record<string, unknown>>({
                         }))
                       }
                       placeholder={
-                        filtro.placeholder || filtro.tipo === "data"
-                          ? "dd/mm/aaaa"
-                          : ""
+                        filtro.placeholder ??
+                        (filtro.tipo === "data" ? "dd/mm/aaaa" : "")
                       }
                       className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent"
                     />

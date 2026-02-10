@@ -79,6 +79,10 @@ const menuItems: MenuItem[] = [
             label: "Orçamentos/OS",
             href: "/dashboard/cadastros/saidas/orcamentos-os",
           },
+          {
+            label: "Notas Fiscais de Venda",
+            href: "/dashboard/comercial/saidas/notas-fiscais-venda",
+          },
         ],
       },
     ],
