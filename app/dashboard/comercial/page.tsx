@@ -37,6 +37,14 @@ export default function PaginaComercial(): React.JSX.Element {
 
   const colunasOrcamentos: ColunaDataTable<OrcamentoOSDB>[] = [
     {
+      chave: "DAT_EMISSAO",
+      titulo: "Data Emissão",
+      ordenavel: true,
+      alinhamento: "esquerda",
+      renderizar: (valor) =>
+        formatarData(valor as Date | string | null | undefined),
+    },
+    {
       chave: "IND_ORCAMENTO_OS",
       titulo: "Tipo",
       ordenavel: true,
@@ -69,24 +77,16 @@ export default function PaginaComercial(): React.JSX.Element {
       alinhamento: "esquerda",
     },
     {
-      chave: "RAZ_CLI_FOR",
-      titulo: "Cliente",
-      ordenavel: true,
-      alinhamento: "esquerda",
-    },
-    {
       chave: "COD_CLI_FOR",
       titulo: "Cód. Cliente",
       ordenavel: true,
       alinhamento: "direita",
     },
     {
-      chave: "DAT_EMISSAO",
-      titulo: "Data Emissão",
+      chave: "RAZ_CLI_FOR",
+      titulo: "Cliente",
       ordenavel: true,
       alinhamento: "esquerda",
-      renderizar: (valor) =>
-        formatarData(valor as Date | string | null | undefined),
     },
     {
       chave: "VLR_LIQUIDO",

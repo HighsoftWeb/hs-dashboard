@@ -36,6 +36,14 @@ export default function PaginaOrcamentosOS(): React.JSX.Element {
 
   const colunasOrcamentos: ColunaDataTable<OrcamentoOSDB>[] = [
     {
+      chave: "DAT_EMISSAO",
+      titulo: "Data Emissão",
+      ordenavel: true,
+      alinhamento: "esquerda",
+      renderizar: (valor) =>
+        formatarData(valor as Date | string | null | undefined),
+    },
+    {
       chave: "IND_ORCAMENTO_OS",
       titulo: "Tipo",
       ordenavel: true,
@@ -56,20 +64,14 @@ export default function PaginaOrcamentosOS(): React.JSX.Element {
       alinhamento: "direita",
     },
     {
-      chave: "NUM_DOCUMENTO",
-      titulo: "Nº Documento",
-      ordenavel: true,
-      alinhamento: "esquerda",
-    },
-    {
       chave: "COD_SERIE_ORC_OS",
       titulo: "Série",
       ordenavel: true,
       alinhamento: "esquerda",
     },
     {
-      chave: "RAZ_CLI_FOR",
-      titulo: "Cliente",
+      chave: "NUM_DOCUMENTO",
+      titulo: "Nº Documento",
       ordenavel: true,
       alinhamento: "esquerda",
     },
@@ -80,12 +82,10 @@ export default function PaginaOrcamentosOS(): React.JSX.Element {
       alinhamento: "direita",
     },
     {
-      chave: "DAT_EMISSAO",
-      titulo: "Data Emissão",
+      chave: "RAZ_CLI_FOR",
+      titulo: "Cliente",
       ordenavel: true,
       alinhamento: "esquerda",
-      renderizar: (valor) =>
-        formatarData(valor as Date | string | null | undefined),
     },
     {
       chave: "VLR_LIQUIDO",
