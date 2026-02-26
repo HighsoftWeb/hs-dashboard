@@ -35,10 +35,12 @@ export default function PaginaNotasFiscaisVenda(): React.JSX.Element {
 
   const colunas: ColunaDataTable<NotaVendaListDB>[] = [
     {
-      chave: "COD_SERIE_NF_VENDA",
-      titulo: "Série",
+      chave: "DAT_EMISSAO",
+      titulo: "Data Emissão",
       ordenavel: true,
       alinhamento: "esquerda",
+      renderizar: (valor) =>
+        formatarData(valor as Date | string | null | undefined),
     },
     {
       chave: "NUM_NF_VENDA",
@@ -47,14 +49,14 @@ export default function PaginaNotasFiscaisVenda(): React.JSX.Element {
       alinhamento: "direita",
     },
     {
-      chave: "NUM_DOCUMENTO",
-      titulo: "Nº Documento",
+      chave: "COD_SERIE_NF_VENDA",
+      titulo: "Série",
       ordenavel: true,
       alinhamento: "esquerda",
     },
     {
-      chave: "RAZ_CLI_FOR",
-      titulo: "Cliente",
+      chave: "NUM_DOCUMENTO",
+      titulo: "Nº Documento",
       ordenavel: true,
       alinhamento: "esquerda",
     },
@@ -65,13 +67,12 @@ export default function PaginaNotasFiscaisVenda(): React.JSX.Element {
       alinhamento: "direita",
     },
     {
-      chave: "DAT_EMISSAO",
-      titulo: "Data Emissão",
+      chave: "RAZ_CLI_FOR",
+      titulo: "Cliente",
       ordenavel: true,
       alinhamento: "esquerda",
-      renderizar: (valor) =>
-        formatarData(valor as Date | string | null | undefined),
     },
+
     {
       chave: "VLR_LIQUIDO",
       titulo: "Valor Líquido",
