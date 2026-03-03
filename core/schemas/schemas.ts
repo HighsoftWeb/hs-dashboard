@@ -7465,6 +7465,8 @@ export const derivacoes_itens_grupos_est_opSchema = z.object({
   COD_USUARIO: z.number().nullable(),
   DAT_CADASTRO: z.string().nullable(),
   DAT_ALTERACAO: z.string().nullable(),
+  PER_EFICIENCIA: z.number().nullable(),
+  QTD_TEMPO_REAL: z.number().nullable(),
 });
 
 export const DERIVACOES_ITENS_GRUPOS_EST_OP_COLUMNS = [
@@ -7497,6 +7499,13 @@ export const DERIVACOES_ITENS_GRUPOS_EST_OP_COLUMNS = [
     length: null,
     type: "datetime",
   },
+  {
+    key: "PER_EFICIENCIA",
+    label: "PER EFICIENCIA",
+    length: null,
+    type: "numeric",
+  },
+  { key: "QTD_TEMPO_REAL", label: "QTD TEMPO REAL", length: null, type: "int" },
 ];
 
 export const descontos_bonificacoes_repSchema = z.object({
