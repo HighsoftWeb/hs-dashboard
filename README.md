@@ -86,17 +86,6 @@ O sistema requer variáveis de ambiente para funcionar. Consulte o arquivo `.env
 
 Crie um arquivo `.env.local` na raiz do projeto com as variáveis necessárias.
 
-## Auditoria Enterprise
-
-Este projeto passou por uma auditoria completa de segurança, performance e arquitetura. Consulte [AUDITORIA_ENTERPRISE.md](./AUDITORIA_ENTERPRISE.md) para:
-
-- Mapa completo do projeto
-- Problemas identificados e priorizados
-- Plano de correção em etapas
-- Checklist de produção enterprise
-
-**Status Atual:** ⚠️ Implementando melhorias críticas (P0)
-
 ## Licença
 
 Privado
