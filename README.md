@@ -35,7 +35,7 @@ npm install
 yarn dev
 ```
 
-A aplicação estará disponível em `http://localhost:3000`
+A aplicação estará disponível em `http://localhost:3000 ou 3005`
 
 ### Produção
 
@@ -71,7 +71,7 @@ Para mais detalhes sobre Docker, consulte o Dockerfile e docker-compose.yml
 
 ### Variáveis de Ambiente
 
-O sistema requer variáveis de ambiente para funcionar. Consulte o arquivo `.env.example` (se existir) ou a documentação do projeto.
+O sistema requer variáveis de ambiente para funcionar.
 
 **Variáveis obrigatórias:**
 
