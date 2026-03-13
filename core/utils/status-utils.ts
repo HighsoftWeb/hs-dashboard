@@ -18,7 +18,7 @@ export function obterCorStatus(sit: string | null | undefined): string {
   if (!sit) return "bg-gray-100 text-gray-800";
   const sitUpper = String(sit).toUpperCase();
   if (sitUpper === "AP" || sitUpper === "PR") {
-    return "bg-green-100 text-green-800";
+    return "bg-blue-100 text-blue-800";
   }
   if (sitUpper === "CA") {
     return "bg-red-100 text-red-800";

@@ -11,6 +11,8 @@ interface CardKpiProps {
   };
   variante?: "padrao" | "destaque";
   negativo?: boolean;
+  /** Receita=azul, Despesa=vermelho, Lucro=verde (positivo) ou vermelho (negativo). */
+  tipoFinanceiro?: "receita" | "despesa" | "lucro";
   href?: string;
   className?: string;
 }
@@ -22,15 +24,37 @@ export function CardKpi({
   tendencia,
   variante = "padrao",
   negativo = false,
+  tipoFinanceiro,
   href,
   className = "",
 }: CardKpiProps): React.JSX.Element {
   const isDestaque = variante === "destaque";
-  const corValor = negativo
-    ? "text-red-600"
-    : isDestaque
-      ? "text-highsoft-primario"
-      : "text-slate-900";
+  const corValor =
+    tipoFinanceiro === "receita"
+      ? "text-blue-600"
+      : tipoFinanceiro === "despesa"
+        ? "text-red-600"
+        : tipoFinanceiro === "lucro"
+          ? negativo
+            ? "text-red-600"
+            : "text-green-600"
+          : negativo
+            ? "text-red-600"
+            : isDestaque
+              ? "text-highsoft-primario"
+              : "text-slate-900";
+  const corIcone =
+    tipoFinanceiro === "receita"
+      ? "bg-blue-100 text-blue-600"
+      : tipoFinanceiro === "despesa"
+        ? "bg-red-100 text-red-600"
+        : tipoFinanceiro === "lucro"
+          ? negativo
+            ? "bg-red-100 text-red-600"
+            : "bg-green-100 text-green-600"
+          : isDestaque
+            ? "bg-highsoft-primario/10 text-highsoft-primario"
+            : "bg-slate-100 text-slate-600";
 
   const conteudo = (
     <>
@@ -45,7 +69,7 @@ export function CardKpi({
           {tendencia && (
             <p
               className={`mt-1 text-xs font-medium ${
-                tendencia.positiva ? "text-emerald-600" : "text-red-600"
+                tendencia.positiva ? "text-blue-600" : "text-red-600"
               }`}
             >
               {tendencia.positiva ? "↑" : "↓"} {Math.abs(tendencia.valor)}%
@@ -54,11 +78,7 @@ export function CardKpi({
         </div>
         {icone && (
           <div
-            className={`w-12 h-12 rounded-lg flex items-center justify-center ${
-              isDestaque
-                ? "bg-highsoft-primario/10 text-highsoft-primario"
-                : "bg-slate-100 text-slate-600"
-            }`}
+            className={`w-12 h-12 rounded-lg flex items-center justify-center ${corIcone}`}
           >
             {icone}
           </div>

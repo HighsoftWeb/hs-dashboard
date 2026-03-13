@@ -75,7 +75,7 @@ export default function PaginaDetalhesEmpresa(): React.JSX.Element {
         </p>
         <button
           onClick={() => router.back()}
-          className="mt-4 px-4 py-2 bg-[#094A73] text-white rounded hover:bg-[#073a5c]"
+          className="mt-4 px-4 py-2 bg-highsoft-primario text-white rounded hover:bg-highsoft-primario-hover"
         >
           Voltar
         </button>
@@ -117,7 +117,7 @@ export default function PaginaDetalhesEmpresa(): React.JSX.Element {
               type="text"
               value={empresa.NOM_EMPRESA || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -128,7 +128,7 @@ export default function PaginaDetalhesEmpresa(): React.JSX.Element {
               type="text"
               value={empresa.FAN_EMPRESA || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -139,7 +139,7 @@ export default function PaginaDetalhesEmpresa(): React.JSX.Element {
               type="text"
               value={empresa.CGC_EMPRESA || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -150,7 +150,7 @@ export default function PaginaDetalhesEmpresa(): React.JSX.Element {
               type="text"
               value={empresa.IES_EMPRESA || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -161,7 +161,7 @@ export default function PaginaDetalhesEmpresa(): React.JSX.Element {
               type="text"
               value={empresa.IMU_EMPRESA || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -172,7 +172,7 @@ export default function PaginaDetalhesEmpresa(): React.JSX.Element {
               type="text"
               value={empresa.END_EMPRESA || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -183,7 +183,7 @@ export default function PaginaDetalhesEmpresa(): React.JSX.Element {
               type="text"
               value={empresa.CEP_EMPRESA || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -194,7 +194,7 @@ export default function PaginaDetalhesEmpresa(): React.JSX.Element {
               type="text"
               value={empresa.BAI_EMPRESA || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -209,7 +209,7 @@ export default function PaginaDetalhesEmpresa(): React.JSX.Element {
                   : empresa.NOM_CIDADE || "-"
               }
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -220,7 +220,7 @@ export default function PaginaDetalhesEmpresa(): React.JSX.Element {
               type="text"
               value={empresa.TEL_EMPRESA || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -231,7 +231,7 @@ export default function PaginaDetalhesEmpresa(): React.JSX.Element {
               type="text"
               value={empresa.FAX_EMPRESA || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -242,7 +242,7 @@ export default function PaginaDetalhesEmpresa(): React.JSX.Element {
               type="text"
               value={empresa.CEL_EMPRESA || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -253,7 +253,7 @@ export default function PaginaDetalhesEmpresa(): React.JSX.Element {
               type="text"
               value={empresa.MAI_EMPRESA || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -264,7 +264,7 @@ export default function PaginaDetalhesEmpresa(): React.JSX.Element {
               type="text"
               value={empresa.WWW_EMPRESA || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
         </div>
@@ -283,7 +283,7 @@ export default function PaginaDetalhesEmpresa(): React.JSX.Element {
               type="text"
               value={empresa.END_ENTREGA || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -294,7 +294,7 @@ export default function PaginaDetalhesEmpresa(): React.JSX.Element {
               type="text"
               value={empresa.CEP_ENTREGA || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -305,7 +305,7 @@ export default function PaginaDetalhesEmpresa(): React.JSX.Element {
               type="text"
               value={empresa.BAI_ENTREGA || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -320,7 +320,7 @@ export default function PaginaDetalhesEmpresa(): React.JSX.Element {
                   : empresa.NOM_CIDADE_ENTREGA || "-"
               }
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
         </div>

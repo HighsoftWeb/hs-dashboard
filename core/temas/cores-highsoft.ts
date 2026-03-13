@@ -1,18 +1,18 @@
 export const coresHighSoft = {
-  cinza: "#A4A5A6",
-  primario: "#094A73",
-  secundario: "#048ABF",
-  terciario: "#04B2D9",
+  cinza: "#94a3b8",
+  primario: "#64748b",
+  secundario: "#94a3b8",
+  terciario: "#cbd5e1",
   sucesso: "#10B981",
   erro: "#EF4444",
   aviso: "#F59E0B",
 };
 
 export const coresHighSoftDark = {
-  cinza: "#A4A5A6",
-  primario: "#048ABF",
-  secundario: "#04B2D9",
-  terciario: "#5BC0DE",
+  cinza: "#94a3b8",
+  primario: "#94a3b8",
+  secundario: "#cbd5e1",
+  terciario: "#e2e8f0",
   sucesso: "#10B981",
   erro: "#EF4444",
   aviso: "#F59E0B",

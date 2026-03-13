@@ -97,7 +97,7 @@ export default function PaginaDetalhesTituloReceber(): React.JSX.Element {
         </p>
         <button
           onClick={() => router.back()}
-          className="mt-4 px-4 py-2 bg-[#094A73] text-white rounded hover:bg-[#073a5c]"
+          className="mt-4 px-4 py-2 bg-highsoft-primario text-white rounded hover:bg-highsoft-primario-hover"
         >
           Voltar
         </button>
@@ -142,7 +142,7 @@ export default function PaginaDetalhesTituloReceber(): React.JSX.Element {
               type="text"
               value={`${titulo.RAZ_CLI_FOR || "-"} (${titulo.COD_CLI_FOR})`}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -153,7 +153,7 @@ export default function PaginaDetalhesTituloReceber(): React.JSX.Element {
               type="text"
               value={titulo.DES_TIPO_TITULO || titulo.COD_TIPO_TITULO || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -164,7 +164,7 @@ export default function PaginaDetalhesTituloReceber(): React.JSX.Element {
               type="text"
               value={titulo.NUM_TITULO || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white text-right"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white text-right"
             />
           </div>
           <div className="flex flex-col">
@@ -175,7 +175,7 @@ export default function PaginaDetalhesTituloReceber(): React.JSX.Element {
               type="text"
               value={titulo.SEQ_TITULO || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white text-right"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white text-right"
             />
           </div>
           <div className="flex flex-col">
@@ -186,7 +186,7 @@ export default function PaginaDetalhesTituloReceber(): React.JSX.Element {
               type="text"
               value={formatarData(titulo.VCT_ORIGINAL)}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -197,7 +197,7 @@ export default function PaginaDetalhesTituloReceber(): React.JSX.Element {
               type="text"
               value={formatarData(titulo.DAT_EMISSAO)}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -208,7 +208,7 @@ export default function PaginaDetalhesTituloReceber(): React.JSX.Element {
               type="text"
               value={formatarData(titulo.DAT_ENTRADA)}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -224,7 +224,7 @@ export default function PaginaDetalhesTituloReceber(): React.JSX.Element {
                   : "-")
               }
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -235,7 +235,7 @@ export default function PaginaDetalhesTituloReceber(): React.JSX.Element {
               type="text"
               value={titulo.DES_MOEDA || titulo.COD_MOEDA || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -246,7 +246,7 @@ export default function PaginaDetalhesTituloReceber(): React.JSX.Element {
               type="text"
               value={titulo.SIT_TITULO || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
         </div>
@@ -265,7 +265,7 @@ export default function PaginaDetalhesTituloReceber(): React.JSX.Element {
               type="text"
               value={formatarMoeda(titulo.VLR_ORIGINAL)}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white text-right"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white text-right"
             />
           </div>
           <div className="flex flex-col">
@@ -276,7 +276,7 @@ export default function PaginaDetalhesTituloReceber(): React.JSX.Element {
               type="text"
               value={formatarMoeda(titulo.VLR_ABERTO)}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white text-right"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white text-right"
             />
           </div>
           <div className="flex flex-col md:col-span-2 lg:col-span-3 xl:col-span-4 2xl:col-span-5">
@@ -287,7 +287,7 @@ export default function PaginaDetalhesTituloReceber(): React.JSX.Element {
               type="text"
               value={formatarMoeda(titulo.VLR_ORIGINAL)}
               readOnly
-              className="w-full px-2 py-1.5 text-base font-bold border-2 border-[#094A73] rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-[#094A73] text-white text-right"
+              className="w-full px-2 py-1.5 text-base font-bold border-2 border-highsoft-primario rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-highsoft-primario text-white text-right"
             />
           </div>
         </div>

@@ -109,9 +109,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       usuario: body.usuario || "",
       senha: body.senha || "",
       codigosUsuariosPermitidos: body.codigosUsuariosPermitidos || undefined,
-      corPrimaria: body.corPrimaria || "#094a73",
-      corSecundaria: body.corSecundaria || "#048abf",
-      corTerciaria: body.corTerciaria || "#04b2d9",
+      corPrimaria: body.corPrimaria || "#64748b",
+      corSecundaria: body.corSecundaria || "#94a3b8",
+      corTerciaria: body.corTerciaria || "#cbd5e1",
     };
     const novaEmpresa = empresaConfigRepository.criar(empresa);
     return NextResponse.json({ success: true, data: novaEmpresa });

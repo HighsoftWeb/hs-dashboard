@@ -126,7 +126,7 @@ export default function PaginaDetalhesProduto(): React.JSX.Element {
         </p>
         <button
           onClick={() => router.back()}
-          className="mt-4 px-4 py-2 bg-[#094A73] text-white rounded hover:bg-[#073a5c]"
+          className="mt-4 px-4 py-2 bg-highsoft-primario text-white rounded hover:bg-highsoft-primario-hover"
         >
           Voltar
         </button>
@@ -184,7 +184,7 @@ export default function PaginaDetalhesProduto(): React.JSX.Element {
               type="text"
               value={produto.DES_PRODUTO || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -197,7 +197,7 @@ export default function PaginaDetalhesProduto(): React.JSX.Element {
                 produto.DES_UNIDADE_MEDIDA || produto.COD_UNIDADE_MEDIDA || "-"
               }
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -214,7 +214,7 @@ export default function PaginaDetalhesProduto(): React.JSX.Element {
                     : produto.IND_PRODUTO_SERVICO || "-"
               }
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -231,7 +231,7 @@ export default function PaginaDetalhesProduto(): React.JSX.Element {
                     : produto.SIT_PRODUTO || "-"
               }
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -242,7 +242,7 @@ export default function PaginaDetalhesProduto(): React.JSX.Element {
               type="text"
               value={formatarData(produto.DAT_CADASTRO)}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col md:col-span-2 lg:col-span-3 xl:col-span-4 2xl:col-span-5">
@@ -253,7 +253,7 @@ export default function PaginaDetalhesProduto(): React.JSX.Element {
               value={produto.OBS_PRODUTO || "-"}
               readOnly
               rows={2}
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white resize-none"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white resize-none"
             />
           </div>
         </div>
@@ -304,7 +304,7 @@ export default function PaginaDetalhesProduto(): React.JSX.Element {
                               derivacaoAtual.COD_DERIVACAO
                             }
                             readOnly
-                            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white font-semibold"
+                            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white font-semibold"
                           />
                         </div>
                         <div className="flex flex-col">
@@ -315,7 +315,7 @@ export default function PaginaDetalhesProduto(): React.JSX.Element {
                             type="text"
                             value={derivacaoAtual.COD_DERIVACAO}
                             readOnly
-                            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+                            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
                           />
                         </div>
                         <div className="flex flex-col">
@@ -332,7 +332,7 @@ export default function PaginaDetalhesProduto(): React.JSX.Element {
                                   : derivacaoAtual.SIT_DERIVACAO || "-"
                             }
                             readOnly
-                            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+                            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
                           />
                         </div>
                         <div className="flex flex-col">
@@ -343,7 +343,7 @@ export default function PaginaDetalhesProduto(): React.JSX.Element {
                             type="text"
                             value={`${indiceDerivacaoAtual + 1} de ${derivacoes.length}`}
                             readOnly
-                            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+                            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
                           />
                         </div>
                       </div>
@@ -371,7 +371,7 @@ export default function PaginaDetalhesProduto(): React.JSX.Element {
                           type="text"
                           value={derivacaoAtual.COD_BARRA || "-"}
                           readOnly
-                          className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+                          className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -384,7 +384,7 @@ export default function PaginaDetalhesProduto(): React.JSX.Element {
                             derivacaoAtual.VLR_PRECO_CUSTO_ULT_ENT
                           )}
                           readOnly
-                          className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white text-right"
+                          className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white text-right"
                         />
                       </div>
                       <div className="flex flex-col">
@@ -397,7 +397,7 @@ export default function PaginaDetalhesProduto(): React.JSX.Element {
                             derivacaoAtual.VLR_PRECO_CUSTO_MEDIO
                           )}
                           readOnly
-                          className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white text-right"
+                          className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white text-right"
                         />
                       </div>
                       {derivacaoAtual.OBS_DERIVACAO && (
@@ -409,7 +409,7 @@ export default function PaginaDetalhesProduto(): React.JSX.Element {
                             value={derivacaoAtual.OBS_DERIVACAO}
                             readOnly
                             rows={2}
-                            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white resize-none"
+                            className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white resize-none"
                           />
                         </div>
                       )}
@@ -423,7 +423,7 @@ export default function PaginaDetalhesProduto(): React.JSX.Element {
                           onClick={() => setAbaDerivacaoAtiva("estoque")}
                           className={`px-3 py-2 text-sm font-medium rounded-t-lg transition-colors ${
                             abaDerivacaoAtiva === "estoque"
-                              ? "bg-[#094A73] text-white"
+                              ? "bg-highsoft-primario text-white"
                               : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
                           }`}
                         >
@@ -433,7 +433,7 @@ export default function PaginaDetalhesProduto(): React.JSX.Element {
                           onClick={() => setAbaDerivacaoAtiva("precos")}
                           className={`px-3 py-2 text-sm font-medium rounded-t-lg transition-colors ${
                             abaDerivacaoAtiva === "precos"
-                              ? "bg-[#094A73] text-white"
+                              ? "bg-highsoft-primario text-white"
                               : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
                           }`}
                         >

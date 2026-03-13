@@ -25,19 +25,18 @@ import { obterCoresGraficos } from "@/core/constants/cores-graficos";
 import { useEmpresa } from "@/core/context/empresa-context";
 import { obterIntervaloPadrao } from "@/core/componentes/dashboard/filtro-periodo";
 
-const CORES_FUNIL = [
-  "#094a73",
-  "#048abf",
-  "#04b2d9",
-  "#10b981",
-  "#6366f1",
-  "#a855f7",
-];
-
 export default function PaginaComercial(): React.JSX.Element {
   const router = useRouter();
   const { cores } = useEmpresa();
   const coresGraficos = obterCoresGraficos(cores);
+  const coresFunil = [
+    cores.primaria,
+    cores.secundaria,
+    cores.terciaria,
+    coresGraficos.sucesso,
+    "#6366f1",
+    "#a855f7",
+  ];
   const padrao = obterIntervaloPadrao();
   const [analytics, setAnalytics] = useState<{
     funilVendas?: { status: string; quantidade: number; valor: number }[];
@@ -161,7 +160,7 @@ export default function PaginaComercial(): React.JSX.Element {
                   {funil.map((_, i) => (
                     <Cell
                       key={i}
-                      fill={CORES_FUNIL[i % CORES_FUNIL.length]}
+                      fill={coresFunil[i % coresFunil.length]}
                       style={{ cursor: "pointer" }}
                     />
                   ))}

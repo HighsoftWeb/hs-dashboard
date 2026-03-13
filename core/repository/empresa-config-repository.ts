@@ -13,9 +13,9 @@ function mapearRowParaEmpresaConfig(row: EmpresaRow): EmpresaConfig {
     usuario: row.usuario,
     senha: row.senha,
     codigosUsuariosPermitidos: row.codigos_usuarios_permitidos,
-    corPrimaria: row.cor_primaria || "#094a73",
-    corSecundaria: row.cor_secundaria || "#048abf",
-    corTerciaria: row.cor_terciaria || "#04b2d9",
+    corPrimaria: row.cor_primaria || "#64748b",
+    corSecundaria: row.cor_secundaria || "#94a3b8",
+    corTerciaria: row.cor_terciaria || "#cbd5e1",
     criadoEm: row.criado_em,
     atualizadoEm: row.atualizado_em,
   };
@@ -60,9 +60,9 @@ class EmpresaConfigRepository {
       empresa.usuario,
       empresa.senha,
       empresa.codigosUsuariosPermitidos || null,
-      empresa.corPrimaria || "#094a73",
-      empresa.corSecundaria || "#048abf",
-      empresa.corTerciaria || "#04b2d9"
+      empresa.corPrimaria || "#64748b",
+      empresa.corSecundaria || "#94a3b8",
+      empresa.corTerciaria || "#cbd5e1"
     );
 
     const novaEmpresa = this.obterPorId(result.lastInsertRowid as number);
@@ -92,9 +92,9 @@ class EmpresaConfigRepository {
       empresa.usuario,
       empresa.senha,
       empresa.codigosUsuariosPermitidos || null,
-      empresa.corPrimaria || "#094a73",
-      empresa.corSecundaria || "#048abf",
-      empresa.corTerciaria || "#04b2d9",
+      empresa.corPrimaria || "#64748b",
+      empresa.corSecundaria || "#94a3b8",
+      empresa.corTerciaria || "#cbd5e1",
       id
     );
 

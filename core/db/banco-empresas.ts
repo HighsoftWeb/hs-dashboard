@@ -50,17 +50,17 @@ function inicializarTabela(): void {
   }
   if (!nomesColunas.includes("cor_primaria")) {
     db.exec(
-      "ALTER TABLE empresas ADD COLUMN cor_primaria TEXT DEFAULT '#094a73'"
+      "ALTER TABLE empresas ADD COLUMN cor_primaria TEXT DEFAULT '#64748b'"
     );
   }
   if (!nomesColunas.includes("cor_secundaria")) {
     db.exec(
-      "ALTER TABLE empresas ADD COLUMN cor_secundaria TEXT DEFAULT '#048abf'"
+      "ALTER TABLE empresas ADD COLUMN cor_secundaria TEXT DEFAULT '#94a3b8'"
     );
   }
   if (!nomesColunas.includes("cor_terciaria")) {
     db.exec(
-      "ALTER TABLE empresas ADD COLUMN cor_terciaria TEXT DEFAULT '#04b2d9'"
+      "ALTER TABLE empresas ADD COLUMN cor_terciaria TEXT DEFAULT '#cbd5e1'"
     );
   }
 }

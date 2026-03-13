@@ -33,12 +33,17 @@ interface ClienteDB {
   SIG_ESTADO: string | null;
 }
 
-const CORES = ["#094a73", "#048abf", "#04b2d9", "#10b981", "#6366f1"];
-
 export default function DashboardClientes(): React.JSX.Element {
   const router = useRouter();
   const { cores } = useEmpresa();
   const coresGraficos = obterCoresGraficos(cores);
+  const coresBarras = [
+    cores.primaria,
+    cores.secundaria,
+    cores.terciaria,
+    coresGraficos.sucesso,
+    "#6366f1",
+  ];
   const padrao = obterIntervaloPadrao();
 
   const [totalClientes, setTotalClientes] = useState(0);
@@ -224,7 +229,7 @@ export default function DashboardClientes(): React.JSX.Element {
                   }
                 >
                   {graficoTipo.map((_, i) => (
-                    <Cell key={i} fill={CORES[i % CORES.length]} />
+                    <Cell key={i} fill={coresBarras[i % coresBarras.length]} />
                   ))}
                 </Pie>
                 <Tooltip />

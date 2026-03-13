@@ -95,7 +95,7 @@ export default function PaginaDetalhesTituloPagar(): React.JSX.Element {
         </p>
         <button
           onClick={() => router.back()}
-          className="mt-4 px-4 py-2 bg-[#094A73] text-white rounded hover:bg-[#073a5c]"
+          className="mt-4 px-4 py-2 bg-highsoft-primario text-white rounded hover:bg-highsoft-primario-hover"
         >
           Voltar
         </button>
@@ -134,7 +134,7 @@ export default function PaginaDetalhesTituloPagar(): React.JSX.Element {
               type="text"
               value={`${titulo.RAZ_CLI_FOR || "-"} (${titulo.COD_CLI_FOR})`}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -145,7 +145,7 @@ export default function PaginaDetalhesTituloPagar(): React.JSX.Element {
               type="text"
               value={titulo.NUM_INTERNO || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white text-right"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white text-right"
             />
           </div>
           <div className="flex flex-col">
@@ -156,7 +156,7 @@ export default function PaginaDetalhesTituloPagar(): React.JSX.Element {
               type="text"
               value={titulo.NUM_PARCELA || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white text-right"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white text-right"
             />
           </div>
           <div className="flex flex-col">
@@ -167,7 +167,7 @@ export default function PaginaDetalhesTituloPagar(): React.JSX.Element {
               type="text"
               value={titulo.DES_TIPO_TITULO || titulo.COD_TIPO_TITULO || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -178,7 +178,7 @@ export default function PaginaDetalhesTituloPagar(): React.JSX.Element {
               type="text"
               value={titulo.NUM_TITULO || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white text-right"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white text-right"
             />
           </div>
           <div className="flex flex-col">
@@ -189,7 +189,7 @@ export default function PaginaDetalhesTituloPagar(): React.JSX.Element {
               type="text"
               value={titulo.NUM_DOCUMENTO || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white text-right"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white text-right"
             />
           </div>
           <div className="flex flex-col">
@@ -200,7 +200,7 @@ export default function PaginaDetalhesTituloPagar(): React.JSX.Element {
               type="text"
               value={titulo.DES_OPERACAO || titulo.COD_OPERACAO || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -211,7 +211,7 @@ export default function PaginaDetalhesTituloPagar(): React.JSX.Element {
               type="text"
               value={formatarData(titulo.VCT_ORIGINAL)}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -222,7 +222,7 @@ export default function PaginaDetalhesTituloPagar(): React.JSX.Element {
               type="text"
               value={formatarData(titulo.VCT_PRORROGADO)}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -233,7 +233,7 @@ export default function PaginaDetalhesTituloPagar(): React.JSX.Element {
               type="text"
               value={formatarData(titulo.DAT_EMISSAO)}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -244,7 +244,7 @@ export default function PaginaDetalhesTituloPagar(): React.JSX.Element {
               type="text"
               value={formatarData(titulo.DAT_ENTRADA)}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -255,7 +255,7 @@ export default function PaginaDetalhesTituloPagar(): React.JSX.Element {
               type="text"
               value={formatarData(titulo.DAT_ULTIMO_PAGAMENTO)}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -266,7 +266,7 @@ export default function PaginaDetalhesTituloPagar(): React.JSX.Element {
               type="text"
               value={formatarData(titulo.DAT_PROVAVEL_PAGAMENTO)}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -277,7 +277,7 @@ export default function PaginaDetalhesTituloPagar(): React.JSX.Element {
               type="text"
               value={titulo.DES_MOEDA || titulo.COD_MOEDA || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -288,7 +288,7 @@ export default function PaginaDetalhesTituloPagar(): React.JSX.Element {
               type="text"
               value={titulo.DES_PORTADOR || titulo.COD_PORTADOR || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -299,7 +299,7 @@ export default function PaginaDetalhesTituloPagar(): React.JSX.Element {
               type="text"
               value={titulo.NUM_TITULO_BANCO || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -310,7 +310,7 @@ export default function PaginaDetalhesTituloPagar(): React.JSX.Element {
               type="text"
               value={titulo.SIT_TITULO || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
         </div>
@@ -329,7 +329,7 @@ export default function PaginaDetalhesTituloPagar(): React.JSX.Element {
               type="text"
               value={formatarMoeda(titulo.VLR_ORIGINAL)}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white text-right"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white text-right"
             />
           </div>
           <div className="flex flex-col">
@@ -340,7 +340,7 @@ export default function PaginaDetalhesTituloPagar(): React.JSX.Element {
               type="text"
               value={formatarMoeda(titulo.VLR_ABERTO)}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white text-right"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white text-right"
             />
           </div>
           <div className="flex flex-col">
@@ -351,7 +351,7 @@ export default function PaginaDetalhesTituloPagar(): React.JSX.Element {
               type="text"
               value={formatarMoeda(titulo.VLR_DESCONTO)}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white text-right"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white text-right"
             />
           </div>
           <div className="flex flex-col">
@@ -364,7 +364,7 @@ export default function PaginaDetalhesTituloPagar(): React.JSX.Element {
                 titulo.PER_DESCONTO ? `${titulo.PER_DESCONTO.toFixed(2)}%` : "-"
               }
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white text-right"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white text-right"
             />
           </div>
           <div className="flex flex-col">
@@ -379,7 +379,7 @@ export default function PaginaDetalhesTituloPagar(): React.JSX.Element {
                   : "-"
               }
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white text-right"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white text-right"
             />
           </div>
           <div className="flex flex-col">
@@ -390,7 +390,7 @@ export default function PaginaDetalhesTituloPagar(): React.JSX.Element {
               type="text"
               value={formatarMoeda(titulo.VLR_JUROS_DIA)}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white text-right"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white text-right"
             />
           </div>
           <div className="flex flex-col">
@@ -401,7 +401,7 @@ export default function PaginaDetalhesTituloPagar(): React.JSX.Element {
               type="text"
               value={titulo.PER_MULTA ? `${titulo.PER_MULTA.toFixed(2)}%` : "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white text-right"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white text-right"
             />
           </div>
           <div className="flex flex-col md:col-span-2 lg:col-span-3 xl:col-span-4 2xl:col-span-5">
@@ -412,7 +412,7 @@ export default function PaginaDetalhesTituloPagar(): React.JSX.Element {
               type="text"
               value={formatarMoeda(titulo.VLR_ORIGINAL)}
               readOnly
-              className="w-full px-2 py-1.5 text-base font-bold border-2 border-[#094A73] rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-[#094A73] text-white text-right"
+              className="w-full px-2 py-1.5 text-base font-bold border-2 border-highsoft-primario rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-highsoft-primario text-white text-right"
             />
           </div>
         </div>
