@@ -1,3 +1,14 @@
+/** Cores da marca HighSoft - usadas como padrão ao cadastrar nova empresa */
+export const CORES_HIGHSOFT_PADRAO: {
+  primaria: string;
+  secundaria: string;
+  terciaria: string;
+} = {
+  primaria: "#094A73",
+  secundaria: "#048ABF",
+  terciaria: "#04B2D9",
+};
+
 export const coresHighSoft = {
   cinza: "#94a3b8",
   primario: "#64748b",

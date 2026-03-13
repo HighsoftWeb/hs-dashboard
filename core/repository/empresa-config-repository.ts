@@ -1,5 +1,6 @@
 import { obterBancoEmpresas } from "../db/banco-empresas";
 import { EmpresaConfig, EmpresaConfigInput } from "../entities/EmpresaConfig";
+import { CORES_HIGHSOFT_PADRAO } from "../temas/cores-highsoft";
 import type { EmpresaRow } from "../db/types-sqlite";
 
 function mapearRowParaEmpresaConfig(row: EmpresaRow): EmpresaConfig {
@@ -60,9 +61,9 @@ class EmpresaConfigRepository {
       empresa.usuario,
       empresa.senha,
       empresa.codigosUsuariosPermitidos || null,
-      empresa.corPrimaria || "#64748b",
-      empresa.corSecundaria || "#94a3b8",
-      empresa.corTerciaria || "#cbd5e1"
+      empresa.corPrimaria || CORES_HIGHSOFT_PADRAO.primaria,
+      empresa.corSecundaria || CORES_HIGHSOFT_PADRAO.secundaria,
+      empresa.corTerciaria || CORES_HIGHSOFT_PADRAO.terciaria
     );
 
     const novaEmpresa = this.obterPorId(result.lastInsertRowid as number);
@@ -92,9 +93,9 @@ class EmpresaConfigRepository {
       empresa.usuario,
       empresa.senha,
       empresa.codigosUsuariosPermitidos || null,
-      empresa.corPrimaria || "#64748b",
-      empresa.corSecundaria || "#94a3b8",
-      empresa.corTerciaria || "#cbd5e1",
+      empresa.corPrimaria || CORES_HIGHSOFT_PADRAO.primaria,
+      empresa.corSecundaria || CORES_HIGHSOFT_PADRAO.secundaria,
+      empresa.corTerciaria || CORES_HIGHSOFT_PADRAO.terciaria,
       id
     );
 

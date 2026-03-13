@@ -127,7 +127,7 @@ export default function PaginaDashboard(): React.JSX.Element {
     try {
       setCarregando(true);
       const [stats, orcs, contas, anal] = await Promise.all([
-        servicoDashboard.obterEstatisticas(),
+        servicoDashboard.obterEstatisticas({ dataInicio, dataFim }),
         servicoDashboard.listarOrcamentosRecentes(10),
         servicoDashboard.listarContasVencendo(30),
         servicoDashboard.obterAnalytics({ dataInicio, dataFim, tipo: "geral" }),
@@ -380,7 +380,10 @@ export default function PaginaDashboard(): React.JSX.Element {
           )}
 
           {dadosGrafico.length > 0 && (
-            <CardGrafico titulo="Mês Atual" href={DEEP_DIVE.financeiro}>
+            <CardGrafico
+              titulo="Receitas x Despesas x Lucro (últimos 12 meses)"
+              href={DEEP_DIVE.financeiro}
+            >
               <ResponsiveContainer width="100%" height={160}>
                 <BarChart data={dadosGrafico} margin={{ top: 10, right: 10 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />

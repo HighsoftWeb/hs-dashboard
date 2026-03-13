@@ -10,9 +10,16 @@ import type { EmpresaConfig } from "../entities/EmpresaConfig";
 export class DashboardRepository {
   async obterEstatisticas(
     codEmpresa: number,
-    empresaConfig: EmpresaConfig
+    empresaConfig: EmpresaConfig,
+    dataInicio?: string,
+    dataFim?: string
   ): Promise<EstatisticasDashboard> {
-    return dashboardRepositoryORM.obterEstatisticas(codEmpresa, empresaConfig);
+    return dashboardRepositoryORM.obterEstatisticas(
+      codEmpresa,
+      empresaConfig,
+      dataInicio,
+      dataFim
+    );
   }
 
   async listarOrcamentosRecentes(

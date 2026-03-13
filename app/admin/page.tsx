@@ -17,6 +17,7 @@ import {
   FileJson,
   FileCode,
 } from "lucide-react";
+import { CORES_HIGHSOFT_PADRAO } from "@/core/temas/cores-highsoft";
 
 const ADMIN_PASSWORD = "hs@010896@hs";
 
@@ -40,11 +41,7 @@ function formatarCnpj(cnpj: string): string {
   return n.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, "$1.$2.$3/$4-$5");
 }
 
-const CORES_PADRAO = {
-  primaria: "#64748b",
-  secundaria: "#94a3b8",
-  terciaria: "#cbd5e1",
-};
+const CORES_PADRAO = CORES_HIGHSOFT_PADRAO;
 
 export default function PaginaAdmin(): React.JSX.Element {
   const [autenticado, setAutenticado] = useState(false);

@@ -69,7 +69,11 @@ export default function DashboardEstoque(): React.JSX.Element {
       const [estatisticas, resumoEstoque, analEstoque] = await Promise.all([
         servicoDashboard.obterEstatisticas(),
         servicoDashboard.obterResumoEstoque(),
-        servicoDashboard.obterAnalytics({ tipo: "estoque" }),
+        servicoDashboard.obterAnalytics({
+          tipo: "estoque",
+          dataInicio,
+          dataFim,
+        }),
       ]);
       setStats(estatisticas);
       setResumo(resumoEstoque);
@@ -84,7 +88,7 @@ export default function DashboardEstoque(): React.JSX.Element {
     } finally {
       setCarregando(false);
     }
-  }, []);
+  }, [dataInicio, dataFim]);
 
   useEffect(() => {
     carregar();

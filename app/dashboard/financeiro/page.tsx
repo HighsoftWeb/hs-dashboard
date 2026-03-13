@@ -76,10 +76,14 @@ export default function DashboardFinanceiro(): React.JSX.Element {
     try {
       setCarregando(true);
       const [estatRes, contasRes, analGeral, analMetricas] = await Promise.all([
-        servicoDashboard.obterEstatisticas(),
+        servicoDashboard.obterEstatisticas({ dataInicio, dataFim }),
         servicoDashboard.listarContasVencendo(60),
         servicoDashboard.obterAnalytics({ dataInicio, dataFim, tipo: "geral" }),
-        servicoDashboard.obterAnalytics({ tipo: "metricas" }),
+        servicoDashboard.obterAnalytics({
+          dataInicio,
+          dataFim,
+          tipo: "metricas",
+        }),
       ]);
       setStats({
         receitasMes: estatRes.receitasMes,
@@ -227,7 +231,7 @@ export default function DashboardFinanceiro(): React.JSX.Element {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <CardGrafico titulo="Mês Atual">
+        <CardGrafico titulo="Receitas x Despesas x Lucro (período)">
           {dadosGrafico.length > 0 ? (
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={dadosGrafico} margin={{ top: 10, right: 10 }}>

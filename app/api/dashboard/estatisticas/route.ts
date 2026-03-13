@@ -12,9 +12,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const payload = validarAutenticacao(request);
     const empresaConfig = obterEmpresaConfigDoCookie(request);
     const codEmpresa = obterCodEmpresaDoCookie(request) ?? payload.codEmpresa;
+    const { searchParams } = new URL(request.url);
+    const dataInicio = searchParams.get("dataInicio") ?? undefined;
+    const dataFim = searchParams.get("dataFim") ?? undefined;
     const estatisticas = await dashboardService.obterEstatisticas(
       codEmpresa,
-      empresaConfig
+      empresaConfig,
+      dataInicio,
+      dataFim
     );
 
     return NextResponse.json({

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { empresaConfigRepository } from "@/core/repository/empresa-config-repository";
 import { filtrarEmpresaSegura } from "@/core/utils/filtrar-empresa-segura";
 import { EmpresaConfigInput } from "@/core/entities/EmpresaConfig";
+import { CORES_HIGHSOFT_PADRAO } from "@/core/temas/cores-highsoft";
 
 const ADMIN_PASSWORD = "hs@010896@hs";
 
@@ -145,9 +146,9 @@ export async function PUT(
       usuario: body.usuario || "",
       senha: body.senha || "",
       codigosUsuariosPermitidos: body.codigosUsuariosPermitidos || undefined,
-      corPrimaria: body.corPrimaria || "#64748b",
-      corSecundaria: body.corSecundaria || "#94a3b8",
-      corTerciaria: body.corTerciaria || "#cbd5e1",
+      corPrimaria: body.corPrimaria || CORES_HIGHSOFT_PADRAO.primaria,
+      corSecundaria: body.corSecundaria || CORES_HIGHSOFT_PADRAO.secundaria,
+      corTerciaria: body.corTerciaria || CORES_HIGHSOFT_PADRAO.terciaria,
     };
     const atualizada = empresaConfigRepository.atualizar(idNum, empresa);
     return NextResponse.json({ success: true, data: atualizada });

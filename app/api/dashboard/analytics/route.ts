@@ -18,6 +18,16 @@ function obterIntervaloPadrao(): { dataInicio: string; dataFim: string } {
   };
 }
 
+function obterUltimos12Meses(): { dataInicio: string; dataFim: string } {
+  const hoje = new Date();
+  const inicio = new Date(hoje.getFullYear(), hoje.getMonth() - 11, 1);
+  const fim = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
+  return {
+    dataInicio: inicio.toISOString().slice(0, 10),
+    dataFim: fim.toISOString().slice(0, 10),
+  };
+}
+
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     validarAutenticacao(request);
@@ -49,7 +59,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       ] = await Promise.all([
         analyticsRepository.obterAgingReceber(codEmpresa, empresaConfig),
         analyticsRepository.obterAgingPagar(codEmpresa, empresaConfig),
-        analyticsRepository.obterTendenciaMensal(codEmpresa, 6, empresaConfig),
+        analyticsRepository.obterTendenciaMensal(
+          codEmpresa,
+          obterUltimos12Meses().dataInicio,
+          obterUltimos12Meses().dataFim,
+          empresaConfig
+        ),
         analyticsRepository.obterTopClientes(
           codEmpresa,
           10,
@@ -94,7 +109,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     if (tipo === "estoque") {
       const resumo = await analyticsRepository.obterResumoEstoqueAvancado(
         codEmpresa,
-        empresaConfig
+        empresaConfig,
+        dataInicio,
+        dataFim
       );
       return NextResponse.json(criarRespostaSucesso(resumo));
     }
@@ -111,8 +128,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     if (tipo === "metricas") {
       const anoAtual = new Date().getFullYear();
-      const dataInicioAno = `${anoAtual}-01-01`;
-      const dataFimAno = `${anoAtual}-12-31`;
+      const dataInicioUsar = dataInicio || `${anoAtual}-01-01`;
+      const dataFimUsar = dataFim || `${anoAtual}-12-31`;
 
       const [
         produtosMaisVendidos,
@@ -128,22 +145,22 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         analyticsRepository.obterTopProdutosVenda(
           codEmpresa,
           10,
-          dataInicioAno,
-          dataFimAno,
+          dataInicioUsar,
+          dataFimUsar,
           empresaConfig
         ),
         analyticsRepository.obterProdutosPorLucro(
           codEmpresa,
-          dataInicioAno,
-          dataFimAno,
+          dataInicioUsar,
+          dataFimUsar,
           10,
           "maior",
           empresaConfig
         ),
         analyticsRepository.obterProdutosPorLucro(
           codEmpresa,
-          dataInicioAno,
-          dataFimAno,
+          dataInicioUsar,
+          dataFimUsar,
           10,
           "menor",
           empresaConfig
@@ -157,8 +174,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         analyticsRepository.obterTopClientesPorFaturamento(
           codEmpresa,
           10,
-          dataInicioAno,
-          dataFimAno,
+          dataInicioUsar,
+          dataFimUsar,
           empresaConfig
         ),
         analyticsRepository.obterClientesInativos(
@@ -167,7 +184,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           10,
           empresaConfig
         ),
-        analyticsRepository.obterIndicadoresCaixa(codEmpresa, empresaConfig),
+        analyticsRepository.obterIndicadoresCaixa(
+          codEmpresa,
+          empresaConfig,
+          dataInicio,
+          dataFim
+        ),
         analyticsRepository.obterIndicadoresInadimplencia(
           codEmpresa,
           empresaConfig
@@ -175,7 +197,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         analyticsRepository.obterFluxoRecebimentoMensal(
           codEmpresa,
           6,
-          empresaConfig
+          empresaConfig,
+          dataInicio,
+          dataFim
         ),
       ]);
 

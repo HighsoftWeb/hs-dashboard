@@ -19,7 +19,9 @@ import type { EmpresaConfig } from "../entities/EmpresaConfig";
 export class DashboardRepositoryORM {
   async obterEstatisticas(
     codEmpresa: number,
-    empresaConfig: EmpresaConfig
+    empresaConfig: EmpresaConfig,
+    dataInicio?: string,
+    dataFim?: string
   ): Promise<EstatisticasDashboard> {
     try {
       await inicializarDataSource(empresaConfig);
@@ -37,15 +39,14 @@ export class DashboardRepositoryORM {
       const amanha = new Date(hoje);
       amanha.setDate(amanha.getDate() + 1);
 
-      const inicioMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
-      const fimMes = new Date(
-        hoje.getFullYear(),
-        hoje.getMonth() + 1,
-        0,
-        23,
-        59,
-        59
-      );
+      const inicioPeriodo =
+        dataInicio && dataFim && !isNaN(new Date(dataInicio).getTime())
+          ? new Date(dataInicio + "T00:00:00")
+          : new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+      const fimPeriodo =
+        dataInicio && dataFim && !isNaN(new Date(dataFim).getTime())
+          ? new Date(dataFim + "T23:59:59")
+          : new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0, 23, 59, 59);
 
       const [
         totalUsuarios,
@@ -77,32 +78,46 @@ export class DashboardRepositoryORM {
         orcamentoRepo.count({
           where: {
             COD_EMPRESA: codEmpresa,
-            DAT_EMISSAO: Between(inicioMes, fimMes),
+            DAT_EMISSAO: Between(inicioPeriodo, fimPeriodo),
           },
         }),
         tituloReceberRepo
           .createQueryBuilder("titulo")
-          .select("SUM(titulo.VLR_ABERTO)", "total")
+          .select(
+            "SUM(COALESCE(titulo.VLR_ORIGINAL, titulo.VLR_ABERTO))",
+            "total"
+          )
           .where("titulo.COD_EMPRESA = :codEmpresa", { codEmpresa })
-          .andWhere("titulo.SIT_TITULO = :sit", { sit: "AB" })
-          .andWhere("MONTH(titulo.VCT_ORIGINAL) = :mes", {
-            mes: hoje.getMonth() + 1,
+          .andWhere("(titulo.SIT_TITULO IS NULL OR titulo.SIT_TITULO != :ca)", {
+            ca: "CA",
           })
-          .andWhere("YEAR(titulo.VCT_ORIGINAL) = :ano", {
-            ano: hoje.getFullYear(),
-          })
+          .andWhere(
+            "COALESCE(titulo.DAT_EMISSAO, titulo.VCT_ORIGINAL) >= :inicio",
+            { inicio: inicioPeriodo }
+          )
+          .andWhere(
+            "COALESCE(titulo.DAT_EMISSAO, titulo.VCT_ORIGINAL) <= :fim",
+            { fim: fimPeriodo }
+          )
           .getRawOne(),
         tituloPagarRepo
           .createQueryBuilder("titulo")
-          .select("SUM(titulo.VLR_ABERTO)", "total")
+          .select(
+            "SUM(COALESCE(titulo.VLR_ORIGINAL, titulo.VLR_ABERTO))",
+            "total"
+          )
           .where("titulo.COD_EMPRESA = :codEmpresa", { codEmpresa })
-          .andWhere("titulo.SIT_TITULO = :sit", { sit: "AB" })
-          .andWhere("MONTH(titulo.VCT_ORIGINAL) = :mes", {
-            mes: hoje.getMonth() + 1,
+          .andWhere("(titulo.SIT_TITULO IS NULL OR titulo.SIT_TITULO != :ca)", {
+            ca: "CA",
           })
-          .andWhere("YEAR(titulo.VCT_ORIGINAL) = :ano", {
-            ano: hoje.getFullYear(),
-          })
+          .andWhere(
+            "COALESCE(titulo.DAT_EMISSAO, titulo.VCT_ORIGINAL) >= :inicio",
+            { inicio: inicioPeriodo }
+          )
+          .andWhere(
+            "COALESCE(titulo.DAT_EMISSAO, titulo.VCT_ORIGINAL) <= :fim",
+            { fim: fimPeriodo }
+          )
           .getRawOne(),
         produtoRepo
           .createQueryBuilder("produto")
@@ -131,6 +146,20 @@ export class DashboardRepositoryORM {
         erro: erro instanceof Error ? erro.message : String(erro),
       });
 
+      const hoje = new Date();
+      const dataInicioUsar =
+        dataInicio && !isNaN(new Date(dataInicio).getTime())
+          ? dataInicio
+          : new Date(hoje.getFullYear(), hoje.getMonth(), 1)
+              .toISOString()
+              .slice(0, 10);
+      const dataFimUsar =
+        dataFim && !isNaN(new Date(dataFim).getTime())
+          ? dataFim
+          : new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0)
+              .toISOString()
+              .slice(0, 10);
+
       const query = `
         SELECT 
           (SELECT COUNT(*) FROM dbo.USUARIOS WHERE SIT_USUARIO = 'A') as totalUsuarios,
@@ -138,9 +167,9 @@ export class DashboardRepositoryORM {
           (SELECT COUNT(*) FROM dbo.CLIENTES_FORNECEDORES WHERE SIT_CLI_FOR = 'A' AND CLI_FOR_AMBOS IN ('C', 'A')) as totalClientes,
           (SELECT COUNT(*) FROM dbo.PRODUTOS_SERVICOS WHERE COD_EMPRESA = @codEmpresa AND SIT_PRODUTO = 'A') as totalProdutos,
           (SELECT COUNT(*) FROM dbo.ORCAMENTOS_OS WHERE COD_EMPRESA = @codEmpresa AND CAST(DAT_EMISSAO AS DATE) = CAST(GETDATE() AS DATE)) as orcamentosHoje,
-          (SELECT COUNT(*) FROM dbo.ORCAMENTOS_OS WHERE COD_EMPRESA = @codEmpresa AND MONTH(DAT_EMISSAO) = MONTH(GETDATE()) AND YEAR(DAT_EMISSAO) = YEAR(GETDATE())) as orcamentosMes,
-          (SELECT ISNULL(SUM(VLR_ABERTO), 0) FROM dbo.TITULOS_RECEBER WHERE COD_EMPRESA = @codEmpresa AND SIT_TITULO = 'AB' AND MONTH(VCT_ORIGINAL) = MONTH(GETDATE()) AND YEAR(VCT_ORIGINAL) = YEAR(GETDATE())) as receitasMes,
-          (SELECT ISNULL(SUM(VLR_ABERTO), 0) FROM dbo.TITULOS_PAGAR WHERE COD_EMPRESA = @codEmpresa AND SIT_TITULO = 'AB' AND MONTH(VCT_ORIGINAL) = MONTH(GETDATE()) AND YEAR(VCT_ORIGINAL) = YEAR(GETDATE())) as despesasMes
+          (SELECT COUNT(*) FROM dbo.ORCAMENTOS_OS WHERE COD_EMPRESA = @codEmpresa AND CAST(DAT_EMISSAO AS DATE) >= CAST(@dataInicio AS DATE) AND CAST(DAT_EMISSAO AS DATE) <= CAST(@dataFim AS DATE)) as orcamentosMes,
+          (SELECT ISNULL(SUM(ISNULL(VLR_ORIGINAL, VLR_ABERTO)), 0) FROM dbo.TITULOS_RECEBER WHERE COD_EMPRESA = @codEmpresa AND (SIT_TITULO IS NULL OR SIT_TITULO != 'CA') AND CAST(COALESCE(DAT_EMISSAO, VCT_ORIGINAL) AS DATE) >= CAST(@dataInicio AS DATE) AND CAST(COALESCE(DAT_EMISSAO, VCT_ORIGINAL) AS DATE) <= CAST(@dataFim AS DATE)) as receitasMes,
+          (SELECT ISNULL(SUM(ISNULL(VLR_ORIGINAL, VLR_ABERTO)), 0) FROM dbo.TITULOS_PAGAR WHERE COD_EMPRESA = @codEmpresa AND (SIT_TITULO IS NULL OR SIT_TITULO != 'CA') AND CAST(COALESCE(DAT_EMISSAO, VCT_ORIGINAL) AS DATE) >= CAST(@dataInicio AS DATE) AND CAST(COALESCE(DAT_EMISSAO, VCT_ORIGINAL) AS DATE) <= CAST(@dataFim AS DATE)) as despesasMes
       `;
 
       const resultado = await poolBanco.executarConsulta<{
@@ -152,7 +181,11 @@ export class DashboardRepositoryORM {
         orcamentosMes: number;
         receitasMes: number;
         despesasMes: number;
-      }>(query, { codEmpresa }, empresaConfig);
+      }>(
+        query,
+        { codEmpresa, dataInicio: dataInicioUsar, dataFim: dataFimUsar },
+        empresaConfig
+      );
 
       const stats = resultado[0] || {
         totalUsuarios: 0,
