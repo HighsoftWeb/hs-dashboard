@@ -1,6 +1,4 @@
-# HS Web
-
-Sistema web de gestão empresarial desenvolvido com Next.js.
+# HS Dashboard
 
 ## Tecnologias
 
@@ -68,16 +66,6 @@ Para mais detalhes sobre Docker, consulte o Dockerfile e docker-compose.yml
 - `yarn start` - Inicia servidor de produção
 - `yarn lint` - Executa linter
 - `yarn format` - Formata código
-
-## Estrutura do Projeto
-
-```
-hs-web/
-├── app/              # Páginas e rotas Next.js
-├── core/             # Lógica de negócio e serviços
-├── public/           # Arquivos estáticos
-└── sql/              # Queries SQL
-```
 
 ## Configuração
 

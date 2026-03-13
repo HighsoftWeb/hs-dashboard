@@ -8,6 +8,9 @@ export interface EmpresaRow {
   usuario: string;
   senha: string;
   codigos_usuarios_permitidos: string | null;
+  cor_primaria: string | null;
+  cor_secundaria: string | null;
+  cor_terciaria: string | null;
   criado_em: string;
   atualizado_em: string;
 }

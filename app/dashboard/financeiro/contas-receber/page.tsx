@@ -2,7 +2,6 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import { LayoutDashboard } from "@/core/layouts/layout-dashboard";
 import {
   DataTable,
   ColunaDataTable,
@@ -164,29 +163,27 @@ export default function PaginaContasReceber(): React.JSX.Element {
   ];
 
   return (
-    <LayoutDashboard>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Contas a Receber</h1>
-        </div>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">Contas a Receber</h1>
+      </div>
 
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-          <div className="p-6">
-            <DataTable<TituloReceberDB>
-              colunas={colunasTitulosReceber}
-              endpoint="/dashboard/financeiro/titulos-receber"
-              filtros={filtrosTitulos}
-              ordenacaoPadrao={{ campo: "VCT_ORIGINAL", ordem: "asc" }}
-              colunasTotalizar={["VLR_ORIGINAL", "VLR_ABERTO"]}
-              onRowClick={(titulo) => {
-                router.push(
-                  `/dashboard/financeiro/titulos-receber/${titulo.COD_EMPRESA}/${titulo.COD_CLI_FOR}/${encodeURIComponent(titulo.COD_TIPO_TITULO)}/${encodeURIComponent(titulo.NUM_TITULO)}/${titulo.SEQ_TITULO}`
-                );
-              }}
-            />
-          </div>
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div className="p-6">
+          <DataTable<TituloReceberDB>
+            colunas={colunasTitulosReceber}
+            endpoint="/dashboard/financeiro/titulos-receber"
+            filtros={filtrosTitulos}
+            ordenacaoPadrao={{ campo: "VCT_ORIGINAL", ordem: "asc" }}
+            colunasTotalizar={["VLR_ORIGINAL", "VLR_ABERTO"]}
+            onRowClick={(titulo) => {
+              router.push(
+                `/dashboard/financeiro/titulos-receber/${titulo.COD_EMPRESA}/${titulo.COD_CLI_FOR}/${encodeURIComponent(titulo.COD_TIPO_TITULO)}/${encodeURIComponent(titulo.NUM_TITULO)}/${titulo.SEQ_TITULO}`
+              );
+            }}
+          />
         </div>
       </div>
-    </LayoutDashboard>
+    </div>
   );
 }

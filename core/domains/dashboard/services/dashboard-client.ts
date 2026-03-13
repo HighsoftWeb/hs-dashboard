@@ -111,6 +111,60 @@ class ServicoDashboard {
     });
   }
 
+  async obterResumoEstoque(): Promise<{
+    totalDepositos: number;
+    totalProdutosComEstoque: number;
+    totalItensEstoque: number;
+    somaQuantidade: number;
+  }> {
+    const resposta = await clienteHttp.get<{
+      totalDepositos: number;
+      totalProdutosComEstoque: number;
+      totalItensEstoque: number;
+      somaQuantidade: number;
+    }>("/dashboard/estoque/resumo");
+
+    if (!resposta.success || !resposta.data) {
+      throw new Error(
+        resposta.error?.message || "Erro ao obter resumo de estoque"
+      );
+    }
+
+    return resposta.data;
+  }
+
+  async obterAnalytics(params?: {
+    dataInicio?: string;
+    dataFim?: string;
+    tipo?: "geral" | "estoque" | "clientes" | "metricas";
+  }): Promise<Record<string, unknown>> {
+    const padrao = this.obterIntervaloPadrao();
+    const searchParams = new URLSearchParams({
+      dataInicio: params?.dataInicio || padrao.dataInicio,
+      dataFim: params?.dataFim || padrao.dataFim,
+      tipo: params?.tipo || "geral",
+    });
+    const resposta = await clienteHttp.get<Record<string, unknown>>(
+      `/dashboard/analytics?${searchParams.toString()}`
+    );
+    if (!resposta.success || !resposta.data) {
+      throw new Error(
+        resposta.error?.message || "Erro ao obter análises"
+      );
+    }
+    return resposta.data;
+  }
+
+  private obterIntervaloPadrao(): { dataInicio: string; dataFim: string } {
+    const hoje = new Date();
+    const inicio = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+    const fim = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
+    return {
+      dataInicio: inicio.toISOString().slice(0, 10),
+      dataFim: fim.toISOString().slice(0, 10),
+    };
+  }
+
   private mapearStatus(sitOrcamentoOS: string | null): string {
     if (!sitOrcamentoOS) return "Aberto Total";
 

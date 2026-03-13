@@ -20,6 +20,27 @@ export const CriarEmpresaSchema = z.object({
   usuario: z.string().min(1, "Usuário é obrigatório"),
   senha: z.string().min(1, "Senha é obrigatória"),
   codigosUsuariosPermitidos: z.string().nullable().optional(),
+  corPrimaria: z
+    .string()
+    .optional()
+    .refine(
+      (v) => !v || /^#([0-9A-Fa-f]{3}){1,2}$/.test(v),
+      "Cor deve ser #RGB ou #RRGGBB"
+    ),
+  corSecundaria: z
+    .string()
+    .optional()
+    .refine(
+      (v) => !v || /^#([0-9A-Fa-f]{3}){1,2}$/.test(v),
+      "Cor deve ser #RGB ou #RRGGBB"
+    ),
+  corTerciaria: z
+    .string()
+    .optional()
+    .refine(
+      (v) => !v || /^#([0-9A-Fa-f]{3}){1,2}$/.test(v),
+      "Cor deve ser #RGB ou #RRGGBB"
+    ),
 });
 
 export const AtualizarEmpresaSchema = CriarEmpresaSchema.partial().extend({

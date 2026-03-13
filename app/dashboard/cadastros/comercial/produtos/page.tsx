@@ -2,7 +2,6 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import { LayoutDashboard } from "@/core/layouts/layout-dashboard";
 import {
   DataTable,
   ColunaDataTable,
@@ -101,28 +100,26 @@ export default function PaginaProdutos(): React.JSX.Element {
   ];
 
   return (
-    <LayoutDashboard>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Produtos</h1>
-        </div>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">Produtos</h1>
+      </div>
 
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-          <div className="p-6">
-            <DataTable<ProdutoDB>
-              colunas={colunasProdutos}
-              endpoint="/dashboard/cadastros/produtos"
-              filtros={filtrosProdutos}
-              ordenacaoPadrao={{ campo: "DES_PRODUTO", ordem: "asc" }}
-              onRowClick={(produto) => {
-                router.push(
-                  `/dashboard/cadastros/produtos/${produto.COD_PRODUTO}`
-                );
-              }}
-            />
-          </div>
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div className="p-6">
+          <DataTable<ProdutoDB>
+            colunas={colunasProdutos}
+            endpoint="/dashboard/cadastros/produtos"
+            filtros={filtrosProdutos}
+            ordenacaoPadrao={{ campo: "DES_PRODUTO", ordem: "asc" }}
+            onRowClick={(produto) => {
+              router.push(
+                `/dashboard/cadastros/produtos/${produto.COD_PRODUTO}`
+              );
+            }}
+          />
         </div>
       </div>
-    </LayoutDashboard>
+    </div>
   );
 }

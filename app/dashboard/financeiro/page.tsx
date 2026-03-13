@@ -1,322 +1,433 @@
 "use client";
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
-import { LayoutDashboard } from "@/core/layouts/layout-dashboard";
+import React, { useState, useEffect, useCallback } from "react";
 import {
-  DataTable,
-  ColunaDataTable,
-  FiltroDataTable,
-} from "@/core/componentes/data-table/data-table";
+  DollarSign,
+  TrendingUp,
+  TrendingDown,
+  AlertTriangle,
+} from "lucide-react";
+import {
+  servicoDashboard,
+  type ContaVencendo,
+} from "@/core/domains/dashboard/services/dashboard-client";
 import { formatarData } from "@/core/utils/formatar-data";
+import { CardKpi } from "@/core/componentes/dashboard/card-kpi";
+import { CardGrafico } from "@/core/componentes/dashboard/card-grafico";
+import { PaginaBI } from "@/core/componentes/dashboard/pagina-bi";
+import { obterIntervaloPadrao } from "@/core/componentes/dashboard/filtro-periodo";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Cell,
+} from "recharts";
+import { obterCoresGraficos } from "@/core/constants/cores-graficos";
+import { useEmpresa } from "@/core/context/empresa-context";
 
-interface TituloReceberDB extends Record<string, unknown> {
-  COD_EMPRESA: number;
-  COD_CLI_FOR: number;
-  COD_TIPO_TITULO: string;
-  NUM_TITULO: string;
-  SEQ_TITULO: number;
-  SIT_TITULO: string;
-  VCT_ORIGINAL: Date | null;
-  VLR_ABERTO: number | null;
-  VLR_ORIGINAL: number | null;
-  DAT_EMISSAO: Date | null;
-  DAT_ENTRADA: Date | null;
-  COD_REPRESENTANTE: number | null;
-  COD_MOEDA: string | null;
+function formatarMoeda(v: number): string {
+  return new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+    maximumFractionDigits: 0,
+  }).format(v);
 }
 
-interface TituloPagarDB extends Record<string, unknown> {
-  COD_EMPRESA: number;
-  NUM_INTERNO: number;
-  NUM_PARCELA: number;
-  COD_CLI_FOR: number;
-  SIT_TITULO: string;
-  VCT_ORIGINAL: Date | null;
-  VLR_ABERTO: number | null;
-  VLR_ORIGINAL: number | null;
-}
+const CORES_AGING = ["#ef4444", "#f59e0b", "#eab308", "#22c55e", "#3b82f6"];
 
-export default function PaginaFinanceiro(): React.JSX.Element {
-  const router = useRouter();
-  const [abaAtiva, setAbaAtiva] = useState<"receber" | "pagar">("receber");
+export default function DashboardFinanceiro(): React.JSX.Element {
+  const { cores } = useEmpresa();
+  const coresGraficos = obterCoresGraficos(cores);
+  const padrao = obterIntervaloPadrao();
 
-  const colunasTitulosReceber: ColunaDataTable<TituloReceberDB>[] = [
-    {
-      chave: "NUM_TITULO",
-      titulo: "Número",
-      ordenavel: true,
-      alinhamento: "esquerda",
-    },
-    {
-      chave: "SEQ_TITULO",
-      titulo: "Seq.",
-      ordenavel: true,
-      alinhamento: "direita",
-    },
-    {
-      chave: "COD_TIPO_TITULO",
-      titulo: "Tipo",
-      ordenavel: true,
-      alinhamento: "esquerda",
-    },
-    {
-      chave: "COD_CLI_FOR",
-      titulo: "Cód. Cliente",
-      ordenavel: true,
-      alinhamento: "direita",
-    },
-    {
-      chave: "DAT_EMISSAO",
-      titulo: "Emissão",
-      ordenavel: true,
-      alinhamento: "esquerda",
-      renderizar: (valor) =>
-        formatarData(valor as Date | string | null | undefined),
-    },
-    {
-      chave: "DAT_ENTRADA",
-      titulo: "Entrada",
-      ordenavel: true,
-      alinhamento: "esquerda",
-      renderizar: (valor) =>
-        formatarData(valor as Date | string | null | undefined),
-    },
-    {
-      chave: "VCT_ORIGINAL",
-      titulo: "Vencimento",
-      ordenavel: true,
-      alinhamento: "esquerda",
-      renderizar: (valor) =>
-        formatarData(valor as Date | string | null | undefined),
-    },
-    {
-      chave: "VLR_ORIGINAL",
-      titulo: "Valor Original",
-      ordenavel: true,
-      alinhamento: "direita",
-      renderizar: (valor) => {
-        const vlr = Number(valor || 0);
-        return new Intl.NumberFormat("pt-BR", {
-          style: "currency",
-          currency: "BRL",
-        }).format(vlr);
-      },
-    },
-    {
-      chave: "VLR_ABERTO",
-      titulo: "Valor Aberto",
-      ordenavel: true,
-      alinhamento: "direita",
-      renderizar: (valor) => {
-        const vlr = Number(valor || 0);
-        return new Intl.NumberFormat("pt-BR", {
-          style: "currency",
-          currency: "BRL",
-        }).format(vlr);
-      },
-    },
-    {
-      chave: "COD_REPRESENTANTE",
-      titulo: "Representante",
-      ordenavel: true,
-      alinhamento: "direita",
-    },
-    {
-      chave: "COD_MOEDA",
-      titulo: "Moeda",
-      ordenavel: true,
-      alinhamento: "esquerda",
-    },
-    {
-      chave: "SIT_TITULO",
-      titulo: "Status",
-      ordenavel: true,
-      renderizar: (valor) => {
-        const sit = String(valor || "");
-        const cor =
-          sit === "PG" || sit === "BA"
-            ? "bg-green-100 text-green-800"
-            : sit === "CA"
-              ? "bg-red-100 text-red-800"
-              : "bg-yellow-100 text-yellow-800";
-        return (
-          <span
-            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${cor}`}
-          >
-            {sit}
-          </span>
-        );
-      },
-    },
-  ];
+  const [stats, setStats] = useState<{
+    receitasMes: number;
+    despesasMes: number;
+    lucroMes: number;
+  } | null>(null);
+  const [contasVencendo, setContasVencendo] = useState<ContaVencendo[]>([]);
+  const [analytics, setAnalytics] = useState<{
+    agingReceber?: { faixa: string; quantidade: number; valor: number }[];
+    agingPagar?: { faixa: string; quantidade: number; valor: number }[];
+    indicadoresInadimplencia?: {
+      valorTotalReceber: number;
+      valorVencido: number;
+      percentualInadimplencia: number;
+      quantidadeClientesInadimplentes: number;
+    };
+    fluxoRecebimento?: { mesAno: string; valor: number; quantidade: number }[];
+  } | null>(null);
+  const [dataInicio, setDataInicio] = useState(padrao.dataInicio);
+  const [dataFim, setDataFim] = useState(padrao.dataFim);
+  const [carregando, setCarregando] = useState(true);
 
-  const colunasTitulosPagar: ColunaDataTable<TituloPagarDB>[] = [
-    {
-      chave: "NUM_INTERNO",
-      titulo: "Nº Interno",
-      ordenavel: true,
-      alinhamento: "direita",
-    },
-    {
-      chave: "NUM_PARCELA",
-      titulo: "Parcela",
-      ordenavel: true,
-      alinhamento: "direita",
-    },
-    {
-      chave: "COD_CLI_FOR",
-      titulo: "Cód. Fornecedor",
-      ordenavel: true,
-      alinhamento: "direita",
-    },
-    {
-      chave: "VCT_ORIGINAL",
-      titulo: "Vencimento",
-      ordenavel: true,
-      alinhamento: "esquerda",
-      renderizar: (valor) =>
-        formatarData(valor as Date | string | null | undefined),
-    },
-    {
-      chave: "VLR_ORIGINAL",
-      titulo: "Valor Original",
-      ordenavel: true,
-      alinhamento: "direita",
-      renderizar: (valor) => {
-        const vlr = Number(valor || 0);
-        return new Intl.NumberFormat("pt-BR", {
-          style: "currency",
-          currency: "BRL",
-        }).format(vlr);
-      },
-    },
-    {
-      chave: "VLR_ABERTO",
-      titulo: "Valor Aberto",
-      ordenavel: true,
-      alinhamento: "direita",
-      renderizar: (valor) => {
-        const vlr = Number(valor || 0);
-        return new Intl.NumberFormat("pt-BR", {
-          style: "currency",
-          currency: "BRL",
-        }).format(vlr);
-      },
-    },
-    {
-      chave: "SIT_TITULO",
-      titulo: "Status",
-      ordenavel: true,
-      renderizar: (valor) => {
-        const sit = String(valor || "");
-        const cor =
-          sit === "PG" || sit === "BA"
-            ? "bg-green-100 text-green-800"
-            : sit === "CA"
-              ? "bg-red-100 text-red-800"
-              : "bg-yellow-100 text-yellow-800";
-        return (
-          <span
-            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${cor}`}
-          >
-            {sit}
-          </span>
-        );
-      },
-    },
-  ];
+  const carregar = useCallback(async () => {
+    try {
+      setCarregando(true);
+      const [estatRes, contasRes, analGeral, analMetricas] = await Promise.all([
+        servicoDashboard.obterEstatisticas(),
+        servicoDashboard.listarContasVencendo(60),
+        servicoDashboard.obterAnalytics({ dataInicio, dataFim, tipo: "geral" }),
+        servicoDashboard.obterAnalytics({ tipo: "metricas" }),
+      ]);
+      setStats({
+        receitasMes: estatRes.receitasMes,
+        despesasMes: estatRes.despesasMes,
+        lucroMes: estatRes.lucroMes,
+      });
+      setContasVencendo(contasRes);
+      const geral = analGeral as {
+        agingReceber?: { faixa: string; quantidade: number; valor: number }[];
+        agingPagar?: { faixa: string; quantidade: number; valor: number }[];
+      };
+      const metricas = analMetricas as {
+        indicadoresInadimplencia?: {
+          valorTotalReceber: number;
+          valorVencido: number;
+          percentualInadimplencia: number;
+          quantidadeClientesInadimplentes: number;
+        };
+        fluxoRecebimento?: {
+          mesAno: string;
+          valor: number;
+          quantidade: number;
+        }[];
+      };
+      setAnalytics({
+        agingReceber: geral.agingReceber,
+        agingPagar: geral.agingPagar,
+        indicadoresInadimplencia: metricas.indicadoresInadimplencia,
+        fluxoRecebimento: metricas.fluxoRecebimento,
+      });
+    } finally {
+      setCarregando(false);
+    }
+  }, [dataInicio, dataFim]);
 
-  const filtrosTitulos: FiltroDataTable[] = [
-    {
-      chave: "sit",
-      tipo: "select",
-      rotulo: "Status",
-      opcoes: [
-        { valor: "AB", label: "Aberto" },
-        { valor: "PG", label: "Pago" },
-        { valor: "BA", label: "Baixado" },
-        { valor: "CA", label: "Cancelado" },
-      ],
-    },
-    {
-      chave: "dataInicio",
-      tipo: "data",
-      rotulo: "Data Início",
-    },
-    {
-      chave: "dataFim",
-      tipo: "data",
-      rotulo: "Data Fim",
-    },
-  ];
+  useEffect(() => {
+    carregar();
+  }, [carregar]);
+
+  if (carregando) {
+    return (
+      <PaginaBI
+        titulo="Financeiro"
+        dataInicio={dataInicio}
+        dataFim={dataFim}
+        onPeriodoChange={(i, f) => {
+          setDataInicio(i);
+          setDataFim(f);
+        }}
+      >
+        <div className="space-y-6 animate-pulse">
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="h-24 rounded-xl bg-slate-200" />
+            ))}
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="h-56 rounded-xl bg-slate-200" />
+            <div className="h-56 rounded-xl bg-slate-200" />
+            <div className="h-56 rounded-xl bg-slate-200" />
+            <div className="h-44 rounded-xl bg-slate-200" />
+            <div className="h-44 rounded-xl bg-slate-200" />
+            <div className="h-56 rounded-xl bg-slate-200" />
+            <div className="lg:col-span-3 h-72 rounded-xl bg-slate-200" />
+          </div>
+        </div>
+      </PaginaBI>
+    );
+  }
+
+  const s = stats!;
+  const dadosGrafico = [
+    { nome: "Receitas", valor: s.receitasMes },
+    { nome: "Despesas", valor: s.despesasMes },
+    { nome: "Lucro", valor: s.lucroMes },
+  ].filter((d) => d.valor > 0);
+
+  const receber = contasVencendo.filter((c) => c.tipo === "receber");
+  const pagar = contasVencendo.filter((c) => c.tipo === "pagar");
+  const totalReceber = receber.reduce((sum, c) => sum + c.valor, 0);
+  const totalPagar = pagar.reduce((sum, c) => sum + c.valor, 0);
+  const agingReceber = analytics?.agingReceber ?? [];
+  const agingPagar = analytics?.agingPagar ?? [];
+  const inadimplencia = analytics?.indicadoresInadimplencia;
+  const fluxo = analytics?.fluxoRecebimento ?? [];
 
   return (
-    <LayoutDashboard>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Financeiro</h1>
+    <PaginaBI
+      titulo="Financeiro"
+      dataInicio={dataInicio}
+      dataFim={dataFim}
+      onPeriodoChange={(i, f) => {
+        setDataInicio(i);
+        setDataFim(f);
+      }}
+    >
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
+        <CardKpi
+          titulo="Receitas"
+          valor={formatarMoeda(s.receitasMes)}
+          icone={<TrendingUp className="w-5 h-5" />}
+          variante="destaque"
+        />
+        <CardKpi
+          titulo="Despesas"
+          valor={formatarMoeda(s.despesasMes)}
+          icone={<TrendingDown className="w-5 h-5" />}
+        />
+        <CardKpi
+          titulo="Lucro"
+          valor={formatarMoeda(s.lucroMes)}
+          icone={<DollarSign className="w-5 h-5" />}
+          negativo={s.lucroMes < 0}
+        />
+        <CardKpi
+          titulo="A Vencer"
+          valor={contasVencendo.length}
+          icone={<AlertTriangle className="w-5 h-5" />}
+        />
+        {inadimplencia && (
+          <>
+            <CardKpi
+              titulo="A Receber"
+              valor={formatarMoeda(inadimplencia.valorTotalReceber)}
+              icone={<DollarSign className="w-5 h-5" />}
+            />
+            <CardKpi
+              titulo="Inadimplência"
+              valor={`${inadimplencia.percentualInadimplencia.toFixed(1)}%`}
+              icone={<AlertTriangle className="w-5 h-5" />}
+              variante={
+                inadimplencia.percentualInadimplencia > 10
+                  ? "destaque"
+                  : undefined
+              }
+            />
+          </>
+        )}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <CardGrafico titulo="Mês Atual">
+          {dadosGrafico.length > 0 ? (
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={dadosGrafico} margin={{ top: 10, right: 10 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis dataKey="nome" tick={{ fontSize: 11 }} />
+                <YAxis
+                  tick={{ fontSize: 10 }}
+                  tickFormatter={(v) =>
+                    formatarMoeda(v).replace(/\s/g, "").slice(0, 10)
+                  }
+                />
+                <Tooltip formatter={(v) => formatarMoeda(Number(v ?? 0))} />
+                <Bar
+                  dataKey="valor"
+                  fill={coresGraficos.primario}
+                  radius={[4, 4, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <p className="text-xs text-slate-500 text-center py-12">
+              Sem dados
+            </p>
+          )}
+        </CardGrafico>
+
+        {agingReceber.length > 0 && (
+          <CardGrafico titulo="A Receber por Faixa">
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart
+                data={agingReceber}
+                layout="vertical"
+                margin={{ top: 5, right: 30, left: 65, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis
+                  type="number"
+                  tickFormatter={(v) => formatarMoeda(v).replace(/\s/g, "")}
+                  tick={{ fontSize: 9 }}
+                />
+                <YAxis
+                  type="category"
+                  dataKey="faixa"
+                  width={60}
+                  tick={{ fontSize: 9 }}
+                />
+                <Tooltip formatter={(v) => formatarMoeda(Number(v ?? 0))} />
+                <Bar dataKey="valor" radius={[0, 4, 4, 0]}>
+                  {agingReceber.map((_, i) => (
+                    <Cell key={i} fill={CORES_AGING[i % CORES_AGING.length]} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </CardGrafico>
+        )}
+
+        {fluxo.length > 0 && (
+          <CardGrafico titulo="Fluxo Recebimento">
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={fluxo} margin={{ top: 10, right: 10 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis dataKey="mesAno" tick={{ fontSize: 9 }} />
+                <YAxis
+                  tick={{ fontSize: 9 }}
+                  tickFormatter={(v) =>
+                    formatarMoeda(v).replace(/\s/g, "").slice(0, 8)
+                  }
+                />
+                <Tooltip formatter={(v) => formatarMoeda(Number(v ?? 0))} />
+                <Bar
+                  dataKey="valor"
+                  fill={coresGraficos.primario}
+                  radius={[4, 4, 0, 0]}
+                  name="A receber"
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardGrafico>
+        )}
+
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 shadow-sm overflow-hidden">
+          <div className="px-4 py-3 border-b border-emerald-100">
+            <h3 className="text-sm font-semibold text-slate-800">A Receber</h3>
+            <p className="text-lg font-bold text-emerald-700 mt-0.5">
+              {formatarMoeda(totalReceber)}
+            </p>
+          </div>
+          <div className="p-3 max-h-44 overflow-y-auto space-y-2">
+            {receber.slice(0, 5).map((c) => (
+              <div key={c.id} className="flex justify-between text-xs">
+                <span className="truncate flex-1">{c.descricao}</span>
+                <span className="font-medium ml-2">
+                  {formatarMoeda(c.valor)}
+                </span>
+              </div>
+            ))}
+            {receber.length === 0 && (
+              <p className="text-xs text-slate-500">Nenhum</p>
+            )}
+          </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-          <div className="border-b border-gray-200">
-            <nav className="flex -mb-px">
-              <button
-                onClick={() => setAbaAtiva("receber")}
-                className={`py-4 px-6 text-sm font-medium border-b-2 ${
-                  abaAtiva === "receber"
-                    ? "border-[#094A73] text-[#094A73]"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }`}
-              >
-                Títulos a Receber
-              </button>
-              <button
-                onClick={() => setAbaAtiva("pagar")}
-                className={`py-4 px-6 text-sm font-medium border-b-2 ${
-                  abaAtiva === "pagar"
-                    ? "border-[#094A73] text-[#094A73]"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }`}
-              >
-                Títulos a Pagar
-              </button>
-            </nav>
+        <div className="rounded-xl border border-red-200 bg-red-50/50 shadow-sm overflow-hidden">
+          <div className="px-4 py-3 border-b border-red-100">
+            <h3 className="text-sm font-semibold text-slate-800">A Pagar</h3>
+            <p className="text-lg font-bold text-red-700 mt-0.5">
+              {formatarMoeda(totalPagar)}
+            </p>
           </div>
-
-          <div className="p-6">
-            {abaAtiva === "receber" && (
-              <DataTable<TituloReceberDB>
-                colunas={colunasTitulosReceber}
-                endpoint="/dashboard/financeiro/titulos-receber"
-                filtros={filtrosTitulos}
-                ordenacaoPadrao={{ campo: "VCT_ORIGINAL", ordem: "asc" }}
-                colunasTotalizar={["VLR_ORIGINAL", "VLR_ABERTO"]}
-                onRowClick={(titulo) => {
-                  router.push(
-                    `/dashboard/financeiro/titulos-receber/${titulo.COD_EMPRESA}/${titulo.COD_CLI_FOR}/${encodeURIComponent(titulo.COD_TIPO_TITULO)}/${encodeURIComponent(titulo.NUM_TITULO)}/${titulo.SEQ_TITULO}`
-                  );
-                }}
-              />
+          <div className="p-3 max-h-44 overflow-y-auto space-y-2">
+            {pagar.slice(0, 5).map((c) => (
+              <div key={c.id} className="flex justify-between text-xs">
+                <span className="truncate flex-1">{c.descricao}</span>
+                <span className="font-medium ml-2">
+                  {formatarMoeda(c.valor)}
+                </span>
+              </div>
+            ))}
+            {pagar.length === 0 && (
+              <p className="text-xs text-slate-500">Nenhum</p>
             )}
+          </div>
+        </div>
 
-            {abaAtiva === "pagar" && (
-              <DataTable<TituloPagarDB>
-                colunas={colunasTitulosPagar}
-                endpoint="/dashboard/financeiro/titulos-pagar"
-                filtros={filtrosTitulos}
-                ordenacaoPadrao={{ campo: "VCT_ORIGINAL", ordem: "asc" }}
-                colunasTotalizar={["VLR_ORIGINAL", "VLR_ABERTO"]}
-                onRowClick={(titulo) => {
-                  router.push(
-                    `/dashboard/financeiro/titulos-pagar/${titulo.COD_EMPRESA}/${titulo.NUM_INTERNO}/${titulo.NUM_PARCELA}`
-                  );
-                }}
-              />
-            )}
+        {agingPagar.length > 0 && (
+          <CardGrafico titulo="A Pagar por Faixa">
+            <ResponsiveContainer width="100%" height={180}>
+              <BarChart
+                data={agingPagar}
+                layout="vertical"
+                margin={{ top: 5, right: 30, left: 65, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis
+                  type="number"
+                  tickFormatter={(v) => formatarMoeda(v).replace(/\s/g, "")}
+                  tick={{ fontSize: 9 }}
+                />
+                <YAxis
+                  type="category"
+                  dataKey="faixa"
+                  width={60}
+                  tick={{ fontSize: 9 }}
+                />
+                <Tooltip formatter={(v) => formatarMoeda(Number(v ?? 0))} />
+                <Bar dataKey="valor" fill="#ef4444" radius={[0, 4, 4, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardGrafico>
+        )}
+
+        <div className="lg:col-span-3 rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+          <div className="px-4 py-3 border-b border-slate-100">
+            <h3 className="text-sm font-semibold text-slate-800">
+              Contas a Vencer
+            </h3>
+          </div>
+          <div className="overflow-x-auto max-h-64 overflow-y-auto">
+            <table className="min-w-full">
+              <thead className="bg-slate-50 sticky top-0">
+                <tr>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-slate-500">
+                    Tipo
+                  </th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-slate-500">
+                    Descrição
+                  </th>
+                  <th className="px-3 py-2 text-right text-xs font-medium text-slate-500">
+                    Valor
+                  </th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-slate-500">
+                    Venc.
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {contasVencendo.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={4}
+                      className="px-3 py-8 text-center text-xs text-slate-500"
+                    >
+                      Nenhum
+                    </td>
+                  </tr>
+                ) : (
+                  contasVencendo.map((c) => (
+                    <tr key={c.id} className="hover:bg-slate-50">
+                      <td className="px-3 py-2">
+                        <span
+                          className={`px-1.5 py-0.5 rounded text-xs font-medium ${c.tipo === "receber" ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}
+                        >
+                          {c.tipo === "receber" ? "Rec." : "Pag."}
+                        </span>
+                      </td>
+                      <td className="px-3 py-2 text-xs truncate max-w-[180px]">
+                        {c.descricao}
+                      </td>
+                      <td className="px-3 py-2 text-xs font-medium text-right">
+                        {formatarMoeda(c.valor)}
+                      </td>
+                      <td className="px-3 py-2 text-xs text-slate-600">
+                        {formatarData(c.dataVencimento)}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
-    </LayoutDashboard>
+    </PaginaBI>
   );
 }

@@ -17,9 +17,9 @@ export function Botao({
 }: PropsBotao): React.JSX.Element {
   const classesVariante = {
     primario:
-      "bg-[#094A73] text-white hover:bg-[#073a5c] shadow-lg hover:shadow-xl",
-    secundario: "bg-[#A4A5A6] text-white hover:bg-[#8a8b8c]",
-    perigo: "bg-[#EF4444] text-white hover:bg-[#dc2626]",
+      "bg-highsoft-primario text-white hover:bg-highsoft-primario-hover shadow-lg hover:shadow-xl",
+    secundario: "bg-highsoft-cinza text-white hover:bg-slate-500",
+    perigo: "bg-highsoft-erro text-white hover:bg-red-600",
   };
 
   const classesTamanho = {

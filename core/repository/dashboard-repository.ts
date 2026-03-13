@@ -50,6 +50,21 @@ export class DashboardRepository {
       empresaConfig
     );
   }
+
+  async obterResumoEstoque(
+    codEmpresa: number,
+    empresaConfig: EmpresaConfig
+  ): Promise<{
+    totalDepositos: number;
+    totalProdutosComEstoque: number;
+    totalItensEstoque: number;
+    somaQuantidade: number;
+  }> {
+    return dashboardRepositoryORM.obterResumoEstoque(
+      codEmpresa,
+      empresaConfig
+    );
+  }
 }
 
 export const dashboardRepository = new DashboardRepository();

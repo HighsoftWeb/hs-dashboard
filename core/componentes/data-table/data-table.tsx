@@ -276,7 +276,7 @@ export function DataTable<T extends Record<string, unknown>>({
                       }
                     }}
                     placeholder="Buscar..."
-                    className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent"
+                    className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent"
                   />
                 </div>
               )}
@@ -295,7 +295,7 @@ export function DataTable<T extends Record<string, unknown>>({
                           [filtro.chave]: e.target.value,
                         }))
                       }
-                      className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+                      className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
                     >
                       <option value="">Todos</option>
                       {filtro.opcoes?.map((opcao) => (
@@ -324,7 +324,7 @@ export function DataTable<T extends Record<string, unknown>>({
                         filtro.placeholder ??
                         (filtro.tipo === "data" ? "dd/mm/aaaa" : "")
                       }
-                      className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent"
+                      className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent"
                     />
                   )}
                 </div>
@@ -334,7 +334,7 @@ export function DataTable<T extends Record<string, unknown>>({
             <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-200">
               <button
                 onClick={handleAplicarFiltros}
-                className="px-4 py-1.5 text-sm bg-[#094A73] text-white rounded hover:bg-[#073a5c] transition-colors font-medium"
+                className="px-4 py-1.5 text-sm bg-highsoft-primario text-white rounded hover:bg-highsoft-primario-hover transition-colors font-medium"
               >
                 Aplicar
               </button>
@@ -395,7 +395,7 @@ export function DataTable<T extends Record<string, unknown>>({
                         <span>{coluna.titulo}</span>
                         {coluna.ordenavel !== false &&
                           ordenacao.campo === String(coluna.chave) && (
-                            <span className="text-[#094A73] text-xs">
+                            <span className="text-highsoft-primario text-xs">
                               {ordenacao.ordem === "asc" ? "↑" : "↓"}
                             </span>
                           )}

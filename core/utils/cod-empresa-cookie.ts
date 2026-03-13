@@ -23,6 +23,7 @@ export function salvarCodEmpresaNoCookie(codEmpresa: number): void {
   Cookies.set(COD_EMPRESA_COOKIE_NAME, codEmpresa.toString(RADIX_DECIMAL), {
     expires: COOKIE_EXPIRES_DAYS,
     sameSite: "strict",
+    path: "/",
   });
 }
 

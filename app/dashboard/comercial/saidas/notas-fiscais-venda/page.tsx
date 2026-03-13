@@ -2,7 +2,6 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import { LayoutDashboard } from "@/core/layouts/layout-dashboard";
 import {
   DataTable,
   ColunaDataTable,
@@ -132,27 +131,25 @@ export default function PaginaNotasFiscaisVenda(): React.JSX.Element {
   ];
 
   return (
-    <LayoutDashboard>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">
-            Notas Fiscais de Venda
-          </h1>
-        </div>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">
+          Notas Fiscais de Venda
+        </h1>
+      </div>
 
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-          <div className="p-6">
-            <DataTable<NotaVendaListDB>
-              colunas={colunas}
-              endpoint="/dashboard/comercial/saidas/notas-fiscais-venda"
-              filtros={filtros}
-              ordenacaoPadrao={{ campo: "DAT_EMISSAO", ordem: "desc" }}
-              onRowClick={handleRowClick}
-              colunasTotalizar={["VLR_LIQUIDO"]}
-            />
-          </div>
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div className="p-6">
+          <DataTable<NotaVendaListDB>
+            colunas={colunas}
+            endpoint="/dashboard/comercial/saidas/notas-fiscais-venda"
+            filtros={filtros}
+            ordenacaoPadrao={{ campo: "DAT_EMISSAO", ordem: "desc" }}
+            onRowClick={handleRowClick}
+            colunasTotalizar={["VLR_LIQUIDO"]}
+          />
         </div>
       </div>
-    </LayoutDashboard>
+    </div>
   );
 }

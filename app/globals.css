@@ -6,6 +6,7 @@
 
   --highsoft-cinza: #a4a5a6;
   --highsoft-primario: #094a73;
+  --highsoft-primario-hover: #073a5c;
   --highsoft-secundario: #048abf;
   --highsoft-terciario: #04b2d9;
   --highsoft-sucesso: #10b981;
@@ -21,6 +22,7 @@
 
   --color-highsoft-cinza: var(--highsoft-cinza);
   --color-highsoft-primario: var(--highsoft-primario);
+  --color-highsoft-primario-hover: var(--highsoft-primario-hover);
   --color-highsoft-secundario: var(--highsoft-secundario);
   --color-highsoft-terciario: var(--highsoft-terciario);
   --color-highsoft-sucesso: var(--highsoft-sucesso);

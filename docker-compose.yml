@@ -1,9 +1,9 @@
 services:
-  hs-web:
+  hs-dashboard:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: hs-web
+    container_name: hs-dashboard
     ports:
       - "3000:3000"
     environment:
@@ -11,7 +11,7 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - DEFAULT_COD_EMPRESA=${DEFAULT_COD_EMPRESA:-1}
     volumes:
-      - hs-web-data:/app/.data
+      - hs-dashboard-data:/app/.data
     restart: unless-stopped
     healthcheck:
       test:
@@ -29,9 +29,9 @@ services:
       - hs-network
 
 volumes:
-  hs-web-data:
+  hs-dashboard-data:
     driver: local
-    name: hs-web-data
+    name: hs-dashboard-data
 
 networks:
   hs-network:

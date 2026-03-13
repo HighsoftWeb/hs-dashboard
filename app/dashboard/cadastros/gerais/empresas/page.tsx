@@ -2,7 +2,6 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import { LayoutDashboard } from "@/core/layouts/layout-dashboard";
 import {
   DataTable,
   ColunaDataTable,
@@ -94,27 +93,25 @@ export default function PaginaEmpresas(): React.JSX.Element {
   ];
 
   return (
-    <LayoutDashboard>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Empresas</h1>
-        </div>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">Empresas</h1>
+      </div>
 
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-          <div className="p-6">
-            <DataTable<EmpresaDB>
-              colunas={colunasEmpresas}
-              endpoint="/dashboard/cadastros/empresas"
-              ordenacaoPadrao={{ campo: "NOM_EMPRESA", ordem: "asc" }}
-              onRowClick={(empresa) => {
-                router.push(
-                  `/dashboard/cadastros/empresas/${empresa.COD_EMPRESA}`
-                );
-              }}
-            />
-          </div>
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div className="p-6">
+          <DataTable<EmpresaDB>
+            colunas={colunasEmpresas}
+            endpoint="/dashboard/cadastros/empresas"
+            ordenacaoPadrao={{ campo: "NOM_EMPRESA", ordem: "asc" }}
+            onRowClick={(empresa) => {
+              router.push(
+                `/dashboard/cadastros/empresas/${empresa.COD_EMPRESA}`
+              );
+            }}
+          />
         </div>
       </div>
-    </LayoutDashboard>
+    </div>
   );
 }

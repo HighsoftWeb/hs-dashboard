@@ -2,14 +2,19 @@ import { NextRequest, NextResponse } from "next/server";
 import { validarAutenticacao } from "@/core/middleware/auth-middleware";
 import { dashboardService } from "@/core/domains/dashboard/services/dashboard-service";
 import { logger } from "@/core/utils/logger";
-import { obterEmpresaConfigDoCookie } from "@/core/utils/obter-empresa-cookie";
+import {
+  obterEmpresaConfigDoCookie,
+  obterCodEmpresaDoCookie,
+} from "@/core/utils/obter-empresa-cookie";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const payload = validarAutenticacao(request);
     const empresaConfig = obterEmpresaConfigDoCookie(request);
+    const codEmpresa =
+      obterCodEmpresaDoCookie(request) ?? payload.codEmpresa;
     const estatisticas = await dashboardService.obterEstatisticas(
-      payload.codEmpresa,
+      codEmpresa,
       empresaConfig
     );
 

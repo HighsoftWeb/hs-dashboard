@@ -13,6 +13,9 @@ function mapearRowParaEmpresaConfig(row: EmpresaRow): EmpresaConfig {
     usuario: row.usuario,
     senha: row.senha,
     codigosUsuariosPermitidos: row.codigos_usuarios_permitidos,
+    corPrimaria: row.cor_primaria || "#094a73",
+    corSecundaria: row.cor_secundaria || "#048abf",
+    corTerciaria: row.cor_terciaria || "#04b2d9",
     criadoEm: row.criado_em,
     atualizadoEm: row.atualizado_em,
   };
@@ -44,8 +47,8 @@ class EmpresaConfigRepository {
   criar(empresa: EmpresaConfigInput): EmpresaConfig {
     const db = obterBancoEmpresas();
     const stmt = db.prepare(`
-      INSERT INTO empresas (cnpj, nome_empresa, host, porta, nome_base, usuario, senha, codigos_usuarios_permitidos)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO empresas (cnpj, nome_empresa, host, porta, nome_base, usuario, senha, codigos_usuarios_permitidos, cor_primaria, cor_secundaria, cor_terciaria)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     const result = stmt.run(
@@ -56,7 +59,10 @@ class EmpresaConfigRepository {
       empresa.nomeBase,
       empresa.usuario,
       empresa.senha,
-      empresa.codigosUsuariosPermitidos || null
+      empresa.codigosUsuariosPermitidos || null,
+      empresa.corPrimaria || "#094a73",
+      empresa.corSecundaria || "#048abf",
+      empresa.corTerciaria || "#04b2d9"
     );
 
     const novaEmpresa = this.obterPorId(result.lastInsertRowid as number);
@@ -72,7 +78,8 @@ class EmpresaConfigRepository {
     const stmt = db.prepare(`
       UPDATE empresas 
       SET cnpj = ?, nome_empresa = ?, host = ?, porta = ?, nome_base = ?, usuario = ?, senha = ?, 
-          codigos_usuarios_permitidos = ?, atualizado_em = CURRENT_TIMESTAMP
+          codigos_usuarios_permitidos = ?, cor_primaria = ?, cor_secundaria = ?, cor_terciaria = ?,
+          atualizado_em = CURRENT_TIMESTAMP
       WHERE id = ?
     `);
 
@@ -85,6 +92,9 @@ class EmpresaConfigRepository {
       empresa.usuario,
       empresa.senha,
       empresa.codigosUsuariosPermitidos || null,
+      empresa.corPrimaria || "#094a73",
+      empresa.corSecundaria || "#048abf",
+      empresa.corTerciaria || "#04b2d9",
       id
     );
 

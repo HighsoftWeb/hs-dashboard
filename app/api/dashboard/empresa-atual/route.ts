@@ -57,7 +57,15 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    return NextResponse.json(criarRespostaSucesso(empresas[0]));
+    const empresaBanco = empresas[0];
+    const resposta = {
+      ...empresaBanco,
+      corPrimaria: empresaConfig.corPrimaria,
+      corSecundaria: empresaConfig.corSecundaria,
+      corTerciaria: empresaConfig.corTerciaria,
+    };
+
+    return NextResponse.json(criarRespostaSucesso(resposta));
   } catch (erro) {
     return tratarErroAPI(erro, {
       endpoint: "/api/dashboard/empresa-atual",

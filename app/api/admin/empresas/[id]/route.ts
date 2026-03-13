@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { empresaConfigRepository } from "@/core/repository/empresa-config-repository";
-import { EmpresaConfigInput } from "@/core/entities/EmpresaConfig";
 import { filtrarEmpresaSegura } from "@/core/utils/filtrar-empresa-segura";
-import {
-  validarELimparCnpj,
-  validarCnpjCompleto,
-} from "@/core/utils/cnpj-utils";
+import { EmpresaConfigInput } from "@/core/entities/EmpresaConfig";
+
+const ADMIN_PASSWORD = "hs@010896@hs";
+
+function validarAdmin(request: NextRequest): boolean {
+  const pw = request.headers.get("X-Admin-Password");
+  return !!pw && pw === ADMIN_PASSWORD;
+}
 
 interface EmpresaRequestBody {
   cnpj?: string;
@@ -16,6 +19,9 @@ interface EmpresaRequestBody {
   usuario?: string;
   senha?: string;
   codigosUsuariosPermitidos?: string | null;
+  corPrimaria?: string;
+  corSecundaria?: string;
+  corTerciaria?: string;
 }
 
 function validarBodyEmpresa(body: unknown): body is EmpresaRequestBody {
@@ -30,82 +36,104 @@ function validarBodyEmpresa(body: unknown): body is EmpresaRequestBody {
   );
 }
 
+export async function GET(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+): Promise<NextResponse> {
+  try {
+    const { id } = await params;
+    const idNum = parseInt(id, 10);
+    if (isNaN(idNum)) {
+      return NextResponse.json(
+        { success: false, error: { message: "ID inválido" } },
+        { status: 400 }
+      );
+    }
+
+    const empresa = empresaConfigRepository.obterPorId(idNum);
+    if (!empresa) {
+      return NextResponse.json(
+        { success: false, error: { message: "Empresa não encontrada" } },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: filtrarEmpresaSegura(empresa),
+    });
+  } catch (erro) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          message:
+            erro instanceof Error ? erro.message : "Erro ao obter empresa",
+        },
+      },
+      { status: 500 }
+    );
+  }
+}
+
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
+  if (!validarAdmin(request)) {
+    return NextResponse.json(
+      { success: false, error: { message: "Não autorizado" } },
+      { status: 401 }
+    );
+  }
   try {
-    const resolvedParams = await params;
-    const id = parseInt(resolvedParams.id, 10);
-    if (isNaN(id)) {
+    const { id } = await params;
+    const idNum = parseInt(id, 10);
+    if (isNaN(idNum)) {
       return NextResponse.json(
-        {
-          success: false,
-          error: {
-            message: "ID inválido",
-          },
-        },
+        { success: false, error: { message: "ID inválido" } },
         { status: 400 }
       );
     }
-
+    const empresaExistente = empresaConfigRepository.obterPorId(idNum);
+    if (!empresaExistente) {
+      return NextResponse.json(
+        { success: false, error: { message: "Empresa não encontrada" } },
+        { status: 404 }
+      );
+    }
     const body = (await request.json()) as unknown;
-
     if (!validarBodyEmpresa(body)) {
       return NextResponse.json(
         {
           success: false,
-          error: {
-            message: "Campos obrigatórios não preenchidos",
-          },
+          error: { message: "Campos obrigatórios não preenchidos" },
         },
         { status: 400 }
       );
     }
-
-    const cnpjLimpo = validarELimparCnpj(body.cnpj, { validarDigitos: true });
-
-    if (!cnpjLimpo) {
+    const cnpjLimpo = body.cnpj?.replace(/\D/g, "") || "";
+    if (!cnpjLimpo || cnpjLimpo.length !== 14) {
       return NextResponse.json(
-        {
-          success: false,
-          error: {
-            message: "CNPJ inválido",
-          },
-        },
+        { success: false, error: { message: "CNPJ inválido" } },
         { status: 400 }
       );
     }
-
-    if (!validarCnpjCompleto(body.cnpj || "")) {
+    const outroComMesmoCnpj = empresaConfigRepository.obterPorCnpj(cnpjLimpo);
+    if (outroComMesmoCnpj && outroComMesmoCnpj.id !== idNum) {
       return NextResponse.json(
-        {
-          success: false,
-          error: {
-            message: "CNPJ inválido: dígitos verificadores incorretos",
-          },
-        },
+        { success: false, error: { message: "CNPJ já cadastrado" } },
         { status: 400 }
       );
     }
-
     const porta =
-      typeof body.porta === "string"
-        ? parseInt(body.porta, 10)
-        : body.porta || 1433;
-
+      typeof body.porta === "string" ? parseInt(body.porta, 10) : body.porta || 1433;
     if (isNaN(porta) || porta <= 0 || porta > 65535) {
       return NextResponse.json(
-        {
-          success: false,
-          error: {
-            message: "Porta inválida",
-          },
-        },
+        { success: false, error: { message: "Porta inválida" } },
         { status: 400 }
       );
     }
-
     const empresa: EmpresaConfigInput = {
       cnpj: cnpjLimpo,
       nomeEmpresa: body.nomeEmpresa || "",
@@ -115,40 +143,12 @@ export async function PUT(
       usuario: body.usuario || "",
       senha: body.senha || "",
       codigosUsuariosPermitidos: body.codigosUsuariosPermitidos || undefined,
+      corPrimaria: body.corPrimaria || "#094a73",
+      corSecundaria: body.corSecundaria || "#048abf",
+      corTerciaria: body.corTerciaria || "#04b2d9",
     };
-
-    const empresaExistente = empresaConfigRepository.obterPorId(id);
-    if (!empresaExistente) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            message: "Empresa não encontrada",
-          },
-        },
-        { status: 404 }
-      );
-    }
-
-    const empresaComCnpj = empresaConfigRepository.obterPorCnpj(empresa.cnpj);
-    if (empresaComCnpj && empresaComCnpj.id !== id) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            message: "CNPJ já cadastrado em outra empresa",
-          },
-        },
-        { status: 400 }
-      );
-    }
-
-    const empresaAtualizada = empresaConfigRepository.atualizar(id, empresa);
-    const empresaSegura = filtrarEmpresaSegura(empresaAtualizada);
-    return NextResponse.json({
-      success: true,
-      data: empresaSegura,
-    });
+    const atualizada = empresaConfigRepository.atualizar(idNum, empresa);
+    return NextResponse.json({ success: true, data: atualizada });
   } catch (erro) {
     return NextResponse.json(
       {
@@ -164,41 +164,33 @@ export async function PUT(
 }
 
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
+  if (!validarAdmin(request)) {
+    return NextResponse.json(
+      { success: false, error: { message: "Não autorizado" } },
+      { status: 401 }
+    );
+  }
   try {
-    const resolvedParams = await params;
-    const id = parseInt(resolvedParams.id, 10);
-    if (isNaN(id)) {
+    const { id } = await params;
+    const idNum = parseInt(id, 10);
+    if (isNaN(idNum)) {
       return NextResponse.json(
-        {
-          success: false,
-          error: {
-            message: "ID inválido",
-          },
-        },
+        { success: false, error: { message: "ID inválido" } },
         { status: 400 }
       );
     }
-
-    const empresaExistente = empresaConfigRepository.obterPorId(id);
-    if (!empresaExistente) {
+    const empresa = empresaConfigRepository.obterPorId(idNum);
+    if (!empresa) {
       return NextResponse.json(
-        {
-          success: false,
-          error: {
-            message: "Empresa não encontrada",
-          },
-        },
+        { success: false, error: { message: "Empresa não encontrada" } },
         { status: 404 }
       );
     }
-
-    empresaConfigRepository.excluir(id);
-    return NextResponse.json({
-      success: true,
-    });
+    empresaConfigRepository.excluir(idNum);
+    return NextResponse.json({ success: true, data: { id: idNum } });
   } catch (erro) {
     return NextResponse.json(
       {

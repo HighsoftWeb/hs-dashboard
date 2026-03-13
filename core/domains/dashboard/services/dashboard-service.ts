@@ -63,6 +63,21 @@ export class DashboardService {
     );
     return titulos.map((tit) => TituloPagarSchema.parse(tit));
   }
+
+  async obterResumoEstoque(
+    codEmpresa: number,
+    empresaConfig: EmpresaConfig
+  ): Promise<{
+    totalDepositos: number;
+    totalProdutosComEstoque: number;
+    totalItensEstoque: number;
+    somaQuantidade: number;
+  }> {
+    return dashboardRepository.obterResumoEstoque(
+      codEmpresa,
+      empresaConfig
+    );
+  }
 }
 
 export const dashboardService = new DashboardService();

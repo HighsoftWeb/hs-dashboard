@@ -1,13 +1,40 @@
 import { NextRequest, NextResponse } from "next/server";
 import { empresaConfigRepository } from "@/core/repository/empresa-config-repository";
-import { EmpresaConfigInput } from "@/core/entities/EmpresaConfig";
 import { filtrarEmpresaSegura } from "@/core/utils/filtrar-empresa-segura";
-import {
-  validarCnpjCompleto,
-  validarELimparCnpj,
-} from "@/core/utils/cnpj-utils";
-import { CriarEmpresaSchema } from "@/core/schemas/empresa-schemas";
-import { tratarErroAPI } from "@/core/utils/tratar-erro";
+import { EmpresaConfigInput } from "@/core/entities/EmpresaConfig";
+
+const ADMIN_PASSWORD = "hs@010896@hs";
+
+function validarAdmin(request: NextRequest): boolean {
+  const pw = request.headers.get("X-Admin-Password");
+  return !!pw && pw === ADMIN_PASSWORD;
+}
+
+interface EmpresaRequestBody {
+  cnpj?: string;
+  nomeEmpresa?: string;
+  host?: string;
+  porta?: number | string;
+  nomeBase?: string;
+  usuario?: string;
+  senha?: string;
+  codigosUsuariosPermitidos?: string | null;
+  corPrimaria?: string;
+  corSecundaria?: string;
+  corTerciaria?: string;
+}
+
+function validarBodyEmpresa(body: unknown): body is EmpresaRequestBody {
+  return (
+    typeof body === "object" &&
+    body !== null &&
+    "nomeEmpresa" in body &&
+    "host" in body &&
+    "nomeBase" in body &&
+    "usuario" in body &&
+    "senha" in body
+  );
+}
 
 export async function GET(): Promise<NextResponse> {
   try {
@@ -32,89 +59,70 @@ export async function GET(): Promise<NextResponse> {
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  if (!validarAdmin(request)) {
+    return NextResponse.json(
+      { success: false, error: { message: "Não autorizado" } },
+      { status: 401 }
+    );
+  }
   try {
-    const body = await request.json();
-    const validacao = CriarEmpresaSchema.safeParse(body);
-
-    if (!validacao.success) {
+    const body = (await request.json()) as unknown;
+    if (!validarBodyEmpresa(body)) {
       return NextResponse.json(
         {
           success: false,
-          error: {
-            code: "VALIDATION_ERROR",
-            message: validacao.error.issues.map((e) => e.message).join(", "),
-          },
+          error: { message: "Campos obrigatórios não preenchidos" },
         },
         { status: 400 }
       );
     }
-
-    const cnpjLimpo = validarELimparCnpj(validacao.data.cnpj, {
-      validarDigitos: true,
-    });
-
-    if (!cnpjLimpo) {
+    const cnpjLimpo = body.cnpj?.replace(/\D/g, "") || "";
+    if (!cnpjLimpo || cnpjLimpo.length !== 14) {
       return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "VALIDATION_ERROR",
-            message: "CNPJ inválido",
-          },
-        },
+        { success: false, error: { message: "CNPJ inválido" } },
         { status: 400 }
       );
     }
-
-    if (!validarCnpjCompleto(validacao.data.cnpj)) {
+    const porta =
+      typeof body.porta === "string" ? parseInt(body.porta, 10) : body.porta || 1433;
+    if (isNaN(porta) || porta <= 0 || porta > 65535) {
       return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "VALIDATION_ERROR",
-            message: "CNPJ inválido: dígitos verificadores incorretos",
-          },
-        },
+        { success: false, error: { message: "Porta inválida" } },
         { status: 400 }
       );
     }
-
-    const empresa: EmpresaConfigInput = {
-      cnpj: cnpjLimpo,
-      nomeEmpresa: validacao.data.nomeEmpresa,
-      host: validacao.data.host,
-      porta: validacao.data.porta,
-      nomeBase: validacao.data.nomeBase,
-      usuario: validacao.data.usuario,
-      senha: validacao.data.senha,
-      codigosUsuariosPermitidos:
-        validacao.data.codigosUsuariosPermitidos || undefined,
-    };
-
-    const empresaExistente = empresaConfigRepository.obterPorCnpj(empresa.cnpj);
+    const empresaExistente = empresaConfigRepository.obterPorCnpj(cnpjLimpo);
     if (empresaExistente) {
       return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "DUPLICATE_ERROR",
-            message: "CNPJ já cadastrado",
-          },
-        },
+        { success: false, error: { message: "CNPJ já cadastrado" } },
         { status: 400 }
       );
     }
-
+    const empresa: EmpresaConfigInput = {
+      cnpj: cnpjLimpo,
+      nomeEmpresa: body.nomeEmpresa || "",
+      host: body.host || "",
+      porta,
+      nomeBase: body.nomeBase || "",
+      usuario: body.usuario || "",
+      senha: body.senha || "",
+      codigosUsuariosPermitidos: body.codigosUsuariosPermitidos || undefined,
+      corPrimaria: body.corPrimaria || "#094a73",
+      corSecundaria: body.corSecundaria || "#048abf",
+      corTerciaria: body.corTerciaria || "#04b2d9",
+    };
     const novaEmpresa = empresaConfigRepository.criar(empresa);
-    const empresaSegura = filtrarEmpresaSegura(novaEmpresa);
-    return NextResponse.json({
-      success: true,
-      data: empresaSegura,
-    });
+    return NextResponse.json({ success: true, data: novaEmpresa });
   } catch (erro) {
-    return tratarErroAPI(erro, {
-      endpoint: "/api/admin/empresas",
-      method: "POST",
-    });
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          message:
+            erro instanceof Error ? erro.message : "Erro ao criar empresa",
+        },
+      },
+      { status: 500 }
+    );
   }
 }

@@ -414,6 +414,56 @@ export class DashboardRepositoryORM {
       );
     }
   }
+
+  async obterResumoEstoque(
+    codEmpresa: number,
+    empresaConfig: EmpresaConfig
+  ): Promise<{
+    totalDepositos: number;
+    totalProdutosComEstoque: number;
+    totalItensEstoque: number;
+    somaQuantidade: number;
+  }> {
+    try {
+      const query = `
+        SELECT 
+          (SELECT COUNT(*) FROM dbo.DEPOSITOS) as totalDepositos,
+          (SELECT COUNT(DISTINCT COD_PRODUTO) FROM dbo.ESTOQUES WHERE COD_EMPRESA = @codEmpresa) as totalProdutosComEstoque,
+          (SELECT COUNT(*) FROM dbo.ESTOQUES WHERE COD_EMPRESA = @codEmpresa) as totalItensEstoque,
+          (SELECT ISNULL(SUM(QTD_ATUAL), 0) FROM dbo.ESTOQUES WHERE COD_EMPRESA = @codEmpresa) as somaQuantidade
+      `;
+      const resultado = await poolBanco.executarConsulta<{
+        totalDepositos: number;
+        totalProdutosComEstoque: number;
+        totalItensEstoque: number;
+        somaQuantidade: number;
+      }>(query, { codEmpresa }, empresaConfig);
+
+      const r = resultado[0] || {
+        totalDepositos: 0,
+        totalProdutosComEstoque: 0,
+        totalItensEstoque: 0,
+        somaQuantidade: 0,
+      };
+      return {
+        totalDepositos: Number(r.totalDepositos) || 0,
+        totalProdutosComEstoque: Number(r.totalProdutosComEstoque) || 0,
+        totalItensEstoque: Number(r.totalItensEstoque) || 0,
+        somaQuantidade: Number(r.somaQuantidade) || 0,
+      };
+    } catch (erro) {
+      logger.warn("Erro ao obter resumo estoque", {
+        codEmpresa,
+        erro: erro instanceof Error ? erro.message : String(erro),
+      });
+      return {
+        totalDepositos: 0,
+        totalProdutosComEstoque: 0,
+        totalItensEstoque: 0,
+        somaQuantidade: 0,
+      };
+    }
+  }
 }
 
 export const dashboardRepositoryORM = new DashboardRepositoryORM();

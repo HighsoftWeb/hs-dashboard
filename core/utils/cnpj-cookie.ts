@@ -14,6 +14,7 @@ export function salvarCnpjNoCookie(cnpj: string): void {
   Cookies.set(CNPJ_COOKIE_NAME, cnpjLimpo, {
     expires: COOKIE_EXPIRES_DAYS,
     sameSite: "strict",
+    path: "/",
   });
 }
 

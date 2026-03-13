@@ -2,8 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { validarAutenticacao } from "@/core/middleware/auth-middleware";
 import { tratarErroAPI } from "@/core/utils/tratar-erro";
 import { orcamentoRepository } from "@/core/repository/orcamento-repository";
-import { DEFAULT_COD_EMPRESA } from "@/core/db/validar-env";
-import { obterEmpresaConfigDoCookie } from "@/core/utils/obter-empresa-cookie";
+import {
+  obterEmpresaConfigDoCookie,
+  obterCodEmpresaDoCookie,
+} from "@/core/utils/obter-empresa-cookie";
+import {
+  criarRespostaErro,
+  criarRespostaSucesso,
+} from "@/core/utils/resposta-api";
 
 export async function GET(
   request: NextRequest,
@@ -18,8 +24,9 @@ export async function GET(
   }
 ): Promise<NextResponse> {
   try {
-    const usuario = validarAutenticacao(request);
+    validarAutenticacao(request);
     const empresaConfig = obterEmpresaConfigDoCookie(request);
+    const codEmpresaCookie = obterCodEmpresaDoCookie(request);
     const {
       codEmpresa: codEmpresaParam,
       indOrcamentoOS,
@@ -27,20 +34,17 @@ export async function GET(
     } = await params;
 
     const codEmpresa =
-      usuario.codEmpresa ||
-      Number.parseInt(codEmpresaParam, 10) ||
-      DEFAULT_COD_EMPRESA;
+      codEmpresaCookie ??
+      (codEmpresaParam ? Number.parseInt(codEmpresaParam, 10) : null);
     const numOrcamentoOSNum = Number.parseInt(numOrcamentoOS, 10);
 
-    if (isNaN(codEmpresa) || isNaN(numOrcamentoOSNum)) {
+    if (!codEmpresa || isNaN(codEmpresa) || isNaN(numOrcamentoOSNum)) {
+      const mensagem =
+        !codEmpresa || isNaN(codEmpresa)
+          ? "Selecione uma empresa no header para continuar"
+          : "Parâmetros inválidos";
       return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "VALIDATION_ERROR",
-            message: "Parâmetros inválidos",
-          },
-        },
+        criarRespostaErro(mensagem, "VALIDATION_ERROR"),
         { status: 400 }
       );
     }
@@ -66,15 +70,14 @@ export async function GET(
       ),
     ]);
 
-    return NextResponse.json({
-      success: true,
-      data: {
+    return NextResponse.json(
+      criarRespostaSucesso({
         orcamento: orcamentoCompleto.orcamento,
         itens: orcamentoCompleto.itens,
         apontamentos,
         trocas,
-      },
-    });
+      })
+    );
   } catch (erro) {
     return tratarErroAPI(erro, {
       endpoint:

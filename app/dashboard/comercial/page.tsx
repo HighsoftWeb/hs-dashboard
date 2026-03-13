@@ -1,180 +1,140 @@
 "use client";
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
-import { LayoutDashboard } from "@/core/layouts/layout-dashboard";
-import {
-  DataTable,
-  ColunaDataTable,
-  FiltroDataTable,
-} from "@/core/componentes/data-table/data-table";
-import { formatarData } from "@/core/utils/formatar-data";
+import React, { useState, useEffect, useCallback } from "react";
+import { FileText, TrendingUp } from "lucide-react";
+import { CardKpi } from "@/core/componentes/dashboard/card-kpi";
+import { CardGrafico } from "@/core/componentes/dashboard/card-grafico";
+import { PaginaBI } from "@/core/componentes/dashboard/pagina-bi";
 import { formatarMoeda } from "@/core/utils/formatar-moeda";
-import { obterStatus, obterCorStatus } from "@/core/utils/status-utils";
+import { servicoDashboard } from "@/core/domains/dashboard/services/dashboard-client";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts";
+import { obterCoresGraficos } from "@/core/constants/cores-graficos";
+import { useEmpresa } from "@/core/context/empresa-context";
+import { obterIntervaloPadrao } from "@/core/componentes/dashboard/filtro-periodo";
 
-interface OrcamentoOSDB extends Record<string, unknown> {
-  COD_EMPRESA: number;
-  IND_ORCAMENTO_OS: string;
-  NUM_ORCAMENTO_OS: number;
-  COD_CLI_FOR: number;
-  COD_SERIE_ORC_OS: string;
-  NUM_DOCUMENTO: string | null;
-  DAT_EMISSAO: Date | null;
-  VLR_LIQUIDO: number | null;
-  SIT_ORCAMENTO_OS: string | null;
-  RAZ_CLI_FOR: string | null;
-}
+const CORES_FUNIL = ["#094a73", "#048abf", "#04b2d9", "#10b981", "#6366f1", "#a855f7"];
 
 export default function PaginaComercial(): React.JSX.Element {
-  const router = useRouter();
-  const [abaAtiva, setAbaAtiva] = useState<"orcamentos">("orcamentos");
+  const { cores } = useEmpresa();
+  const coresGraficos = obterCoresGraficos(cores);
+  const padrao = obterIntervaloPadrao();
+  const [analytics, setAnalytics] = useState<{
+    funilVendas?: { status: string; quantidade: number; valor: number }[];
+    topClientes?: { razaoSocial: string; valorTotal: number; quantidade: number }[];
+  } | null>(null);
+  const [dataInicio, setDataInicio] = useState(padrao.dataInicio);
+  const [dataFim, setDataFim] = useState(padrao.dataFim);
+  const [carregando, setCarregando] = useState(true);
 
-  const handleRowClick = (registro: OrcamentoOSDB): void => {
-    router.push(
-      `/dashboard/comercial/orcamentos/${registro.COD_EMPRESA}/${registro.IND_ORCAMENTO_OS}/${registro.NUM_ORCAMENTO_OS}`
+  const carregar = useCallback(async () => {
+    try {
+      setCarregando(true);
+      const resp = await servicoDashboard.obterAnalytics({ dataInicio, dataFim, tipo: "geral" });
+      setAnalytics(resp as typeof analytics);
+    } finally {
+      setCarregando(false);
+    }
+  }, [dataInicio, dataFim]);
+
+  useEffect(() => {
+    carregar();
+  }, [carregar]);
+
+  const funil = analytics?.funilVendas ?? [];
+  const topClientes = analytics?.topClientes ?? [];
+  const totalFunil = funil.reduce((s, f) => s + f.valor, 0);
+  const totalDocs = funil.reduce((s, f) => s + f.quantidade, 0);
+
+  if (carregando) {
+    return (
+      <PaginaBI
+        titulo="Comercial"
+        dataInicio={dataInicio}
+        dataFim={dataFim}
+        onPeriodoChange={(i, f) => {
+          setDataInicio(i);
+          setDataFim(f);
+        }}
+      >
+        <div className="space-y-6 animate-pulse">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-24 rounded-xl bg-slate-200" />
+            ))}
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="h-64 rounded-xl bg-slate-200" />
+            <div className="lg:col-span-2 h-64 rounded-xl bg-slate-200" />
+          </div>
+        </div>
+      </PaginaBI>
     );
-  };
-
-  const colunasOrcamentos: ColunaDataTable<OrcamentoOSDB>[] = [
-    {
-      chave: "DAT_EMISSAO",
-      titulo: "Data Emissão",
-      ordenavel: true,
-      alinhamento: "esquerda",
-      renderizar: (valor) =>
-        formatarData(valor as Date | string | null | undefined),
-    },
-    {
-      chave: "IND_ORCAMENTO_OS",
-      titulo: "Tipo",
-      ordenavel: true,
-      alinhamento: "esquerda",
-      renderizar: (valor) => {
-        const ind = String(valor || "");
-        return ind === "OR"
-          ? "Orçamento"
-          : ind === "OS"
-            ? "Ordem de Serviço"
-            : ind;
-      },
-    },
-    {
-      chave: "NUM_ORCAMENTO_OS",
-      titulo: "Nº Orçamento",
-      ordenavel: true,
-      alinhamento: "direita",
-    },
-    {
-      chave: "NUM_DOCUMENTO",
-      titulo: "Nº Documento",
-      ordenavel: true,
-      alinhamento: "esquerda",
-    },
-    {
-      chave: "COD_SERIE_ORC_OS",
-      titulo: "Série",
-      ordenavel: true,
-      alinhamento: "esquerda",
-    },
-    {
-      chave: "COD_CLI_FOR",
-      titulo: "Cód. Cliente",
-      ordenavel: true,
-      alinhamento: "direita",
-    },
-    {
-      chave: "RAZ_CLI_FOR",
-      titulo: "Cliente",
-      ordenavel: true,
-      alinhamento: "esquerda",
-    },
-    {
-      chave: "VLR_LIQUIDO",
-      titulo: "Valor Líquido",
-      ordenavel: true,
-      alinhamento: "direita",
-      renderizar: (valor) => formatarMoeda(Number(valor || 0)),
-    },
-    {
-      chave: "SIT_ORCAMENTO_OS",
-      titulo: "Status",
-      ordenavel: true,
-      renderizar: (valor) => {
-        const sit = String(valor || "");
-        return (
-          <span
-            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${obterCorStatus(sit)}`}
-          >
-            {obterStatus(sit)}
-          </span>
-        );
-      },
-    },
-  ];
-
-  const filtrosOrcamentos: FiltroDataTable[] = [
-    {
-      chave: "ind",
-      tipo: "select",
-      rotulo: "Tipo",
-      opcoes: [
-        { valor: "OR", label: "Orçamento" },
-        { valor: "OS", label: "Ordem de Serviço" },
-      ],
-    },
-    {
-      chave: "sit",
-      tipo: "select",
-      rotulo: "Status",
-      opcoes: [
-        { valor: "AB", label: "Aberto Total" },
-        { valor: "AP", label: "Aprovado" },
-        { valor: "PR", label: "Processado" },
-        { valor: "CA", label: "Cancelado" },
-        { valor: "RO", label: "Romaneio" },
-        { valor: "AA", label: "Aguardando Aprovação" },
-        { valor: "FP", label: "Faturado Parcial" },
-        { valor: "OP", label: "Ordem de Produção" },
-      ],
-    },
-  ];
+  }
 
   return (
-    <LayoutDashboard>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Comercial</h1>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-          <div className="border-b border-gray-200">
-            <nav className="flex -mb-px">
-              <button
-                onClick={() => setAbaAtiva("orcamentos")}
-                className={`py-4 px-6 text-sm font-medium border-b-2 ${
-                  abaAtiva === "orcamentos"
-                    ? "border-[#094A73] text-[#094A73]"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                }`}
-              >
-                Orçamentos/OS
-              </button>
-            </nav>
-          </div>
-
-          <div className="p-6">
-            {abaAtiva === "orcamentos" && (
-              <DataTable<OrcamentoOSDB>
-                colunas={colunasOrcamentos}
-                endpoint="/dashboard/comercial/orcamentos"
-                filtros={filtrosOrcamentos}
-                ordenacaoPadrao={{ campo: "DAT_EMISSAO", ordem: "desc" }}
-                onRowClick={handleRowClick}
-              />
-            )}
-          </div>
-        </div>
+    <PaginaBI
+      titulo="Comercial"
+      dataInicio={dataInicio}
+      dataFim={dataFim}
+      onPeriodoChange={(i, f) => {
+        setDataInicio(i);
+        setDataFim(f);
+      }}
+    >
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <CardKpi titulo="Documentos" valor={totalDocs} icone={<FileText className="w-5 h-5" />} />
+        <CardKpi titulo="Valor Total" valor={formatarMoeda(totalFunil)} icone={<TrendingUp className="w-5 h-5" />} variante="destaque" />
       </div>
-    </LayoutDashboard>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {funil.length > 0 && (
+          <CardGrafico titulo="Funil por Status">
+            <ResponsiveContainer width="100%" height={220}>
+              <PieChart>
+                <Pie data={funil} dataKey="quantidade" nameKey="status" cx="50%" cy="50%" outerRadius={80} label={(e: { name?: string; value?: number }) => `${e.name ?? ""}: ${e.value ?? 0}`}>
+                  {funil.map((_, i) => (
+                    <Cell key={i} fill={CORES_FUNIL[i % CORES_FUNIL.length]} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(v, name) => [`${v} docs · ${formatarMoeda(funil.find((f) => f.status === name)?.valor ?? 0)}`, String(name ?? "")]} />
+              </PieChart>
+            </ResponsiveContainer>
+          </CardGrafico>
+        )}
+        {topClientes.length > 0 && (
+          <div className={funil.length > 0 ? "lg:col-span-2" : "lg:col-span-3"}>
+            <CardGrafico titulo="Top Clientes por Valor">
+              <ResponsiveContainer width="100%" height={220}>
+                <BarChart data={topClientes.slice(0, 8)} layout="vertical" margin={{ top: 5, right: 50, left: 0, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                  <XAxis type="number" tick={{ fontSize: 9 }} tickFormatter={(v) => formatarMoeda(v).replace(/\s/g, "").slice(0, 8)} />
+                  <YAxis type="category" dataKey="razaoSocial" width={120} tick={{ fontSize: 9 }} tickFormatter={(v) => (v?.length > 18 ? v.slice(0, 17) + "…" : v)} />
+                  <Tooltip formatter={(v) => formatarMoeda(Number(v ?? 0))} />
+                  <Bar dataKey="valorTotal" fill={coresGraficos.primario} radius={[0, 4, 4, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardGrafico>
+          </div>
+        )}
+      </div>
+
+      {funil.length === 0 && topClientes.length === 0 && (
+        <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-12 text-center">
+          <FileText className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+          <p className="text-sm text-slate-500">Sem dados comerciais no período</p>
+        </div>
+      )}
+    </PaginaBI>
   );
 }

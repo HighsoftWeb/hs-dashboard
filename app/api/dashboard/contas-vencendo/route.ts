@@ -3,7 +3,10 @@ import { validarAutenticacao } from "@/core/middleware/auth-middleware";
 import { dashboardService } from "@/core/domains/dashboard/services/dashboard-service";
 import { logger } from "@/core/utils/logger";
 import { DASHBOARD_PADRAO } from "@/core/constants/paginacao";
-import { obterEmpresaConfigDoCookie } from "@/core/utils/obter-empresa-cookie";
+import {
+  obterEmpresaConfigDoCookie,
+  obterCodEmpresaDoCookie,
+} from "@/core/utils/obter-empresa-cookie";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
@@ -15,14 +18,16 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       : DASHBOARD_PADRAO.DIAS_VENCIMENTO;
     const dias = Math.min(Math.max(diasRaw, 1), 365);
 
+    const codEmpresa =
+      obterCodEmpresaDoCookie(request) ?? payload.codEmpresa;
     const [titulosReceber, titulosPagar] = await Promise.all([
       dashboardService.listarTitulosReceberVencendo(
-        payload.codEmpresa,
+        codEmpresa,
         dias,
         empresaConfig
       ),
       dashboardService.listarTitulosPagarVencendo(
-        payload.codEmpresa,
+        codEmpresa,
         dias,
         empresaConfig
       ),

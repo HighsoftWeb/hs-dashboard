@@ -178,6 +178,10 @@ class ClienteHttp {
     return resposta.data;
   }
 
+  /**
+   * POST mantido apenas para autenticação (login, refresh).
+   * Projeto é somente leitura (Power BI style) - use apenas GET para dados.
+   */
   async post<T>(
     url: string,
     dados?:
@@ -193,27 +197,18 @@ class ClienteHttp {
     return resposta.data;
   }
 
-  async put<T>(
-    url: string,
-    dados?:
-      | Record<string, string | number | boolean | null>
-      | Array<string | number | boolean | null>,
-    config?: AxiosRequestConfig
-  ): Promise<RespostaApi<T>> {
-    const resposta = await this.instancia.put<RespostaApi<T>>(
-      url,
-      dados,
-      config
+  /** Stub para compatibilidade - projeto é somente leitura (Power BI style). */
+  async put<T>(): Promise<RespostaApi<T>> {
+    return Promise.reject(
+      new Error("Operação não permitida. Projeto é somente leitura (Power BI style).")
     );
-    return resposta.data;
   }
 
-  async delete<T>(
-    url: string,
-    config?: AxiosRequestConfig
-  ): Promise<RespostaApi<T>> {
-    const resposta = await this.instancia.delete<RespostaApi<T>>(url, config);
-    return resposta.data;
+  /** Stub para compatibilidade - projeto é somente leitura (Power BI style). */
+  async delete<T>(): Promise<RespostaApi<T>> {
+    return Promise.reject(
+      new Error("Operação não permitida. Projeto é somente leitura (Power BI style).")
+    );
   }
 }
 

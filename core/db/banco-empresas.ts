@@ -41,12 +41,21 @@ function inicializarTabela(): void {
   const colunas = db.prepare("PRAGMA table_info(empresas)").all() as Array<{
     name: string;
   }>;
-  const temNomeEmpresa = colunas.some((col) => col.name === "nome_empresa");
+  const nomesColunas = colunas.map((c) => c.name);
 
-  if (!temNomeEmpresa) {
+  if (!nomesColunas.includes("nome_empresa")) {
     db.exec(
       "ALTER TABLE empresas ADD COLUMN nome_empresa TEXT NOT NULL DEFAULT ''"
     );
+  }
+  if (!nomesColunas.includes("cor_primaria")) {
+    db.exec("ALTER TABLE empresas ADD COLUMN cor_primaria TEXT DEFAULT '#094a73'");
+  }
+  if (!nomesColunas.includes("cor_secundaria")) {
+    db.exec("ALTER TABLE empresas ADD COLUMN cor_secundaria TEXT DEFAULT '#048abf'");
+  }
+  if (!nomesColunas.includes("cor_terciaria")) {
+    db.exec("ALTER TABLE empresas ADD COLUMN cor_terciaria TEXT DEFAULT '#04b2d9'");
   }
 }
 

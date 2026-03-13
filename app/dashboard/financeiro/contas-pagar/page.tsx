@@ -2,7 +2,6 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import { LayoutDashboard } from "@/core/layouts/layout-dashboard";
 import {
   DataTable,
   ColunaDataTable,
@@ -125,29 +124,27 @@ export default function PaginaContasPagar(): React.JSX.Element {
   ];
 
   return (
-    <LayoutDashboard>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Contas a Pagar</h1>
-        </div>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">Contas a Pagar</h1>
+      </div>
 
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-          <div className="p-6">
-            <DataTable<TituloPagarDB>
-              colunas={colunasTitulosPagar}
-              endpoint="/dashboard/financeiro/titulos-pagar"
-              filtros={filtrosTitulos}
-              ordenacaoPadrao={{ campo: "VCT_ORIGINAL", ordem: "asc" }}
-              colunasTotalizar={["VLR_ORIGINAL", "VLR_ABERTO"]}
-              onRowClick={(titulo) => {
-                router.push(
-                  `/dashboard/financeiro/titulos-pagar/${titulo.COD_EMPRESA}/${titulo.NUM_INTERNO}/${titulo.NUM_PARCELA}`
-                );
-              }}
-            />
-          </div>
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div className="p-6">
+          <DataTable<TituloPagarDB>
+            colunas={colunasTitulosPagar}
+            endpoint="/dashboard/financeiro/titulos-pagar"
+            filtros={filtrosTitulos}
+            ordenacaoPadrao={{ campo: "VCT_ORIGINAL", ordem: "asc" }}
+            colunasTotalizar={["VLR_ORIGINAL", "VLR_ABERTO"]}
+            onRowClick={(titulo) => {
+              router.push(
+                `/dashboard/financeiro/titulos-pagar/${titulo.COD_EMPRESA}/${titulo.NUM_INTERNO}/${titulo.NUM_PARCELA}`
+              );
+            }}
+          />
         </div>
       </div>
-    </LayoutDashboard>
+    </div>
   );
 }

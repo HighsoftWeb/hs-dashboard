@@ -5,19 +5,17 @@ import Image from "next/image";
 import { EmpresaConfig } from "@/core/entities/EmpresaConfig";
 import { Botao } from "@/core/componentes/botao/botao";
 import { clienteHttp } from "@/core/http/cliente-http";
-import { validarELimparCnpj } from "@/core/utils/cnpj-utils";
 import { logger } from "@/core/utils/logger";
 import {
-  Check,
-  Upload,
   Building2,
   Lock,
-  Edit,
-  Trash2,
-  Plus,
   LogOut,
   Shield,
-  X,
+  Plus,
+  Pencil,
+  Trash2,
+  FileJson,
+  FileCode,
 } from "lucide-react";
 
 const ADMIN_PASSWORD = "hs@010896@hs";
@@ -32,23 +30,34 @@ function decryptCfg(value: string): string {
   return result.replace(/[\'\n\r\u0004\u00a0\u001a]/g, "");
 }
 
+const headersAdmin = () => ({
+  "Content-Type": "application/json",
+  "X-Admin-Password": ADMIN_PASSWORD,
+});
+
+function formatarCnpj(cnpj: string): string {
+  const n = cnpj.replace(/\D/g, "");
+  return n.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, "$1.$2.$3/$4-$5");
+}
+
+const CORES_PADRAO = {
+  primaria: "#094A73",
+  secundaria: "#048ABF",
+  terciaria: "#04B2D9",
+};
+
+/**
+ * Página admin - gerenciamento de empresas (criar, editar, excluir, importar, cores).
+ */
 export default function PaginaAdmin(): React.JSX.Element {
   const [autenticado, setAutenticado] = useState(false);
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState("");
   const [empresas, setEmpresas] = useState<EmpresaConfig[]>([]);
-  const [mostrarModal, setMostrarModal] = useState(false);
-  const [mostrarModalExcluir, setMostrarModalExcluir] = useState(false);
-  const [empresaExcluir, setEmpresaExcluir] = useState<EmpresaConfig | null>(
-    null
-  );
-  const [senhaExcluir, setSenhaExcluir] = useState("");
+  const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [empresaEditando, setEmpresaEditando] = useState<EmpresaConfig | null>(
     null
   );
-  const [senhaEditando, setSenhaEditando] = useState(false);
-  const [senhaImportada, setSenhaImportada] = useState<string>("");
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formulario, setFormulario] = useState({
     cnpj: "",
     nomeEmpresa: "",
@@ -58,7 +67,13 @@ export default function PaginaAdmin(): React.JSX.Element {
     usuario: "",
     senha: "",
     codigosUsuariosPermitidos: "",
+    corPrimaria: CORES_PADRAO.primaria,
+    corSecundaria: CORES_PADRAO.secundaria,
+    corTerciaria: CORES_PADRAO.terciaria,
   });
+  const [senhaImportada, setSenhaImportada] = useState<string>("");
+  const inputArquivoRef = useRef<HTMLInputElement>(null);
+  const inputCfgRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (autenticado) {
@@ -70,17 +85,13 @@ export default function PaginaAdmin(): React.JSX.Element {
     try {
       const resposta = await clienteHttp.get<EmpresaConfig[]>(
         "/admin/empresas/completo",
-        {
-          headers: {
-            "X-Admin-Password": ADMIN_PASSWORD,
-          },
-        }
+        { headers: { "X-Admin-Password": ADMIN_PASSWORD } }
       );
       if (resposta.success && resposta.data) {
         setEmpresas(resposta.data);
       }
-    } catch (erro) {
-      logger.error("Erro ao carregar empresas", erro, {
+    } catch (err) {
+      logger.error("Erro ao carregar empresas", err, {
         endpoint: "/admin",
         method: "carregarEmpresas",
       });
@@ -97,12 +108,31 @@ export default function PaginaAdmin(): React.JSX.Element {
     }
   };
 
+  const resetFormulario = () => {
+    setFormulario({
+      cnpj: "",
+      nomeEmpresa: "",
+      host: "",
+      porta: 1433,
+      nomeBase: "",
+      usuario: "",
+      senha: "",
+      codigosUsuariosPermitidos: "",
+      corPrimaria: CORES_PADRAO.primaria,
+      corSecundaria: CORES_PADRAO.secundaria,
+      corTerciaria: CORES_PADRAO.terciaria,
+    });
+    setSenhaImportada("");
+    setEmpresaEditando(null);
+  };
+
   const handleImportarCfg = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     if (file.name.split(".").pop()?.toLowerCase() !== "cfg") {
       setErro("Apenas arquivos .cfg são permitidos.");
+      e.target.value = "";
       return;
     }
 
@@ -130,15 +160,16 @@ export default function PaginaAdmin(): React.JSX.Element {
         }
 
         setSenhaImportada(senhaDecodificada);
-        setFormulario({
-          ...formulario,
+        setFormulario((prev) => ({
+          ...prev,
           host,
           usuario,
           nomeBase,
           senha: "",
-        });
-
-        setMostrarModal(true);
+          porta: prev.porta || 1433,
+        }));
+        setEmpresaEditando(null);
+        setMostrarFormulario(true);
         setErro("");
       } catch (erroProcessamento) {
         setErro(
@@ -154,32 +185,51 @@ export default function PaginaAdmin(): React.JSX.Element {
     };
 
     reader.readAsText(file);
+    e.target.value = "";
+  };
 
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErro("");
+    try {
+      const url = empresaEditando
+        ? `/api/admin/empresas/${empresaEditando.id}`
+        : "/api/admin/empresas";
+      const metodo = empresaEditando ? "PUT" : "POST";
+      const senhaFinal = senhaImportada || formulario.senha;
+      const body = {
+        cnpj: formulario.cnpj.replace(/\D/g, ""),
+        nomeEmpresa: formulario.nomeEmpresa,
+        host: formulario.host,
+        porta: formulario.porta,
+        nomeBase: formulario.nomeBase,
+        usuario: formulario.usuario,
+        senha: senhaFinal,
+        codigosUsuariosPermitidos: formulario.codigosUsuariosPermitidos || null,
+        corPrimaria: formulario.corPrimaria || CORES_PADRAO.primaria,
+        corSecundaria: formulario.corSecundaria || CORES_PADRAO.secundaria,
+        corTerciaria: formulario.corTerciaria || CORES_PADRAO.terciaria,
+      };
+      const res = await fetch(url, {
+        method: metodo,
+        headers: headersAdmin(),
+        body: JSON.stringify(body),
+      });
+      const dados = await res.json();
+      if (!res.ok) {
+        throw new Error(dados.error?.message || "Erro ao salvar empresa");
+      }
+      setMostrarFormulario(false);
+      resetFormulario();
+      setSenhaImportada("");
+      carregarEmpresas();
+    } catch (err) {
+      setErro(err instanceof Error ? err.message : "Erro ao salvar empresa");
     }
   };
 
-  const abrirModalNova = () => {
-    setEmpresaEditando(null);
-    setSenhaEditando(false);
-    setSenhaImportada("");
-    setFormulario({
-      cnpj: "",
-      nomeEmpresa: "",
-      host: "",
-      porta: 1433,
-      nomeBase: "",
-      usuario: "",
-      senha: "",
-      codigosUsuariosPermitidos: "",
-    });
-    setMostrarModal(true);
-  };
-
-  const abrirModalEditar = (empresa: EmpresaConfig) => {
+  const handleEditar = (empresa: EmpresaConfig) => {
     setEmpresaEditando(empresa);
-    setSenhaEditando(false);
     setSenhaImportada("");
     setFormulario({
       cnpj: empresa.cnpj,
@@ -188,107 +238,126 @@ export default function PaginaAdmin(): React.JSX.Element {
       porta: empresa.porta,
       nomeBase: empresa.nomeBase,
       usuario: empresa.usuario,
-      senha: "",
+      senha: empresa.senha,
       codigosUsuariosPermitidos: empresa.codigosUsuariosPermitidos || "",
+      corPrimaria: empresa.corPrimaria || CORES_PADRAO.primaria,
+      corSecundaria: empresa.corSecundaria || CORES_PADRAO.secundaria,
+      corTerciaria: empresa.corTerciaria || CORES_PADRAO.terciaria,
     });
-    setMostrarModal(true);
+    setMostrarFormulario(true);
   };
 
-  const fecharModal = () => {
-    setMostrarModal(false);
-    setEmpresaEditando(null);
-    setSenhaEditando(false);
-    setSenhaImportada("");
+  const handleExcluir = async (id: number) => {
+    if (!confirm("Tem certeza que deseja excluir esta empresa?")) return;
     setErro("");
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErro("");
-
     try {
-      const cnpjLimpo = validarELimparCnpj(formulario.cnpj);
-      if (!cnpjLimpo) {
-        throw new Error("CNPJ inválido");
+      const res = await fetch(`/api/admin/empresas/${id}`, {
+        method: "DELETE",
+        headers: headersAdmin(),
+      });
+      const dados = await res.json();
+      if (!res.ok) {
+        throw new Error(dados.error?.message || "Erro ao excluir empresa");
       }
-
-      const senhaFinal = senhaImportada || formulario.senha;
-
-      const dadosEmpresa = {
-        cnpj: cnpjLimpo,
-        nomeEmpresa: formulario.nomeEmpresa,
-        host: formulario.host,
-        porta: formulario.porta,
-        nomeBase: formulario.nomeBase,
-        usuario: formulario.usuario,
-        senha: senhaFinal,
-        codigosUsuariosPermitidos: formulario.codigosUsuariosPermitidos || null,
-      };
-
-      const resposta = empresaEditando
-        ? await clienteHttp.put<EmpresaConfig>(
-            `/admin/empresas/${empresaEditando.id}`,
-            dadosEmpresa
-          )
-        : await clienteHttp.post<EmpresaConfig>(
-            "/admin/empresas",
-            dadosEmpresa
-          );
-
-      if (!resposta.success || !resposta.data) {
-        throw new Error(resposta.error?.message || "Erro ao salvar empresa");
-      }
-
-      fecharModal();
       carregarEmpresas();
-    } catch (erro) {
-      setErro(erro instanceof Error ? erro.message : "Erro ao salvar empresa");
+    } catch (err) {
+      setErro(err instanceof Error ? err.message : "Erro ao excluir empresa");
     }
   };
 
-  const abrirModalExcluir = (empresa: EmpresaConfig) => {
-    setEmpresaExcluir(empresa);
-    setSenhaExcluir("");
-    setMostrarModalExcluir(true);
-  };
-
-  const fecharModalExcluir = () => {
-    setMostrarModalExcluir(false);
-    setEmpresaExcluir(null);
-    setSenhaExcluir("");
-  };
-
-  const handleExcluir = async () => {
-    if (!empresaExcluir) return;
-
-    if (senhaExcluir !== ADMIN_PASSWORD) {
-      setErro("Senha incorreta");
-      return;
-    }
-
+  const handleImportar = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setErro("");
     try {
-      const resposta = await clienteHttp.delete(
-        `/admin/empresas/${empresaExcluir.id}`
+      const texto = await file.text();
+      const json = JSON.parse(texto) as unknown;
+      const lista = Array.isArray(json) ? json : [json];
+      let sucesso = 0;
+      let falhas: string[] = [];
+      for (const item of lista) {
+        const emp = item as Record<string, unknown>;
+        const cnpj = String(emp.cnpj ?? "").replace(/\D/g, "");
+        if (cnpj.length !== 14) {
+          falhas.push(`${emp.nomeEmpresa ?? "?"}: CNPJ inválido`);
+          continue;
+        }
+        const body = {
+          cnpj,
+          nomeEmpresa: String(emp.nomeEmpresa ?? ""),
+          host: String(emp.host ?? ""),
+          porta: Number(emp.porta ?? 1433),
+          nomeBase: String(emp.nomeBase ?? ""),
+          usuario: String(emp.usuario ?? ""),
+          senha: String(emp.senha ?? ""),
+          codigosUsuariosPermitidos: emp.codigosUsuariosPermitidos
+            ? String(emp.codigosUsuariosPermitidos)
+            : null,
+          corPrimaria: emp.corPrimaria
+            ? String(emp.corPrimaria)
+            : CORES_PADRAO.primaria,
+          corSecundaria: emp.corSecundaria
+            ? String(emp.corSecundaria)
+            : CORES_PADRAO.secundaria,
+          corTerciaria: emp.corTerciaria
+            ? String(emp.corTerciaria)
+            : CORES_PADRAO.terciaria,
+        };
+        const res = await fetch("/api/admin/empresas", {
+          method: "POST",
+          headers: headersAdmin(),
+          body: JSON.stringify(body),
+        });
+        if (res.ok) {
+          sucesso++;
+        } else {
+          const d = await res.json();
+          falhas.push(`${body.nomeEmpresa}: ${d.error?.message ?? "Erro"}`);
+        }
+      }
+      if (sucesso > 0) carregarEmpresas();
+      if (falhas.length > 0) {
+        setErro(
+          `Importados: ${sucesso}. Falhas: ${falhas.slice(0, 5).join("; ")}${falhas.length > 5 ? "..." : ""}`
+        );
+      }
+    } catch (err) {
+      setErro(
+        err instanceof Error
+          ? err.message
+          : "Erro ao importar. Verifique o formato JSON."
       );
-
-      if (!resposta.success) {
-        throw new Error(resposta.error?.message || "Erro ao excluir empresa");
-      }
-
-      fecharModalExcluir();
-      carregarEmpresas();
-    } catch (erro) {
-      setErro(erro instanceof Error ? erro.message : "Erro ao excluir empresa");
     }
+    e.target.value = "";
   };
 
-  const formatarCnpj = (cnpj: string) => {
-    const apenasNumeros = cnpj.replace(/\D/g, "");
-    return apenasNumeros.replace(
-      /^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/,
-      "$1.$2.$3/$4-$5"
-    );
+  const handleExportar = () => {
+    const dados = empresas.map((e) => ({
+      cnpj: e.cnpj,
+      nomeEmpresa: e.nomeEmpresa,
+      host: e.host,
+      porta: e.porta,
+      nomeBase: e.nomeBase,
+      usuario: e.usuario,
+      senha: e.senha,
+      codigosUsuariosPermitidos: e.codigosUsuariosPermitidos,
+      corPrimaria: e.corPrimaria,
+      corSecundaria: e.corSecundaria,
+      corTerciaria: e.corTerciaria,
+    }));
+    const blob = new Blob([JSON.stringify(dados, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "empresas-config.json";
+    a.click();
+    URL.revokeObjectURL(url);
   };
+
+  const inputClasse =
+    "w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#094A73] focus:border-[#094A73]";
 
   if (!autenticado) {
     return (
@@ -303,16 +372,14 @@ export default function PaginaAdmin(): React.JSX.Element {
           <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-2xl p-8 space-y-6">
             <div className="text-center space-y-4">
               <div className="flex justify-center">
-                <div className="relative">
-                  <Image
-                    src="/logo.png"
-                    alt="HighSoft Sistemas"
-                    width={200}
-                    height={64}
-                    className="h-16 w-auto object-contain"
-                    unoptimized
-                  />
-                </div>
+                <Image
+                  src="/logo.png"
+                  alt="HighSoft Sistemas"
+                  width={200}
+                  height={64}
+                  className="h-16 w-auto object-contain"
+                  unoptimized
+                />
               </div>
               <div className="flex items-center justify-center gap-2">
                 <Shield className="w-5 h-5 text-[#094A73]" />
@@ -368,34 +435,58 @@ export default function PaginaAdmin(): React.JSX.Element {
                 Gerenciamento de Empresas
               </h1>
               <p className="text-sm text-gray-600 mt-1">
-                Configure e gerencie as empresas do sistema
+                Criar, editar, excluir e configurar cores por cliente
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".cfg"
-                onChange={handleImportarCfg}
-                className="hidden"
-                id="file-cfg-input"
-              />
               <Botao
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                variante="primario"
-                className="inline-flex items-center gap-2"
-              >
-                <Upload className="w-4 h-4" />
-                Importar CFG
-              </Botao>
-              <Botao
-                onClick={abrirModalNova}
+                onClick={() => {
+                  resetFormulario();
+                  setMostrarFormulario(!mostrarFormulario);
+                }}
                 variante="primario"
                 className="inline-flex items-center gap-2"
               >
                 <Plus className="w-4 h-4" />
-                Nova Empresa
+                {mostrarFormulario ? "Cancelar" : "Nova Empresa"}
+              </Botao>
+              <input
+                ref={inputArquivoRef}
+                type="file"
+                accept=".json,application/json"
+                className="hidden"
+                onChange={handleImportar}
+              />
+              <input
+                ref={inputCfgRef}
+                type="file"
+                accept=".cfg"
+                className="hidden"
+                onChange={handleImportarCfg}
+              />
+              <Botao
+                onClick={() => inputArquivoRef.current?.click()}
+                variante="secundario"
+                className="inline-flex items-center gap-2"
+              >
+                <FileJson className="w-4 h-4" />
+                Importar JSON
+              </Botao>
+              <Botao
+                onClick={() => inputCfgRef.current?.click()}
+                variante="secundario"
+                className="inline-flex items-center gap-2"
+              >
+                <FileCode className="w-4 h-4" />
+                Importar CFG
+              </Botao>
+              <Botao
+                onClick={handleExportar}
+                variante="secundario"
+                className="inline-flex items-center gap-2"
+              >
+                <FileJson className="w-4 h-4" />
+                Exportar JSON
               </Botao>
               <Botao
                 onClick={() => setAutenticado(false)}
@@ -414,12 +505,273 @@ export default function PaginaAdmin(): React.JSX.Element {
             </div>
           )}
 
-          <div className="mt-4 overflow-x-auto">
+          {mostrarFormulario && (
+            <div className="mt-6 p-6 bg-slate-50 rounded-xl border border-slate-200">
+              <h2 className="text-lg font-bold text-gray-800 mb-4">
+                {empresaEditando ? "Editar Empresa" : "Nova Empresa"}
+              </h2>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Nome da Empresa *
+                    </label>
+                    <input
+                      type="text"
+                      value={formulario.nomeEmpresa}
+                      onChange={(e) =>
+                        setFormulario({
+                          ...formulario,
+                          nomeEmpresa: e.target.value,
+                        })
+                      }
+                      placeholder="Nome da empresa"
+                      className={inputClasse}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      CNPJ *
+                    </label>
+                    <input
+                      type="text"
+                      value={formulario.cnpj}
+                      onChange={(e) => {
+                        const v = e.target.value
+                          .replace(/\D/g, "")
+                          .slice(0, 14);
+                        setFormulario({ ...formulario, cnpj: v });
+                      }}
+                      placeholder="00.000.000/0000-00"
+                      className={inputClasse}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Host *
+                    </label>
+                    <input
+                      type="text"
+                      value={formulario.host}
+                      onChange={(e) =>
+                        setFormulario({ ...formulario, host: e.target.value })
+                      }
+                      className={inputClasse}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Porta *
+                    </label>
+                    <input
+                      type="number"
+                      value={formulario.porta}
+                      onChange={(e) =>
+                        setFormulario({
+                          ...formulario,
+                          porta: parseInt(e.target.value, 10) || 1433,
+                        })
+                      }
+                      className={inputClasse}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Nome da Base *
+                    </label>
+                    <input
+                      type="text"
+                      value={formulario.nomeBase}
+                      onChange={(e) =>
+                        setFormulario({
+                          ...formulario,
+                          nomeBase: e.target.value,
+                        })
+                      }
+                      className={inputClasse}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Usuário *
+                    </label>
+                    <input
+                      type="text"
+                      value={formulario.usuario}
+                      onChange={(e) =>
+                        setFormulario({
+                          ...formulario,
+                          usuario: e.target.value,
+                        })
+                      }
+                      className={inputClasse}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Senha *
+                    </label>
+                    <input
+                      type="password"
+                      value={formulario.senha}
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        setFormulario({ ...formulario, senha: v });
+                        if (v) setSenhaImportada("");
+                      }}
+                      placeholder={
+                        senhaImportada
+                          ? "Senha importada do CFG (será usada ao salvar)"
+                          : "Digite a senha do banco"
+                      }
+                      className={inputClasse}
+                      required={!senhaImportada}
+                    />
+                    {senhaImportada && (
+                      <p className="text-xs text-green-600 mt-1">
+                        Senha do CFG será usada ao salvar
+                      </p>
+                    )}
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Códigos Usuários Permitidos
+                    </label>
+                    <input
+                      type="text"
+                      value={formulario.codigosUsuariosPermitidos}
+                      onChange={(e) =>
+                        setFormulario({
+                          ...formulario,
+                          codigosUsuariosPermitidos: e.target.value,
+                        })
+                      }
+                      placeholder="1, 2, 3 (vazio = todos)"
+                      className={inputClasse}
+                    />
+                  </div>
+                </div>
+
+                <div className="border-t border-slate-200 pt-4 mt-4">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-3">
+                    Cores do Cliente (gráficos e tema)
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Cor Primária
+                      </label>
+                      <div className="flex gap-2 items-center">
+                        <input
+                          type="color"
+                          value={formulario.corPrimaria}
+                          onChange={(e) =>
+                            setFormulario({
+                              ...formulario,
+                              corPrimaria: e.target.value,
+                            })
+                          }
+                          className="w-10 h-10 rounded cursor-pointer border border-gray-300"
+                        />
+                        <input
+                          type="text"
+                          value={formulario.corPrimaria}
+                          onChange={(e) =>
+                            setFormulario({
+                              ...formulario,
+                              corPrimaria: e.target.value,
+                            })
+                          }
+                          className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded font-mono"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Cor Secundária
+                      </label>
+                      <div className="flex gap-2 items-center">
+                        <input
+                          type="color"
+                          value={formulario.corSecundaria}
+                          onChange={(e) =>
+                            setFormulario({
+                              ...formulario,
+                              corSecundaria: e.target.value,
+                            })
+                          }
+                          className="w-10 h-10 rounded cursor-pointer border border-gray-300"
+                        />
+                        <input
+                          type="text"
+                          value={formulario.corSecundaria}
+                          onChange={(e) =>
+                            setFormulario({
+                              ...formulario,
+                              corSecundaria: e.target.value,
+                            })
+                          }
+                          className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded font-mono"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Cor Terciária
+                      </label>
+                      <div className="flex gap-2 items-center">
+                        <input
+                          type="color"
+                          value={formulario.corTerciaria}
+                          onChange={(e) =>
+                            setFormulario({
+                              ...formulario,
+                              corTerciaria: e.target.value,
+                            })
+                          }
+                          className="w-10 h-10 rounded cursor-pointer border border-gray-300"
+                        />
+                        <input
+                          type="text"
+                          value={formulario.corTerciaria}
+                          onChange={(e) =>
+                            setFormulario({
+                              ...formulario,
+                              corTerciaria: e.target.value,
+                            })
+                          }
+                          className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded font-mono"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    className="mt-2 h-2 rounded"
+                    style={{
+                      background: `linear-gradient(90deg, ${formulario.corPrimaria}, ${formulario.corSecundaria}, ${formulario.corTerciaria})`,
+                    }}
+                  />
+                </div>
+
+                <Botao type="submit" variante="primario">
+                  {empresaEditando ? "Atualizar" : "Salvar"}
+                </Botao>
+              </form>
+            </div>
+          )}
+
+          <div className="mt-6 overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Nome da Empresa
+                    Empresa
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     CNPJ
@@ -428,13 +780,10 @@ export default function PaginaAdmin(): React.JSX.Element {
                     Host
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Porta
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Base
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Usuários Permitidos
+                    Cores
                   </th>
                   <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Ações
@@ -450,38 +799,39 @@ export default function PaginaAdmin(): React.JSX.Element {
                     <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
                       {empresa.nomeEmpresa || "—"}
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700">
                       {formatarCnpj(empresa.cnpj)}
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
-                      {empresa.host}
+                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700">
+                      {empresa.host}:{empresa.porta}
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
-                      {empresa.porta}
-                    </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700">
                       {empresa.nomeBase}
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
-                      {empresa.codigosUsuariosPermitidos || "Todos"}
+                    <td className="px-4 py-2 whitespace-nowrap">
+                      <div
+                        className="w-12 h-4 rounded border border-gray-200"
+                        style={{
+                          background: `linear-gradient(90deg, ${empresa.corPrimaria || CORES_PADRAO.primaria}, ${empresa.corSecundaria || CORES_PADRAO.secundaria}, ${empresa.corTerciaria || CORES_PADRAO.terciaria})`,
+                        }}
+                        title={`${empresa.corPrimaria} / ${empresa.corSecundaria} / ${empresa.corTerciaria}`}
+                      />
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => abrirModalEditar(empresa)}
-                          className="p-1.5 text-[#094A73] hover:text-[#048ABF] hover:bg-blue-50 rounded transition-colors"
-                          title="Editar"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => abrirModalExcluir(empresa)}
-                          className="p-1.5 text-red-600 hover:text-red-800 hover:bg-red-50 rounded transition-colors"
-                          title="Excluir"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
+                    <td className="px-4 py-2 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                      <button
+                        onClick={() => handleEditar(empresa)}
+                        className="text-[#094A73] hover:text-[#048ABF] inline-flex items-center gap-1"
+                      >
+                        <Pencil className="w-4 h-4" />
+                        Editar
+                      </button>
+                      <button
+                        onClick={() => handleExcluir(empresa.id)}
+                        className="text-red-600 hover:text-red-800 inline-flex items-center gap-1"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        Excluir
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -491,316 +841,14 @@ export default function PaginaAdmin(): React.JSX.Element {
               <div className="text-center py-8">
                 <Building2 className="w-10 h-10 text-gray-400 mx-auto mb-2" />
                 <p className="text-gray-500 font-medium">
-                  Nenhuma empresa cadastrada
-                </p>
-                <p className="text-sm text-gray-400 mt-1">
-                  Clique em &quot;Nova Empresa&quot; para começar
+                  Nenhuma empresa cadastrada. Clique em &quot;Nova Empresa&quot;
+                  para começar.
                 </p>
               </div>
             )}
           </div>
         </div>
       </div>
-
-      {mostrarModal && (
-        <div className="fixed inset-0 bg-gray-900/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
-              <h2 className="text-xl font-bold text-gray-900">
-                {empresaEditando ? "Editar Empresa" : "Nova Empresa"}
-              </h2>
-              <button
-                onClick={fecharModal}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              {erro && (
-                <div className="bg-red-50 border-l-4 border-red-500 rounded-lg p-3">
-                  <p className="text-sm text-red-800 font-medium">{erro}</p>
-                </div>
-              )}
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                    Nome da Empresa *
-                  </label>
-                  <input
-                    type="text"
-                    value={formulario.nomeEmpresa}
-                    onChange={(e) =>
-                      setFormulario({
-                        ...formulario,
-                        nomeEmpresa: e.target.value,
-                      })
-                    }
-                    placeholder="Nome da empresa"
-                    className="w-full px-3 py-2 border border-[#A4A5A6] rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#094A73] focus:border-[#094A73] transition-all"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                    CNPJ *
-                  </label>
-                  <input
-                    type="text"
-                    value={formulario.cnpj}
-                    onChange={(e) => {
-                      const valor = e.target.value.replace(/\D/g, "");
-                      if (valor.length <= 14) {
-                        setFormulario({ ...formulario, cnpj: valor });
-                      }
-                    }}
-                    placeholder="00.000.000/0000-00"
-                    className="w-full px-3 py-2 border border-[#A4A5A6] rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#094A73] focus:border-[#094A73] transition-all"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                    Host *
-                  </label>
-                  <input
-                    type="text"
-                    value={formulario.host}
-                    onChange={(e) =>
-                      setFormulario({ ...formulario, host: e.target.value })
-                    }
-                    placeholder="ex: 192.168.1.100"
-                    className="w-full px-3 py-2 border border-[#A4A5A6] rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#094A73] focus:border-[#094A73] transition-all"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                    Porta *
-                  </label>
-                  <input
-                    type="number"
-                    value={formulario.porta}
-                    onChange={(e) =>
-                      setFormulario({
-                        ...formulario,
-                        porta: parseInt(e.target.value) || 1433,
-                      })
-                    }
-                    className="w-full px-3 py-2 border border-[#A4A5A6] rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#094A73] focus:border-[#094A73] transition-all"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                    Nome da Base *
-                  </label>
-                  <input
-                    type="text"
-                    value={formulario.nomeBase}
-                    onChange={(e) =>
-                      setFormulario({ ...formulario, nomeBase: e.target.value })
-                    }
-                    placeholder="Nome do banco de dados"
-                    className="w-full px-3 py-2 border border-[#A4A5A6] rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#094A73] focus:border-[#094A73] transition-all"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                    Usuário *
-                  </label>
-                  <input
-                    type="text"
-                    value={formulario.usuario}
-                    onChange={(e) =>
-                      setFormulario({ ...formulario, usuario: e.target.value })
-                    }
-                    placeholder="Usuário do banco"
-                    className="w-full px-3 py-2 border border-[#A4A5A6] rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#094A73] focus:border-[#094A73] transition-all"
-                    required
-                  />
-                </div>
-
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                    Senha *
-                  </label>
-                  <div className="flex gap-2">
-                    <div className="flex-1 relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Lock className="w-4 h-4 text-gray-400" />
-                      </div>
-                      <input
-                        type="password"
-                        value={formulario.senha}
-                        onChange={(e) => {
-                          setFormulario({
-                            ...formulario,
-                            senha: e.target.value,
-                          });
-                          if (senhaImportada) {
-                            setSenhaImportada("");
-                          }
-                        }}
-                        placeholder={
-                          empresaEditando && !senhaEditando
-                            ? "Clique em 'Alterar Senha' para editar"
-                            : senhaImportada
-                              ? "Senha importada do CFG (será usada ao salvar)"
-                              : "Digite a senha"
-                        }
-                        disabled={!!empresaEditando && !senhaEditando}
-                        className="w-full pl-10 pr-3 py-2 border border-[#A4A5A6] rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#094A73] focus:border-[#094A73] transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
-                        required={!senhaImportada ? true : undefined}
-                      />
-                    </div>
-                    {empresaEditando && !senhaEditando && (
-                      <Botao
-                        type="button"
-                        onClick={() => {
-                          setSenhaEditando(true);
-                          setFormulario({ ...formulario, senha: "" });
-                          setSenhaImportada("");
-                        }}
-                        variante="secundario"
-                        className="whitespace-nowrap"
-                      >
-                        Alterar Senha
-                      </Botao>
-                    )}
-                  </div>
-                  {senhaImportada && (
-                    <div className="mt-2 bg-green-50 border border-green-200 rounded-lg p-2 flex items-center gap-2">
-                      <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
-                      <p className="text-xs text-green-700 font-medium">
-                        Senha importada do arquivo CFG. Será usada ao salvar.
-                      </p>
-                    </div>
-                  )}
-                  {empresaEditando && !senhaEditando && !senhaImportada && (
-                    <p className="text-xs text-gray-500 mt-1.5">
-                      Por segurança, a senha não é exibida. Clique em
-                      &quot;Alterar Senha&quot; para definir uma nova.
-                    </p>
-                  )}
-                </div>
-
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                    Códigos de Usuários Permitidos (separados por vírgula)
-                  </label>
-                  <input
-                    type="text"
-                    value={formulario.codigosUsuariosPermitidos}
-                    onChange={(e) =>
-                      setFormulario({
-                        ...formulario,
-                        codigosUsuariosPermitidos: e.target.value,
-                      })
-                    }
-                    placeholder="1, 2, 3 (deixe vazio para permitir todos)"
-                    className="w-full px-3 py-2 border border-[#A4A5A6] rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#094A73] focus:border-[#094A73] transition-all"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Deixe vazio para permitir login de qualquer usuário
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
-                <Botao
-                  type="button"
-                  onClick={fecharModal}
-                  variante="secundario"
-                >
-                  Cancelar
-                </Botao>
-                <Botao type="submit" variante="primario">
-                  {empresaEditando ? "Atualizar" : "Salvar"}
-                </Botao>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {mostrarModalExcluir && empresaExcluir && (
-        <div className="fixed inset-0 bg-gray-900/20 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
-            <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-              <h2 className="text-xl font-bold text-gray-900">
-                Confirmar Exclusão
-              </h2>
-              <button
-                onClick={fecharModalExcluir}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="p-6 space-y-4">
-              <p className="text-sm text-gray-700">
-                Tem certeza que deseja excluir a empresa{" "}
-                <strong>
-                  {empresaExcluir.nomeEmpresa ||
-                    formatarCnpj(empresaExcluir.cnpj)}
-                </strong>
-                ?
-              </p>
-              <p className="text-xs text-gray-500">
-                Esta ação não pode ser desfeita.
-              </p>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Digite a senha para confirmar *
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Lock className="w-4 h-4 text-gray-400" />
-                  </div>
-                  <input
-                    type="password"
-                    value={senhaExcluir}
-                    onChange={(e) => setSenhaExcluir(e.target.value)}
-                    className="w-full pl-10 pr-3 py-2 border border-[#A4A5A6] rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#094A73] focus:border-[#094A73] transition-all"
-                    placeholder="Senha administrativa"
-                    autoFocus
-                  />
-                </div>
-              </div>
-
-              {erro && (
-                <div className="bg-red-50 border-l-4 border-red-500 rounded-lg p-3">
-                  <p className="text-sm text-red-800 font-medium">{erro}</p>
-                </div>
-              )}
-
-              <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
-                <Botao
-                  type="button"
-                  onClick={fecharModalExcluir}
-                  variante="secundario"
-                >
-                  Cancelar
-                </Botao>
-                <Botao type="button" onClick={handleExcluir} variante="perigo">
-                  Excluir
-                </Botao>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

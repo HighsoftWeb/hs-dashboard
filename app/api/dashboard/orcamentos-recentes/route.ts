@@ -3,7 +3,10 @@ import { validarAutenticacao } from "@/core/middleware/auth-middleware";
 import { dashboardService } from "@/core/domains/dashboard/services/dashboard-service";
 import { logger } from "@/core/utils/logger";
 import { DASHBOARD_PADRAO } from "@/core/constants/paginacao";
-import { obterEmpresaConfigDoCookie } from "@/core/utils/obter-empresa-cookie";
+import {
+  obterEmpresaConfigDoCookie,
+  obterCodEmpresaDoCookie,
+} from "@/core/utils/obter-empresa-cookie";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
@@ -15,8 +18,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       : DASHBOARD_PADRAO.LIMITE_ORCAMENTOS;
     const limite = Math.min(limiteRaw, 100);
 
+    const codEmpresa =
+      obterCodEmpresaDoCookie(request) ?? payload.codEmpresa;
     const orcamentos = await dashboardService.listarOrcamentosRecentes(
-      payload.codEmpresa,
+      codEmpresa,
       limite,
       empresaConfig
     );

@@ -1,409 +1,232 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
-import { useRouter, usePathname } from "next/navigation";
-import {
-  LayoutDashboard as IconDashboard,
-  FileText,
-  TrendingUp,
-  DollarSign,
-  ChevronDown,
-  ChevronRight,
-  Building2,
-  User,
-  LogOut,
-} from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { ChevronDown, LogOut, Building2, User } from "lucide-react";
 import { servicoAutenticacao } from "../domains/auth/client/auth-client";
-import { Usuario } from "../tipos/usuario";
-import { clienteHttp } from "../http/cliente-http";
+import { useEmpresa } from "../context/empresa-context";
+import { DASHBOARDS } from "../config/dashboards";
 import { logger } from "../utils/logger";
-
-interface EmpresaAtual {
-  COD_EMPRESA: number;
-  NOM_EMPRESA: string;
-  FAN_EMPRESA: string | null;
-}
 
 interface PropsLayoutDashboard {
   children: React.ReactNode;
 }
 
-interface MenuItem {
-  label: string;
-  href?: string;
-  icone?: React.ComponentType<{ className?: string }>;
-  submenus?: MenuItem[];
-}
-
-const menuItems: MenuItem[] = [
-  {
-    label: "Dashboard",
-    href: "/dashboard",
-    icone: IconDashboard,
-  },
-  {
-    label: "Cadastros",
-    icone: FileText,
-    submenus: [
-      {
-        label: "Gerais",
-        submenus: [
-          { label: "Usuários", href: "/dashboard/cadastros/gerais/usuarios" },
-          { label: "Empresas", href: "/dashboard/cadastros/gerais/empresas" },
-        ],
-      },
-      {
-        label: "Comercial",
-        submenus: [
-          {
-            label: "Clientes",
-            href: "/dashboard/cadastros/comercial/clientes",
-          },
-          {
-            label: "Produtos",
-            href: "/dashboard/cadastros/comercial/produtos",
-          },
-        ],
-      },
-    ],
-  },
-  {
-    label: "Comercial",
-    icone: TrendingUp,
-    submenus: [
-      {
-        label: "Saídas",
-        submenus: [
-          {
-            label: "Orçamentos/OS",
-            href: "/dashboard/cadastros/saidas/orcamentos-os",
-          },
-          {
-            label: "Notas Fiscais de Venda",
-            href: "/dashboard/comercial/saidas/notas-fiscais-venda",
-          },
-        ],
-      },
-    ],
-  },
-  {
-    label: "Financeiro",
-    icone: DollarSign,
-    submenus: [
-      {
-        label: "Contas a Receber",
-        href: "/dashboard/financeiro/contas-receber",
-      },
-      { label: "Contas a Pagar", href: "/dashboard/financeiro/contas-pagar" },
-    ],
-  },
-];
-
 export function LayoutDashboard({
   children,
 }: PropsLayoutDashboard): React.JSX.Element {
-  const router = useRouter();
   const pathname = usePathname();
-  const [usuario, setUsuario] = useState<Usuario | null>(null);
-  const [empresaAtual, setEmpresaAtual] = useState<EmpresaAtual | null>(null);
-  const [carregandoUsuario, setCarregandoUsuario] = useState<boolean>(true);
-  const [menuAberto, setMenuAberto] = useState<string | null>(null);
-  const [submenuAberto, setSubmenuAberto] = useState<string | null>(null);
+  const {
+    empresaAtual,
+    empresas,
+    codEmpresaAtual,
+    carregando: carregandoEmpresa,
+    trocarEmpresa,
+  } = useEmpresa();
+  const [mostrarEmpresas, setMostrarEmpresas] = useState(false);
+  const [mostrarUsuario, setMostrarUsuario] = useState(false);
 
-  useEffect(() => {
-    const carregarDados = async (): Promise<void> => {
-      const usuarioAtual = servicoAutenticacao.obterUsuarioAtual();
-      setUsuario(usuarioAtual);
-
-      if (usuarioAtual?.codEmpresa) {
-        try {
-          const resposta = await clienteHttp.get<EmpresaAtual>(
-            "/dashboard/empresa-atual"
-          );
-
-          if (resposta.success && resposta.data) {
-            setEmpresaAtual(resposta.data);
-          }
-        } catch (erro) {
-          logger.error("Erro ao carregar empresa atual", erro, {
-            endpoint: "/dashboard/empresa-atual",
-            method: "GET",
-          });
-        }
-      }
-
-      setCarregandoUsuario(false);
-    };
-
-    carregarDados();
-  }, []);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent): void => {
-      const target = event.target as HTMLElement;
-      if (!target.closest("nav")) {
-        setMenuAberto(null);
-        setSubmenuAberto(null);
-      }
-    };
-
-    if (menuAberto) {
-      document.addEventListener("click", handleClickOutside);
-      return () => {
-        document.removeEventListener("click", handleClickOutside);
-      };
-    }
-
-    return undefined;
-  }, [menuAberto]);
+  const usuario = servicoAutenticacao.obterUsuarioAtual();
 
   const handleLogout = async (): Promise<void> => {
-    await servicoAutenticacao.fazerLogout();
-    router.push("/login");
-  };
-
-  const isPathActive = (href?: string): boolean => {
-    if (!href) return false;
-    if (href === "/dashboard") {
-      return pathname === href;
-    }
-    return pathname.startsWith(href);
-  };
-
-  const toggleMenu = (label: string): void => {
-    if (menuAberto === label) {
-      setMenuAberto(null);
-      setSubmenuAberto(null);
-    } else {
-      setMenuAberto(label);
-      setSubmenuAberto(null);
+    try {
+      await servicoAutenticacao.fazerLogout();
+      window.location.href = "/login";
+    } catch (erro) {
+      logger.error("Erro ao fazer logout", erro);
     }
   };
 
-  const toggleSubmenu = (label: string): void => {
-    if (submenuAberto === label) {
-      setSubmenuAberto(null);
-    } else {
-      setSubmenuAberto(label);
-    }
+  const isActive = (href: string) => {
+    if (href === "/dashboard") return pathname === "/dashboard";
+    return pathname === href || pathname.startsWith(href + "/");
   };
+
+  const isItemActive = (itemHref: string) =>
+    pathname === itemHref || pathname.startsWith(itemHref + "/");
+
+  const isParentActive = (d: (typeof DASHBOARDS)[0]) =>
+    isActive(d.href) || (d.itens?.some((i) => isItemActive(i.href)) ?? false);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-6 flex-1">
-              <div className="flex items-center justify-center">
-                <Image
-                  src="/logo.png"
-                  alt="HighSoft Sistemas"
-                  width={100}
-                  height={50}
-                  className="h-10 w-auto object-contain"
-                  unoptimized
-                />
-              </div>
-              <div className="h-8 w-px bg-gray-300"></div>
-              <nav className="flex items-center space-x-0.5 relative h-full">
-                {menuItems.map((item) => {
-                  const temSubmenus = item.submenus && item.submenus.length > 0;
-                  const estaAberto = menuAberto === item.label;
-                  const estaAtivo =
-                    isPathActive(item.href) || (temSubmenus && estaAberto);
+    <div className="flex h-screen bg-slate-50 overflow-hidden">
+      <aside className="w-[72px] flex-shrink-0 bg-highsoft-primario flex flex-col items-center py-4 gap-1">
+        <div className="mb-4 px-2 w-full flex justify-center">
+          <Image
+            src="/logo.png"
+            alt="HighSoft"
+            width={120}
+            height={40}
+            className="max-w-full h-10 w-auto object-contain brightness-0 invert opacity-95"
+            unoptimized
+          />
+        </div>
+        {DASHBOARDS.map((d) => {
+          const Icon = d.icone;
+          const ativo = isParentActive(d);
+          const temSubmenu = d.itens && d.itens.length > 0;
 
-                  return (
-                    <div
-                      key={item.label}
-                      className="relative h-full flex items-center"
-                    >
-                      {temSubmenus ? (
-                        <>
-                          <button
-                            onClick={() => toggleMenu(item.label)}
-                            className={`
-                              flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-all whitespace-nowrap h-full border-b-2
-                              ${
-                                estaAtivo
-                                  ? "text-[#094A73] border-[#094A73] bg-[#094A73]/5"
-                                  : "text-gray-600 hover:text-[#094A73] hover:bg-gray-50 border-transparent"
-                              }
-                            `}
-                          >
-                            {item.icone && <item.icone className="w-4 h-4" />}
-                            <span>{item.label}</span>
-                            <ChevronDown
-                              className={`w-3.5 h-3.5 transition-transform ${estaAberto ? "rotate-180" : ""}`}
-                            />
-                          </button>
-                          {estaAberto && (
-                            <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-xl z-50 min-w-[200px]">
-                              {item.submenus?.map((submenu) => {
-                                const temSubSubmenus =
-                                  submenu.submenus &&
-                                  submenu.submenus.length > 0;
-                                const submenuEstaAberto =
-                                  submenuAberto === submenu.label;
-                                const submenuEstaAtivo =
-                                  isPathActive(submenu.href) ||
-                                  (temSubSubmenus && submenuEstaAberto);
-
-                                return (
-                                  <div
-                                    key={submenu.label}
-                                    className="relative group"
-                                  >
-                                    {temSubSubmenus ? (
-                                      <>
-                                        <button
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            toggleSubmenu(submenu.label);
-                                          }}
-                                          className={`
-                                            w-full flex items-center justify-between px-4 py-2 text-sm transition-colors
-                                            ${submenuEstaAtivo ? "text-[#094A73] bg-[#094A73]/10" : "text-gray-700 hover:bg-gray-50"}
-                                          `}
-                                        >
-                                          <span>{submenu.label}</span>
-                                          <ChevronRight
-                                            className={`w-4 h-4 transition-transform ${submenuEstaAberto ? "rotate-90" : ""}`}
-                                          />
-                                        </button>
-                                        {submenuEstaAberto && (
-                                          <div className="absolute left-full top-0 ml-0.5 bg-white border border-gray-200 rounded-md shadow-xl z-50 min-w-[180px]">
-                                            {submenu.submenus?.map(
-                                              (subSubmenu) => {
-                                                const subSubmenuEstaAtivo =
-                                                  isPathActive(subSubmenu.href);
-                                                return (
-                                                  <a
-                                                    key={subSubmenu.label}
-                                                    href={subSubmenu.href}
-                                                    onClick={() => {
-                                                      setMenuAberto(null);
-                                                      setSubmenuAberto(null);
-                                                    }}
-                                                    className={`
-                                                    block px-4 py-2 text-sm transition-colors
-                                                    ${subSubmenuEstaAtivo ? "text-[#094A73] bg-[#094A73]/10 font-medium" : "text-gray-700 hover:bg-gray-50"}
-                                                  `}
-                                                  >
-                                                    {subSubmenu.label}
-                                                  </a>
-                                                );
-                                              }
-                                            )}
-                                          </div>
-                                        )}
-                                      </>
-                                    ) : (
-                                      <a
-                                        href={submenu.href}
-                                        onClick={() => {
-                                          setMenuAberto(null);
-                                          setSubmenuAberto(null);
-                                        }}
-                                        className={`
-                                          block px-4 py-2 text-sm transition-colors
-                                          ${submenuEstaAtivo ? "text-[#094A73] bg-[#094A73]/10 font-medium" : "text-gray-700 hover:bg-gray-50"}
-                                        `}
-                                      >
-                                        {submenu.label}
-                                      </a>
-                                    )}
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          )}
-                        </>
-                      ) : (
-                        <a
-                          href={item.href}
-                          onClick={() => {
-                            setMenuAberto(null);
-                            setSubmenuAberto(null);
-                          }}
-                          className={`
-                            flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-all whitespace-nowrap h-full border-b-2
-                            ${
-                              estaAtivo
-                                ? "text-[#094A73] border-[#094A73] bg-[#094A73]/5"
-                                : "text-gray-600 hover:text-[#094A73] hover:bg-gray-50 border-transparent"
-                            }
-                          `}
-                        >
-                          {item.icone && <item.icone className="w-4 h-4" />}
-                          <span>{item.label}</span>
-                        </a>
-                      )}
-                    </div>
-                  );
-                })}
-              </nav>
-            </div>
-            <div className="flex items-center gap-3">
-              {!carregandoUsuario && usuario && (
-                <div className="hidden sm:flex items-center gap-2">
-                  {empresaAtual && (
-                    <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 bg-gradient-to-r from-gray-50 to-gray-100 rounded-md border border-gray-200 shadow-sm h-9">
-                      <div className="w-5 h-5 bg-[#094A73] rounded flex items-center justify-center flex-shrink-0">
-                        <Building2 className="w-3 h-3 text-white" />
-                      </div>
-                      <div className="hidden md:flex flex-col min-w-0 justify-center">
-                        <span className="text-[10px] font-medium text-gray-600 uppercase tracking-wide leading-tight">
-                          Empresa
-                        </span>
-                        <span className="text-xs font-semibold text-gray-900 truncate leading-tight">
-                          {empresaAtual.COD_EMPRESA} -{" "}
-                          {empresaAtual.FAN_EMPRESA || empresaAtual.NOM_EMPRESA}
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                  <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-gradient-to-r from-gray-50 to-gray-100 rounded-md border border-gray-200 shadow-sm h-9">
-                    <div className="w-5 h-5 bg-[#094A73] rounded flex items-center justify-center flex-shrink-0">
-                      <User className="w-3 h-3 text-white" />
-                    </div>
-                    <div className="hidden md:flex flex-col min-w-0 justify-center">
-                      <span className="text-[10px] font-medium text-gray-600 uppercase tracking-wide leading-tight">
-                        Usuário
-                      </span>
-                      <span className="text-xs font-semibold text-gray-900 truncate leading-tight">
-                        {usuario.codUsuario} - {usuario.nome}
-                      </span>
-                    </div>
-                    <div className="md:hidden">
-                      <span className="text-xs font-semibold text-gray-900">
-                        {usuario.nome}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              )}
-              {!carregandoUsuario && usuario && (
-                <div className="hidden sm:block h-6 w-px bg-gray-300"></div>
-              )}
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 bg-gradient-to-r from-gray-50 to-gray-100 rounded-md border border-gray-200 shadow-sm hover:bg-gradient-to-r hover:from-gray-100 hover:to-gray-200 transition-colors h-9"
+          if (temSubmenu) {
+            return (
+              <div
+                key={d.id}
+                className="relative group before:content-[''] before:absolute before:left-full before:top-0 before:w-52 before:h-11 before:z-20"
               >
-                <div className="w-5 h-5 bg-red-500 rounded flex items-center justify-center flex-shrink-0">
-                  <LogOut className="w-3 h-3 text-white" />
+                <Link
+                  href={d.href}
+                  title={d.titulo}
+                  className={`w-11 h-11 flex items-center justify-center rounded-lg transition-colors ${
+                    ativo
+                      ? "bg-white/20 text-white"
+                      : "text-white/70 hover:bg-white/10 hover:text-white"
+                  }`}
+                >
+                  <Icon className="w-5 h-5" />
+                </Link>
+                <div className="absolute left-full top-0 ml-1 min-w-[13rem] w-52 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity z-30 bg-white rounded-lg shadow-lg border border-slate-200 py-1">
+                  {d.itens!.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={`block px-4 py-2 text-sm hover:bg-slate-50 ${
+                        isItemActive(item.href)
+                          ? "text-highsoft-primario font-medium"
+                          : "text-slate-700"
+                      }`}
+                    >
+                      {item.titulo}
+                    </Link>
+                  ))}
                 </div>
-                <span className="text-xs font-semibold text-gray-900 hidden md:inline">
-                  Sair
-                </span>
+              </div>
+            );
+          }
+
+          return (
+            <Link
+              key={d.id}
+              href={d.href}
+              title={d.titulo}
+              className={`w-11 h-11 flex items-center justify-center rounded-lg transition-colors ${
+                ativo
+                  ? "bg-white/20 text-white"
+                  : "text-white/70 hover:bg-white/10 hover:text-white"
+              }`}
+            >
+              <Icon className="w-5 h-5" />
+            </Link>
+          );
+        })}
+      </aside>
+
+      <div className="flex-1 flex flex-col min-w-0">
+        <header className="h-14 flex-shrink-0 bg-white border-b border-slate-200 flex items-center justify-between px-6">
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <button
+                onClick={() => setMostrarEmpresas(!mostrarEmpresas)}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-50 transition min-w-[200px] text-left"
+              >
+                {carregandoEmpresa ? (
+                  <span className="text-sm text-slate-500">Carregando...</span>
+                ) : (
+                  <>
+                    <Building2 className="w-4 h-4 text-slate-500 flex-shrink-0" />
+                    <span className="text-sm font-medium text-slate-800 truncate">
+                      {empresaAtual
+                        ? `${empresaAtual.COD_EMPRESA} - ${
+                            empresaAtual.FAN_EMPRESA || empresaAtual.NOM_EMPRESA
+                          }`
+                        : "Selecione a empresa"}
+                    </span>
+                    <ChevronDown
+                      className={`w-4 h-4 text-slate-500 flex-shrink-0 transition ${
+                        mostrarEmpresas ? "rotate-180" : ""
+                      }`}
+                    />
+                  </>
+                )}
               </button>
+              {mostrarEmpresas && empresas.length > 0 && (
+                <>
+                  <div
+                    className="fixed inset-0 z-10"
+                    onClick={() => setMostrarEmpresas(false)}
+                  />
+                  <div className="absolute top-full left-0 mt-1 w-72 bg-white rounded-lg shadow-lg border border-slate-200 py-1 z-20 max-h-64 overflow-y-auto">
+                    {empresas.map((emp) => (
+                      <button
+                        key={emp.COD_EMPRESA}
+                        onClick={() => {
+                          trocarEmpresa(emp.COD_EMPRESA);
+                          setMostrarEmpresas(false);
+                        }}
+                        className={`w-full px-4 py-2.5 text-left text-sm hover:bg-slate-50 flex items-center gap-2 ${
+                          codEmpresaAtual === emp.COD_EMPRESA
+                            ? "bg-slate-50 font-medium text-highsoft-primario"
+                            : "text-slate-700"
+                        }`}
+                      >
+                        <Building2 className="w-4 h-4 flex-shrink-0" />
+                        <span className="truncate">
+                          {emp.COD_EMPRESA} -{" "}
+                          {emp.FAN_EMPRESA || emp.NOM_EMPRESA}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
           </div>
-        </div>
-      </header>
-      <main className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {children}
-      </main>
+
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <button
+                onClick={() => setMostrarUsuario(!mostrarUsuario)}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-50 transition"
+              >
+                <User className="w-4 h-4 text-slate-500" />
+                <span className="text-sm font-medium text-slate-700 max-w-[120px] truncate hidden sm:inline">
+                  {usuario?.nome || "Usuário"}
+                </span>
+                <ChevronDown
+                  className={`w-4 h-4 text-slate-500 transition ${
+                    mostrarUsuario ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+              {mostrarUsuario && (
+                <>
+                  <div
+                    className="fixed inset-0 z-10"
+                    onClick={() => setMostrarUsuario(false)}
+                  />
+                  <div className="absolute top-full right-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-slate-200 py-1 z-20">
+                    <div className="px-4 py-2 border-b border-slate-100">
+                      <p className="text-xs text-slate-500">Logado como</p>
+                      <p className="text-sm font-medium text-slate-800 truncate">
+                        {usuario?.nome || usuario?.login}
+                      </p>
+                    </div>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Sair
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </header>
+
+        <main className="flex-1 overflow-auto p-6">{children}</main>
+      </div>
     </div>
   );
 }

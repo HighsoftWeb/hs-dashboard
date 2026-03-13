@@ -2,29 +2,39 @@ import { NextRequest, NextResponse } from "next/server";
 import { validarAutenticacao } from "@/core/middleware/auth-middleware";
 import { tratarErroAPI } from "@/core/utils/tratar-erro";
 import { detalhesRepository } from "@/core/repository/detalhes-repository";
-import { DEFAULT_COD_EMPRESA } from "@/core/db/validar-env";
-import { obterEmpresaConfigDoCookie } from "@/core/utils/obter-empresa-cookie";
+import {
+  obterEmpresaConfigDoCookie,
+  obterCodEmpresaDoCookie,
+} from "@/core/utils/obter-empresa-cookie";
+import {
+  criarRespostaErro,
+  criarRespostaSucesso,
+} from "@/core/utils/resposta-api";
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ codProduto: string }> }
 ): Promise<NextResponse> {
   try {
-    const usuario = validarAutenticacao(request);
+    validarAutenticacao(request);
+    const codEmpresa = obterCodEmpresaDoCookie(request);
     const empresaConfig = obterEmpresaConfigDoCookie(request);
-    const codEmpresa = usuario.codEmpresa || DEFAULT_COD_EMPRESA;
+
+    if (!codEmpresa) {
+      return NextResponse.json(
+        criarRespostaErro(
+          "Selecione uma empresa no header para continuar",
+          "VALIDATION_ERROR"
+        ),
+        { status: 400 }
+      );
+    }
     const { codProduto } = await params;
     const codProdutoNum = Number.parseInt(codProduto, 10);
 
     if (isNaN(codProdutoNum)) {
       return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: "VALIDATION_ERROR",
-            message: "Parâmetro inválido",
-          },
-        },
+        criarRespostaErro("Parâmetro inválido", "VALIDATION_ERROR"),
         { status: 400 }
       );
     }
@@ -52,15 +62,14 @@ export async function GET(
       ),
     ]);
 
-    return NextResponse.json({
-      success: true,
-      data: {
+    return NextResponse.json(
+      criarRespostaSucesso({
         produto,
         derivacoes,
         estoques,
         tabelasPreco,
-      },
-    });
+      })
+    );
   } catch (erro) {
     return tratarErroAPI(erro, {
       endpoint: "/api/dashboard/cadastros/produtos/[codProduto]",

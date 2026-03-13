@@ -8,6 +8,9 @@ export interface EmpresaConfig {
   usuario: string;
   senha: string;
   codigosUsuariosPermitidos: string | null;
+  corPrimaria: string;
+  corSecundaria: string;
+  corTerciaria: string;
   criadoEm: string;
   atualizadoEm: string;
 }
@@ -21,4 +24,7 @@ export interface EmpresaConfigInput {
   usuario: string;
   senha: string;
   codigosUsuariosPermitidos?: string;
+  corPrimaria?: string;
+  corSecundaria?: string;
+  corTerciaria?: string;
 }

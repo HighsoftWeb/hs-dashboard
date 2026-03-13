@@ -3,14 +3,30 @@ import { validarAutenticacao } from "@/core/middleware/auth-middleware";
 import { tratarErroAPI } from "@/core/utils/tratar-erro";
 import { schemaFiltroTitulo } from "@/core/schemas/consulta-schemas";
 import { consultaRepository } from "@/core/repository/consulta-repository";
-import { DEFAULT_COD_EMPRESA } from "@/core/db/validar-env";
-import { obterEmpresaConfigDoCookie } from "@/core/utils/obter-empresa-cookie";
+import {
+  obterEmpresaConfigDoCookie,
+  obterCodEmpresaDoCookie,
+} from "@/core/utils/obter-empresa-cookie";
+import {
+  criarRespostaSucesso,
+  criarRespostaErro,
+} from "@/core/utils/resposta-api";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
-    const usuario = validarAutenticacao(request);
-    const codEmpresa = usuario.codEmpresa || DEFAULT_COD_EMPRESA;
+    validarAutenticacao(request);
+    const codEmpresa = obterCodEmpresaDoCookie(request);
     const empresaConfig = obterEmpresaConfigDoCookie(request);
+
+    if (!codEmpresa) {
+      return NextResponse.json(
+        criarRespostaErro(
+          "Selecione uma empresa no header para continuar",
+          "VALIDATION_ERROR"
+        ),
+        { status: 400 }
+      );
+    }
 
     const { searchParams } = new URL(request.url);
     const parametros = schemaFiltroTitulo.parse({
@@ -68,15 +84,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       filtrosAdicionais
     );
 
-    return NextResponse.json({
-      success: true,
-      data: {
+    return NextResponse.json(
+      criarRespostaSucesso({
         data: resultado.dados,
         page: resultado.page,
         pageSize: resultado.pageSize,
         total: resultado.total,
-      },
-    });
+      })
+    );
   } catch (erro) {
     return tratarErroAPI(erro, {
       endpoint: "/api/dashboard/financeiro/titulos-receber",
