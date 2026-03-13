@@ -85,7 +85,7 @@ export const DASHBOARDS: ConfigDashboard[] = [
     schemas: ["orcamentos_os", "itens_orcamento_os", "notas_fiscais_venda"],
     ordem: 1,
   },
-  
+
   {
     id: "clientes",
     titulo: "Clientes",

@@ -30,7 +30,8 @@ export async function GET(
     const { codEmpresa: codEmpresaParam, codSerieNF, numNf } = await params;
 
     const codEmpresa =
-      codEmpresaCookie ?? (codEmpresaParam ? Number.parseInt(codEmpresaParam, 10) : null);
+      codEmpresaCookie ??
+      (codEmpresaParam ? Number.parseInt(codEmpresaParam, 10) : null);
     const numNfNum = Number.parseInt(numNf, 10);
 
     if (!codEmpresa || isNaN(codEmpresa) || isNaN(numNfNum)) {

@@ -38,38 +38,45 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const tipo = searchParams.get("tipo") || "geral";
 
     if (tipo === "geral") {
-      const [agingReceber, agingPagar, tendenciaMensal, topClientes, topProdutos, funilVendas, metaRealizado] =
-        await Promise.all([
-          analyticsRepository.obterAgingReceber(codEmpresa, empresaConfig),
-          analyticsRepository.obterAgingPagar(codEmpresa, empresaConfig),
-          analyticsRepository.obterTendenciaMensal(codEmpresa, 6, empresaConfig),
-          analyticsRepository.obterTopClientes(
-            codEmpresa,
-            10,
-            dataInicio,
-            dataFim,
-            empresaConfig
-          ),
-          analyticsRepository.obterTopProdutosOrcamento(
-            codEmpresa,
-            10,
-            dataInicio,
-            dataFim,
-            empresaConfig
-          ),
-          analyticsRepository.obterFunilVendas(
-            codEmpresa,
-            dataInicio,
-            dataFim,
-            empresaConfig
-          ),
-          analyticsRepository.obterMetaRealizado(
-            codEmpresa,
-            dataInicio,
-            dataFim,
-            empresaConfig
-          ),
-        ]);
+      const [
+        agingReceber,
+        agingPagar,
+        tendenciaMensal,
+        topClientes,
+        topProdutos,
+        funilVendas,
+        metaRealizado,
+      ] = await Promise.all([
+        analyticsRepository.obterAgingReceber(codEmpresa, empresaConfig),
+        analyticsRepository.obterAgingPagar(codEmpresa, empresaConfig),
+        analyticsRepository.obterTendenciaMensal(codEmpresa, 6, empresaConfig),
+        analyticsRepository.obterTopClientes(
+          codEmpresa,
+          10,
+          dataInicio,
+          dataFim,
+          empresaConfig
+        ),
+        analyticsRepository.obterTopProdutosOrcamento(
+          codEmpresa,
+          10,
+          dataInicio,
+          dataFim,
+          empresaConfig
+        ),
+        analyticsRepository.obterFunilVendas(
+          codEmpresa,
+          dataInicio,
+          dataFim,
+          empresaConfig
+        ),
+        analyticsRepository.obterMetaRealizado(
+          codEmpresa,
+          dataInicio,
+          dataFim,
+          empresaConfig
+        ),
+      ]);
 
       return NextResponse.json(
         criarRespostaSucesso({

@@ -88,8 +88,18 @@ export default function DashboardClientes(): React.JSX.Element {
         inadimplentes?: number;
       };
       const met = analMetricas as {
-        topClientesFaturamento?: { codCliFor?: number; razaoSocial: string; valorTotal: number; quantidade: number }[];
-        clientesInativos?: { codCliFor?: number; razaoSocial: string; valorUltimoAno: number; diasSemCompra: number }[];
+        topClientesFaturamento?: {
+          codCliFor?: number;
+          razaoSocial: string;
+          valorTotal: number;
+          quantidade: number;
+        }[];
+        clientesInativos?: {
+          codCliFor?: number;
+          razaoSocial: string;
+          valorUltimoAno: number;
+          diasSemCompra: number;
+        }[];
       };
       setAnalytics({ ...cli, ...met });
     } catch {
@@ -172,12 +182,28 @@ export default function DashboardClientes(): React.JSX.Element {
       }}
     >
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
-        <CardKpi titulo="Total" valor={totalClientes} icone={<Users className="w-5 h-5" />} variante="destaque" href={DEEP_DIVE.clientes} />
+        <CardKpi
+          titulo="Total"
+          valor={totalClientes}
+          icone={<Users className="w-5 h-5" />}
+          variante="destaque"
+          href={DEEP_DIVE.clientes}
+        />
         {analytics?.clientesNovosPeriodo !== undefined && (
-          <CardKpi titulo="Novos" valor={analytics.clientesNovosPeriodo} icone={<TrendingUp className="w-5 h-5" />} href={DEEP_DIVE.clientes} />
+          <CardKpi
+            titulo="Novos"
+            valor={analytics.clientesNovosPeriodo}
+            icone={<TrendingUp className="w-5 h-5" />}
+            href={DEEP_DIVE.clientes}
+          />
         )}
         {analytics?.inadimplentes !== undefined && (
-          <CardKpi titulo="Inadimplentes" valor={analytics.inadimplentes} icone={<AlertTriangle className="w-5 h-5" />} href={DEEP_DIVE.contasReceber} />
+          <CardKpi
+            titulo="Inadimplentes"
+            valor={analytics.inadimplentes}
+            icone={<AlertTriangle className="w-5 h-5" />}
+            href={DEEP_DIVE.contasReceber}
+          />
         )}
       </div>
 
@@ -236,12 +262,50 @@ export default function DashboardClientes(): React.JSX.Element {
         {topClientes.length > 0 && (
           <CardGrafico titulo="Top por Faturamento" href={DEEP_DIVE.clientes}>
             <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={topClientes.slice(0, 6)} layout="vertical" margin={{ top: 5, right: 50, left: 0, bottom: 5 }}>
+              <BarChart
+                data={topClientes.slice(0, 6)}
+                layout="vertical"
+                margin={{ top: 5, right: 50, left: 0, bottom: 5 }}
+              >
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis type="number" tick={{ fontSize: 9 }} tickFormatter={(v) => (v >= 1000 ? `${(v / 1000).toFixed(0)}k` : String(v))} />
-                <YAxis type="category" dataKey="razaoSocial" width={100} tick={{ fontSize: 9 }} tickFormatter={(v) => (v?.length > 14 ? v.slice(0, 13) + "…" : v)} />
-                <Tooltip formatter={(v) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 }).format(Number(v))} />
-                <Bar dataKey="valorTotal" fill={coresGraficos.primario} radius={[0, 4, 4, 0]} onClick={(e: unknown) => { const p = (e as { payload?: { codCliFor?: number } })?.payload; if (p?.codCliFor) router.push(DEEP_DIVE.clienteDetalhe(p.codCliFor)); else router.push(DEEP_DIVE.clientes); }} style={{ cursor: "pointer" }} />
+                <XAxis
+                  type="number"
+                  tick={{ fontSize: 9 }}
+                  tickFormatter={(v) =>
+                    v >= 1000 ? `${(v / 1000).toFixed(0)}k` : String(v)
+                  }
+                />
+                <YAxis
+                  type="category"
+                  dataKey="razaoSocial"
+                  width={100}
+                  tick={{ fontSize: 9 }}
+                  tickFormatter={(v) =>
+                    v?.length > 14 ? v.slice(0, 13) + "…" : v
+                  }
+                />
+                <Tooltip
+                  formatter={(v) =>
+                    new Intl.NumberFormat("pt-BR", {
+                      style: "currency",
+                      currency: "BRL",
+                      maximumFractionDigits: 0,
+                    }).format(Number(v))
+                  }
+                />
+                <Bar
+                  dataKey="valorTotal"
+                  fill={coresGraficos.primario}
+                  radius={[0, 4, 4, 0]}
+                  onClick={(e: unknown) => {
+                    const p = (e as { payload?: { codCliFor?: number } })
+                      ?.payload;
+                    if (p?.codCliFor)
+                      router.push(DEEP_DIVE.clienteDetalhe(p.codCliFor));
+                    else router.push(DEEP_DIVE.clientes);
+                  }}
+                  style={{ cursor: "pointer" }}
+                />
               </BarChart>
             </ResponsiveContainer>
           </CardGrafico>
@@ -249,15 +313,32 @@ export default function DashboardClientes(): React.JSX.Element {
 
         {inativos.length > 0 && (
           <div className="rounded-xl border border-amber-200 bg-amber-50/50 shadow-sm overflow-hidden">
-            <Link href={DEEP_DIVE.clientes} className="flex items-center gap-2 px-4 py-3 border-b border-amber-100 hover:bg-amber-100/50 transition">
+            <Link
+              href={DEEP_DIVE.clientes}
+              className="flex items-center gap-2 px-4 py-3 border-b border-amber-100 hover:bg-amber-100/50 transition"
+            >
               <AlertTriangle className="w-4 h-4 text-amber-600" />
-              <h3 className="text-sm font-semibold text-slate-800">Em Risco (90+ dias sem compra)</h3>
+              <h3 className="text-sm font-semibold text-slate-800">
+                Em Risco (90+ dias sem compra)
+              </h3>
             </Link>
             <div className="p-3 space-y-2 max-h-52 overflow-y-auto">
               {inativos.slice(0, 8).map((c, i) => (
-                <Link key={i} href={c.codCliFor ? DEEP_DIVE.clienteDetalhe(c.codCliFor) : DEEP_DIVE.clientes} className="text-xs flex justify-between gap-2 hover:bg-amber-100/50 rounded px-2 py-1 -mx-2 transition">
-                  <p className="font-medium text-slate-800 truncate flex-1">{c.razaoSocial}</p>
-                  <span className="text-amber-600 shrink-0">{c.diasSemCompra}d</span>
+                <Link
+                  key={i}
+                  href={
+                    c.codCliFor
+                      ? DEEP_DIVE.clienteDetalhe(c.codCliFor)
+                      : DEEP_DIVE.clientes
+                  }
+                  className="text-xs flex justify-between gap-2 hover:bg-amber-100/50 rounded px-2 py-1 -mx-2 transition"
+                >
+                  <p className="font-medium text-slate-800 truncate flex-1">
+                    {c.razaoSocial}
+                  </p>
+                  <span className="text-amber-600 shrink-0">
+                    {c.diasSemCompra}d
+                  </span>
                 </Link>
               ))}
             </div>

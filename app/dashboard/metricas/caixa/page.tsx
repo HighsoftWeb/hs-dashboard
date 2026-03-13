@@ -69,7 +69,10 @@ export default function PaginaMetricasCaixa(): React.JSX.Element {
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-            <div key={i} className="h-24 rounded-xl bg-slate-200 animate-pulse" />
+            <div
+              key={i}
+              className="h-24 rounded-xl bg-slate-200 animate-pulse"
+            />
           ))}
         </div>
         <div className="h-64 rounded-xl bg-slate-200 animate-pulse" />
@@ -92,7 +95,11 @@ export default function PaginaMetricasCaixa(): React.JSX.Element {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Link href="/dashboard/financeiro" className="p-2 rounded-lg hover:bg-slate-100 text-slate-600" title="Voltar">
+        <Link
+          href="/dashboard/financeiro"
+          className="p-2 rounded-lg hover:bg-slate-100 text-slate-600"
+          title="Voltar"
+        >
           <ChevronLeft className="w-5 h-5" />
         </Link>
         <h1 className="text-xl font-bold text-slate-900">Métricas Caixa</h1>
@@ -101,27 +108,62 @@ export default function PaginaMetricasCaixa(): React.JSX.Element {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {caixa && (
           <>
-            <CardKpi titulo="Receitas" valor={formatarMoeda(caixa.receitasMesAtual)} icone={<TrendingUp className="w-5 h-5" />} href={DEEP_DIVE.contasReceber} />
-            <CardKpi titulo="Despesas" valor={formatarMoeda(caixa.despesasMesAtual)} icone={<TrendingDown className="w-5 h-5" />} href={DEEP_DIVE.contasPagar} />
+            <CardKpi
+              titulo="Receitas"
+              valor={formatarMoeda(caixa.receitasMesAtual)}
+              icone={<TrendingUp className="w-5 h-5" />}
+              href={DEEP_DIVE.contasReceber}
+            />
+            <CardKpi
+              titulo="Despesas"
+              valor={formatarMoeda(caixa.despesasMesAtual)}
+              icone={<TrendingDown className="w-5 h-5" />}
+              href={DEEP_DIVE.contasPagar}
+            />
             <CardKpi
               titulo="Saldo"
               valor={formatarMoeda(caixa.saldoMesAtual)}
-              icone={caixa.tendencia === "subindo" ? <TrendingUp className="w-5 h-5" /> : <TrendingDown className="w-5 h-5" />}
+              icone={
+                caixa.tendencia === "subindo" ? (
+                  <TrendingUp className="w-5 h-5" />
+                ) : (
+                  <TrendingDown className="w-5 h-5" />
+                )
+              }
               variante={caixa.tendencia === "subindo" ? "destaque" : undefined}
             />
-            <CardKpi titulo="Var. vs Mês ant." valor={`${caixa.variacaoPercentual >= 0 ? "+" : ""}${caixa.variacaoPercentual.toFixed(1)}%`} icone={<TrendingUp className="w-5 h-5" />} />
+            <CardKpi
+              titulo="Var. vs Mês ant."
+              valor={`${caixa.variacaoPercentual >= 0 ? "+" : ""}${caixa.variacaoPercentual.toFixed(1)}%`}
+              icone={<TrendingUp className="w-5 h-5" />}
+            />
           </>
         )}
         {inadimplencia && (
           <>
-            <CardKpi titulo="A Receber" valor={formatarMoeda(inadimplencia.valorTotalReceber)} href={DEEP_DIVE.contasReceber} />
-            <CardKpi titulo="Vencido" valor={formatarMoeda(inadimplencia.valorVencido)} href={DEEP_DIVE.contasReceber} />
+            <CardKpi
+              titulo="A Receber"
+              valor={formatarMoeda(inadimplencia.valorTotalReceber)}
+              href={DEEP_DIVE.contasReceber}
+            />
+            <CardKpi
+              titulo="Vencido"
+              valor={formatarMoeda(inadimplencia.valorVencido)}
+              href={DEEP_DIVE.contasReceber}
+            />
             <CardKpi
               titulo="Inadimplência"
               valor={`${inadimplencia.percentualInadimplencia.toFixed(1)}%`}
-              variante={inadimplencia.percentualInadimplencia > 10 ? "destaque" : undefined}
+              variante={
+                inadimplencia.percentualInadimplencia > 10
+                  ? "destaque"
+                  : undefined
+              }
             />
-            <CardKpi titulo="Clientes Inad." valor={inadimplencia.quantidadeClientesInadimplentes} />
+            <CardKpi
+              titulo="Clientes Inad."
+              valor={inadimplencia.quantidadeClientesInadimplentes}
+            />
           </>
         )}
       </div>
@@ -132,9 +174,21 @@ export default function PaginaMetricasCaixa(): React.JSX.Element {
             <BarChart data={fluxo} margin={{ top: 10, right: 10 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
               <XAxis dataKey="mesAno" tick={{ fontSize: 10 }} />
-              <YAxis tick={{ fontSize: 9 }} tickFormatter={(v) => formatarMoeda(v).replace(/\s/g, "").slice(0, 8)} />
+              <YAxis
+                tick={{ fontSize: 9 }}
+                tickFormatter={(v) =>
+                  formatarMoeda(v).replace(/\s/g, "").slice(0, 8)
+                }
+              />
               <Tooltip formatter={(v) => formatarMoeda(Number(v ?? 0))} />
-              <Bar dataKey="valor" fill={coresGraficos.primario} radius={[4, 4, 0, 0]} name="A receber" onClick={() => router.push(DEEP_DIVE.contasReceber)} style={{ cursor: "pointer" }} />
+              <Bar
+                dataKey="valor"
+                fill={coresGraficos.primario}
+                radius={[4, 4, 0, 0]}
+                name="A receber"
+                onClick={() => router.push(DEEP_DIVE.contasReceber)}
+                style={{ cursor: "pointer" }}
+              />
             </BarChart>
           </ResponsiveContainer>
         </CardGrafico>

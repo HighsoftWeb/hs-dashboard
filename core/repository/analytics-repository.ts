@@ -140,10 +140,27 @@ export class AnalyticsRepository {
         despesas: number;
         orcamentos: number;
         nfVendas: number;
-      }>(query, { codEmpresa, mes, ano, sitNfProcessada: SIT_NF.PROCESSADA }, empresaConfig);
+      }>(
+        query,
+        { codEmpresa, mes, ano, sitNfProcessada: SIT_NF.PROCESSADA },
+        empresaConfig
+      );
       const r = rows?.[0];
 
-      const nomesMes = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+      const nomesMes = [
+        "Jan",
+        "Fev",
+        "Mar",
+        "Abr",
+        "Mai",
+        "Jun",
+        "Jul",
+        "Ago",
+        "Set",
+        "Out",
+        "Nov",
+        "Dez",
+      ];
       resultados.push({
         mes: `${nomesMes[dataRef.getMonth()]}/${ano}`,
         mesAno: `${ano}-${String(mes).padStart(2, "0")}`,
@@ -220,7 +237,17 @@ export class AnalyticsRepository {
         razaoSocial: string;
         valorTotal: number;
         quantidade: number;
-      }>(query, { codEmpresa, limite, dataInicio, dataFim, sitNfProcessada: SIT_NF.PROCESSADA }, empresaConfig);
+      }>(
+        query,
+        {
+          codEmpresa,
+          limite,
+          dataInicio,
+          dataFim,
+          sitNfProcessada: SIT_NF.PROCESSADA,
+        },
+        empresaConfig
+      );
       const resultado = (rows || []).map((r) => ({
         codCliFor: Number(r.codCliFor),
         razaoSocial: r.razaoSocial || "Cliente",
@@ -228,9 +255,21 @@ export class AnalyticsRepository {
         quantidade: Number(r.quantidade) || 0,
       }));
       if (resultado.length > 0) return resultado;
-      return this.obterTopClientes(codEmpresa, limite, dataInicio, dataFim, empresaConfig);
+      return this.obterTopClientes(
+        codEmpresa,
+        limite,
+        dataInicio,
+        dataFim,
+        empresaConfig
+      );
     } catch {
-      return this.obterTopClientes(codEmpresa, limite, dataInicio, dataFim, empresaConfig);
+      return this.obterTopClientes(
+        codEmpresa,
+        limite,
+        dataInicio,
+        dataFim,
+        empresaConfig
+      );
     }
   }
 
@@ -303,7 +342,17 @@ export class AnalyticsRepository {
         descricao: string;
         quantidade: number;
         valorTotal: number;
-      }>(query, { codEmpresa, limite, dataInicio, dataFim, sitNfProcessada: SIT_NF.PROCESSADA }, empresaConfig);
+      }>(
+        query,
+        {
+          codEmpresa,
+          limite,
+          dataInicio,
+          dataFim,
+          sitNfProcessada: SIT_NF.PROCESSADA,
+        },
+        empresaConfig
+      );
       const resultado = (rows || []).map((r) => ({
         codProduto: Number(r.codProduto),
         descricao: (r.descricao || "Produto").substring(0, 80),
@@ -311,9 +360,21 @@ export class AnalyticsRepository {
         valorTotal: Number(r.valorTotal) || 0,
       }));
       if (resultado.length > 0) return resultado;
-      return this.obterTopProdutosOrcamento(codEmpresa, limite, dataInicio, dataFim, empresaConfig);
+      return this.obterTopProdutosOrcamento(
+        codEmpresa,
+        limite,
+        dataInicio,
+        dataFim,
+        empresaConfig
+      );
     } catch {
-      return this.obterTopProdutosOrcamento(codEmpresa, limite, dataInicio, dataFim, empresaConfig);
+      return this.obterTopProdutosOrcamento(
+        codEmpresa,
+        limite,
+        dataInicio,
+        dataFim,
+        empresaConfig
+      );
     }
   }
 
@@ -443,11 +504,10 @@ export class AnalyticsRepository {
 
     try {
       const [valorR, abaixoR, semMovR, depositosR] = await Promise.all([
-        poolBanco.executarConsulta<{ valorTotalEstoque: number; totalProdutos: number }>(
-          queryValor,
-          { codEmpresa },
-          empresaConfig
-        ),
+        poolBanco.executarConsulta<{
+          valorTotalEstoque: number;
+          totalProdutos: number;
+        }>(queryValor, { codEmpresa }, empresaConfig),
         poolBanco.executarConsulta<{ produtosAbaixoMinimo: number }>(
           queryAbaixoMin,
           { codEmpresa },
@@ -458,11 +518,11 @@ export class AnalyticsRepository {
           { codEmpresa },
           empresaConfig
         ),
-        poolBanco.executarConsulta<{ codDeposito: string; descricao: string; quantidade: number }>(
-          queryDepositos,
-          { codEmpresa },
-          empresaConfig
-        ),
+        poolBanco.executarConsulta<{
+          codDeposito: string;
+          descricao: string;
+          quantidade: number;
+        }>(queryDepositos, { codEmpresa }, empresaConfig),
       ]);
 
       const v = valorR?.[0];
@@ -472,7 +532,9 @@ export class AnalyticsRepository {
       const topProdutos = await this.obterTopProdutosOrcamento(
         codEmpresa,
         5,
-        formatarDataSql(new Date(new Date().setMonth(new Date().getMonth() - 1))),
+        formatarDataSql(
+          new Date(new Date().setMonth(new Date().getMonth() - 1))
+        ),
         formatarDataSql(new Date()),
         empresaConfig
       );
@@ -544,15 +606,30 @@ export class AnalyticsRepository {
 
     try {
       const [totalR, novosR, inadR, estadoR, tipoR] = await Promise.all([
-        poolBanco.executarConsulta<{ total: number }>(queryTotal, {}, empresaConfig),
-        poolBanco.executarConsulta<{ clientesNovos: number }>(queryNovos, { dataInicio, dataFim }, empresaConfig),
-        poolBanco.executarConsulta<{ inadimplentes: number; valorInadimplente: number }>(
-          queryInadimplentes,
-          { codEmpresa },
+        poolBanco.executarConsulta<{ total: number }>(
+          queryTotal,
+          {},
           empresaConfig
         ),
-        poolBanco.executarConsulta<{ estado: string; quantidade: number }>(queryPorEstado, {}, empresaConfig),
-        poolBanco.executarConsulta<{ tipo: string; quantidade: number }>(queryPorTipo, {}, empresaConfig),
+        poolBanco.executarConsulta<{ clientesNovos: number }>(
+          queryNovos,
+          { dataInicio, dataFim },
+          empresaConfig
+        ),
+        poolBanco.executarConsulta<{
+          inadimplentes: number;
+          valorInadimplente: number;
+        }>(queryInadimplentes, { codEmpresa }, empresaConfig),
+        poolBanco.executarConsulta<{ estado: string; quantidade: number }>(
+          queryPorEstado,
+          {},
+          empresaConfig
+        ),
+        poolBanco.executarConsulta<{ tipo: string; quantidade: number }>(
+          queryPorTipo,
+          {},
+          empresaConfig
+        ),
       ]);
 
       return {
@@ -618,7 +695,17 @@ export class AnalyticsRepository {
         receita: number;
         custo: number;
         lucro: number;
-      }>(query, { codEmpresa, dataInicio, dataFim, limite, sitNfProcessada: SIT_NF.PROCESSADA }, empresaConfig);
+      }>(
+        query,
+        {
+          codEmpresa,
+          dataInicio,
+          dataFim,
+          limite,
+          sitNfProcessada: SIT_NF.PROCESSADA,
+        },
+        empresaConfig
+      );
       return (rows || []).map((r) => {
         const receita = Number(r.receita) || 0;
         const custo = Number(r.custo) || 0;
@@ -699,7 +786,9 @@ export class AnalyticsRepository {
     limite: number,
     empresaConfig: EmpresaConfig
   ): Promise<ClienteInativo[]> {
-    const dataLimite = formatarDataSql(new Date(Date.now() - diasSemCompra * 24 * 60 * 60 * 1000));
+    const dataLimite = formatarDataSql(
+      new Date(Date.now() - diasSemCompra * 24 * 60 * 60 * 1000)
+    );
     const query = `
       WITH UltimaCompra AS (
         SELECT
@@ -730,7 +819,11 @@ export class AnalyticsRepository {
         valorUltimoAno: number;
         dataUltimaCompra: string | null;
         diasSemCompra: number;
-      }>(query, { codEmpresa, dataLimite, limite, sitNfProcessada: SIT_NF.PROCESSADA }, empresaConfig);
+      }>(
+        query,
+        { codEmpresa, dataLimite, limite, sitNfProcessada: SIT_NF.PROCESSADA },
+        empresaConfig
+      );
       return (rows || []).map((r) => ({
         codCliFor: r.codCliFor,
         razaoSocial: r.razaoSocial || "",
@@ -778,7 +871,8 @@ export class AnalyticsRepository {
       const saldoAnterior = receitasAnterior - despesasAnterior;
       let variacaoPercentual = 0;
       if (saldoAnterior !== 0) {
-        variacaoPercentual = ((saldoAtual - saldoAnterior) / Math.abs(saldoAnterior)) * 100;
+        variacaoPercentual =
+          ((saldoAtual - saldoAnterior) / Math.abs(saldoAnterior)) * 100;
       } else if (saldoAtual !== 0) {
         variacaoPercentual = saldoAtual > 0 ? 100 : -100;
       }
@@ -840,7 +934,8 @@ export class AnalyticsRepository {
         valorVencido,
         percentualInadimplencia: Math.round(percentual * 100) / 100,
         quantidadeTitulosVencidos: Number(row?.quantidadeTitulosVencidos) || 0,
-        quantidadeClientesInadimplentes: Number(row?.quantidadeClientesInadimplentes) || 0,
+        quantidadeClientesInadimplentes:
+          Number(row?.quantidadeClientesInadimplentes) || 0,
       };
     } catch {
       return {
@@ -872,15 +967,26 @@ export class AnalyticsRepository {
       ORDER BY ano, mes
     `;
     const nomesMes = [
-      "Jan", "Fev", "Mar", "Abr", "Mai", "Jun",
-      "Jul", "Ago", "Set", "Out", "Nov", "Dez",
+      "Jan",
+      "Fev",
+      "Mar",
+      "Abr",
+      "Mai",
+      "Jun",
+      "Jul",
+      "Ago",
+      "Set",
+      "Out",
+      "Nov",
+      "Dez",
     ];
     try {
-      const rows = await poolBanco.executarConsulta<{ mes: number; ano: number; valor: number; quantidade: number }>(
-        query,
-        { codEmpresa, meses },
-        empresaConfig
-      );
+      const rows = await poolBanco.executarConsulta<{
+        mes: number;
+        ano: number;
+        valor: number;
+        quantidade: number;
+      }>(query, { codEmpresa, meses }, empresaConfig);
       return (rows || []).map((r) => ({
         mes: `${r.ano}-${String(r.mes).padStart(2, "0")}`,
         mesAno: `${nomesMes[r.mes - 1]}/${r.ano}`,

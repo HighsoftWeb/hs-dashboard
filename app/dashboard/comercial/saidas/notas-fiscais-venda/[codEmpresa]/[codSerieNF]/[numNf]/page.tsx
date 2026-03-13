@@ -79,7 +79,10 @@ export default function PaginaDetalhesNotaFiscal(): React.JSX.Element {
           <div className="h-10 bg-slate-100 flex gap-4 px-4" />
           <div className="p-4 space-y-2">
             {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="h-10 rounded bg-slate-200 animate-pulse" />
+              <div
+                key={i}
+                className="h-10 rounded bg-slate-200 animate-pulse"
+              />
             ))}
           </div>
         </div>

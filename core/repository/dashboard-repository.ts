@@ -60,10 +60,7 @@ export class DashboardRepository {
     totalItensEstoque: number;
     somaQuantidade: number;
   }> {
-    return dashboardRepositoryORM.obterResumoEstoque(
-      codEmpresa,
-      empresaConfig
-    );
+    return dashboardRepositoryORM.obterResumoEstoque(codEmpresa, empresaConfig);
   }
 }
 

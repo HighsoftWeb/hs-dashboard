@@ -25,8 +25,18 @@ export default function PaginaMetricasClientes(): React.JSX.Element {
   const { cores } = useEmpresa();
   const coresGraficos = obterCoresGraficos(cores);
   const [dados, setDados] = useState<{
-    topClientesFaturamento?: { codCliFor?: number; razaoSocial: string; valorTotal: number; quantidade: number }[];
-    clientesInativos?: { codCliFor?: number; razaoSocial: string; valorUltimoAno: number; diasSemCompra: number }[];
+    topClientesFaturamento?: {
+      codCliFor?: number;
+      razaoSocial: string;
+      valorTotal: number;
+      quantidade: number;
+    }[];
+    clientesInativos?: {
+      codCliFor?: number;
+      razaoSocial: string;
+      valorUltimoAno: number;
+      diasSemCompra: number;
+    }[];
   } | null>(null);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
@@ -76,7 +86,11 @@ export default function PaginaMetricasClientes(): React.JSX.Element {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Link href="/dashboard/clientes" className="p-2 rounded-lg hover:bg-slate-100 text-slate-600" title="Voltar">
+        <Link
+          href="/dashboard/clientes"
+          className="p-2 rounded-lg hover:bg-slate-100 text-slate-600"
+          title="Voltar"
+        >
           <ChevronLeft className="w-5 h-5" />
         </Link>
         <h1 className="text-xl font-bold text-slate-900">Métricas Clientes</h1>
@@ -86,33 +100,94 @@ export default function PaginaMetricasClientes(): React.JSX.Element {
         {topClientes.length > 0 && (
           <CardGrafico titulo="Top Faturamento" href={DEEP_DIVE.clientes}>
             <ResponsiveContainer width="100%" height={260}>
-              <BarChart data={topClientes.slice(0, 10)} layout="vertical" margin={{ top: 5, right: 60, left: 0, bottom: 5 }}>
+              <BarChart
+                data={topClientes.slice(0, 10)}
+                layout="vertical"
+                margin={{ top: 5, right: 60, left: 0, bottom: 5 }}
+              >
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis type="number" tick={{ fontSize: 9 }} tickFormatter={(v) => formatarMoeda(v).replace(/\s/g, "").slice(0, 10)} />
-                <YAxis type="category" dataKey="razaoSocial" width={110} tick={{ fontSize: 9 }} tickFormatter={(v) => (v?.length > 16 ? v.slice(0, 15) + "…" : v)} />
+                <XAxis
+                  type="number"
+                  tick={{ fontSize: 9 }}
+                  tickFormatter={(v) =>
+                    formatarMoeda(v).replace(/\s/g, "").slice(0, 10)
+                  }
+                />
+                <YAxis
+                  type="category"
+                  dataKey="razaoSocial"
+                  width={110}
+                  tick={{ fontSize: 9 }}
+                  tickFormatter={(v) =>
+                    v?.length > 16 ? v.slice(0, 15) + "…" : v
+                  }
+                />
                 <Tooltip formatter={(v) => formatarMoeda(Number(v ?? 0))} />
-                <Bar dataKey="valorTotal" fill={coresGraficos.primario} radius={[0, 4, 4, 0]} name="Valor" onClick={(e: unknown) => { const p = (e as { payload?: { codCliFor?: number } })?.payload; if (p?.codCliFor) router.push(DEEP_DIVE.clienteDetalhe(p.codCliFor)); else router.push(DEEP_DIVE.clientes); }} style={{ cursor: "pointer" }} />
+                <Bar
+                  dataKey="valorTotal"
+                  fill={coresGraficos.primario}
+                  radius={[0, 4, 4, 0]}
+                  name="Valor"
+                  onClick={(e: unknown) => {
+                    const p = (e as { payload?: { codCliFor?: number } })
+                      ?.payload;
+                    if (p?.codCliFor)
+                      router.push(DEEP_DIVE.clienteDetalhe(p.codCliFor));
+                    else router.push(DEEP_DIVE.clientes);
+                  }}
+                  style={{ cursor: "pointer" }}
+                />
               </BarChart>
             </ResponsiveContainer>
           </CardGrafico>
         )}
 
         {inativos.length > 0 && (
-          <CardGrafico titulo="Em Risco (sem compra 90+ dias)" href={DEEP_DIVE.clientes}>
+          <CardGrafico
+            titulo="Em Risco (sem compra 90+ dias)"
+            href={DEEP_DIVE.clientes}
+          >
             <ResponsiveContainer width="100%" height={260}>
-              <BarChart data={inativos.slice(0, 10)} layout="vertical" margin={{ top: 5, right: 50, left: 0, bottom: 5 }}>
+              <BarChart
+                data={inativos.slice(0, 10)}
+                layout="vertical"
+                margin={{ top: 5, right: 50, left: 0, bottom: 5 }}
+              >
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis type="number" tick={{ fontSize: 9 }} />
-                <YAxis type="category" dataKey="razaoSocial" width={110} tick={{ fontSize: 9 }} tickFormatter={(v) => (v?.length > 16 ? v.slice(0, 15) + "…" : v)} />
+                <YAxis
+                  type="category"
+                  dataKey="razaoSocial"
+                  width={110}
+                  tick={{ fontSize: 9 }}
+                  tickFormatter={(v) =>
+                    v?.length > 16 ? v.slice(0, 15) + "…" : v
+                  }
+                />
                 <Tooltip formatter={(v) => v} />
-                <Bar dataKey="diasSemCompra" fill="#f59e0b" radius={[0, 4, 4, 0]} name="Dias" onClick={(e: unknown) => { const p = (e as { payload?: { codCliFor?: number } })?.payload; if (p?.codCliFor) router.push(DEEP_DIVE.clienteDetalhe(p.codCliFor)); else router.push(DEEP_DIVE.clientes); }} style={{ cursor: "pointer" }} />
+                <Bar
+                  dataKey="diasSemCompra"
+                  fill="#f59e0b"
+                  radius={[0, 4, 4, 0]}
+                  name="Dias"
+                  onClick={(e: unknown) => {
+                    const p = (e as { payload?: { codCliFor?: number } })
+                      ?.payload;
+                    if (p?.codCliFor)
+                      router.push(DEEP_DIVE.clienteDetalhe(p.codCliFor));
+                    else router.push(DEEP_DIVE.clientes);
+                  }}
+                  style={{ cursor: "pointer" }}
+                />
               </BarChart>
             </ResponsiveContainer>
           </CardGrafico>
         )}
 
         {topClientes.length === 0 && inativos.length === 0 && (
-          <p className="text-sm text-slate-500 col-span-2 text-center py-12">Sem dados no período</p>
+          <p className="text-sm text-slate-500 col-span-2 text-center py-12">
+            Sem dados no período
+          </p>
         )}
       </div>
     </div>

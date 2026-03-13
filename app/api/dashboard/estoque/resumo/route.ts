@@ -11,8 +11,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const payload = validarAutenticacao(request);
     const empresaConfig = obterEmpresaConfigDoCookie(request);
-    const codEmpresa =
-      obterCodEmpresaDoCookie(request) ?? payload.codEmpresa;
+    const codEmpresa = obterCodEmpresaDoCookie(request) ?? payload.codEmpresa;
 
     const resumo = await dashboardService.obterResumoEstoque(
       codEmpresa,

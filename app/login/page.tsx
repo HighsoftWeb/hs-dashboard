@@ -142,9 +142,7 @@ export default function PaginaLogin(): React.JSX.Element {
       );
 
       if (!resposta.success || !resposta.data) {
-        throw new Error(
-          resposta.error?.message || "Empresa não encontrada"
-        );
+        throw new Error(resposta.error?.message || "Empresa não encontrada");
       }
 
       setNomeEmpresa(resposta.data.nomeEmpresa || "");

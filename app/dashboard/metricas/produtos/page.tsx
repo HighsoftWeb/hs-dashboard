@@ -21,10 +21,33 @@ import { obterCoresGraficos } from "@/core/constants/cores-graficos";
 import { useEmpresa } from "@/core/context/empresa-context";
 
 interface MetricasProdutos {
-  produtosMaisVendidos?: { codProduto?: number; descricao: string; quantidade: number; valorTotal: number }[];
-  produtosMaisLucro?: { codProduto?: number; descricao: string; receita: number; custo: number; lucro: number; margemPercentual: number }[];
-  produtosPrejuizo?: { codProduto?: number; descricao: string; lucro: number; margemPercentual: number }[];
-  produtosParados?: { codProduto?: number; descricao: string; quantidadeEstoque: number; valorEstoque: number; diasSemVenda: number }[];
+  produtosMaisVendidos?: {
+    codProduto?: number;
+    descricao: string;
+    quantidade: number;
+    valorTotal: number;
+  }[];
+  produtosMaisLucro?: {
+    codProduto?: number;
+    descricao: string;
+    receita: number;
+    custo: number;
+    lucro: number;
+    margemPercentual: number;
+  }[];
+  produtosPrejuizo?: {
+    codProduto?: number;
+    descricao: string;
+    lucro: number;
+    margemPercentual: number;
+  }[];
+  produtosParados?: {
+    codProduto?: number;
+    descricao: string;
+    quantidadeEstoque: number;
+    valorEstoque: number;
+    diasSemVenda: number;
+  }[];
 }
 
 export default function PaginaMetricasProdutos(): React.JSX.Element {
@@ -84,7 +107,11 @@ export default function PaginaMetricasProdutos(): React.JSX.Element {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Link href="/dashboard/estoque" className="p-2 rounded-lg hover:bg-slate-100 text-slate-600" title="Voltar">
+        <Link
+          href="/dashboard/estoque"
+          className="p-2 rounded-lg hover:bg-slate-100 text-slate-600"
+          title="Voltar"
+        >
           <ChevronLeft className="w-5 h-5" />
         </Link>
         <h1 className="text-xl font-bold text-slate-900">Métricas Produtos</h1>
@@ -94,12 +121,37 @@ export default function PaginaMetricasProdutos(): React.JSX.Element {
         {maisVendidos.length > 0 && (
           <CardGrafico titulo="Mais Vendidos" href={DEEP_DIVE.produtos}>
             <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={maisVendidos.slice(0, 8)} layout="vertical" margin={{ top: 5, right: 50, left: 0, bottom: 5 }}>
+              <BarChart
+                data={maisVendidos.slice(0, 8)}
+                layout="vertical"
+                margin={{ top: 5, right: 50, left: 0, bottom: 5 }}
+              >
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis type="number" tick={{ fontSize: 9 }} />
-                <YAxis type="category" dataKey="descricao" width={100} tick={{ fontSize: 9 }} tickFormatter={(v) => (v?.length > 14 ? v.slice(0, 13) + "…" : v)} />
+                <YAxis
+                  type="category"
+                  dataKey="descricao"
+                  width={100}
+                  tick={{ fontSize: 9 }}
+                  tickFormatter={(v) =>
+                    v?.length > 14 ? v.slice(0, 13) + "…" : v
+                  }
+                />
                 <Tooltip formatter={(v) => v} />
-                <Bar dataKey="quantidade" fill={coresGraficos.primario} radius={[0, 4, 4, 0]} name="Qtd" onClick={(e: unknown) => { const p = (e as { payload?: { codProduto?: number } })?.payload; if (p?.codProduto) router.push(DEEP_DIVE.produtoDetalhe(p.codProduto)); else router.push(DEEP_DIVE.produtos); }} style={{ cursor: "pointer" }} />
+                <Bar
+                  dataKey="quantidade"
+                  fill={coresGraficos.primario}
+                  radius={[0, 4, 4, 0]}
+                  name="Qtd"
+                  onClick={(e: unknown) => {
+                    const p = (e as { payload?: { codProduto?: number } })
+                      ?.payload;
+                    if (p?.codProduto)
+                      router.push(DEEP_DIVE.produtoDetalhe(p.codProduto));
+                    else router.push(DEEP_DIVE.produtos);
+                  }}
+                  style={{ cursor: "pointer" }}
+                />
               </BarChart>
             </ResponsiveContainer>
           </CardGrafico>
@@ -108,12 +160,43 @@ export default function PaginaMetricasProdutos(): React.JSX.Element {
         {maisLucro.length > 0 && (
           <CardGrafico titulo="Maior Lucro" href={DEEP_DIVE.produtos}>
             <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={maisLucro.slice(0, 8)} layout="vertical" margin={{ top: 5, right: 50, left: 0, bottom: 5 }}>
+              <BarChart
+                data={maisLucro.slice(0, 8)}
+                layout="vertical"
+                margin={{ top: 5, right: 50, left: 0, bottom: 5 }}
+              >
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis type="number" tick={{ fontSize: 9 }} tickFormatter={(v) => formatarMoeda(v).replace(/\s/g, "").slice(0, 8)} />
-                <YAxis type="category" dataKey="descricao" width={100} tick={{ fontSize: 9 }} tickFormatter={(v) => (v?.length > 14 ? v.slice(0, 13) + "…" : v)} />
+                <XAxis
+                  type="number"
+                  tick={{ fontSize: 9 }}
+                  tickFormatter={(v) =>
+                    formatarMoeda(v).replace(/\s/g, "").slice(0, 8)
+                  }
+                />
+                <YAxis
+                  type="category"
+                  dataKey="descricao"
+                  width={100}
+                  tick={{ fontSize: 9 }}
+                  tickFormatter={(v) =>
+                    v?.length > 14 ? v.slice(0, 13) + "…" : v
+                  }
+                />
                 <Tooltip formatter={(v) => formatarMoeda(Number(v ?? 0))} />
-                <Bar dataKey="lucro" fill="#22c55e" radius={[0, 4, 4, 0]} name="Lucro" onClick={(e: unknown) => { const p = (e as { payload?: { codProduto?: number } })?.payload; if (p?.codProduto) router.push(DEEP_DIVE.produtoDetalhe(p.codProduto)); else router.push(DEEP_DIVE.produtos); }} style={{ cursor: "pointer" }} />
+                <Bar
+                  dataKey="lucro"
+                  fill="#22c55e"
+                  radius={[0, 4, 4, 0]}
+                  name="Lucro"
+                  onClick={(e: unknown) => {
+                    const p = (e as { payload?: { codProduto?: number } })
+                      ?.payload;
+                    if (p?.codProduto)
+                      router.push(DEEP_DIVE.produtoDetalhe(p.codProduto));
+                    else router.push(DEEP_DIVE.produtos);
+                  }}
+                  style={{ cursor: "pointer" }}
+                />
               </BarChart>
             </ResponsiveContainer>
           </CardGrafico>
@@ -122,12 +205,39 @@ export default function PaginaMetricasProdutos(): React.JSX.Element {
         {prejuizo.length > 0 && (
           <CardGrafico titulo="Prejuízo" href={DEEP_DIVE.produtos}>
             <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={prejuizo.slice(0, 6)} margin={{ top: 10, right: 10 }}>
+              <BarChart
+                data={prejuizo.slice(0, 6)}
+                margin={{ top: 10, right: 10 }}
+              >
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="descricao" tick={{ fontSize: 9 }} tickFormatter={(v) => (v?.length > 12 ? v.slice(0, 11) + "…" : v)} />
-                <YAxis tick={{ fontSize: 9 }} tickFormatter={(v) => formatarMoeda(v).replace(/\s/g, "").slice(0, 8)} />
+                <XAxis
+                  dataKey="descricao"
+                  tick={{ fontSize: 9 }}
+                  tickFormatter={(v) =>
+                    v?.length > 12 ? v.slice(0, 11) + "…" : v
+                  }
+                />
+                <YAxis
+                  tick={{ fontSize: 9 }}
+                  tickFormatter={(v) =>
+                    formatarMoeda(v).replace(/\s/g, "").slice(0, 8)
+                  }
+                />
                 <Tooltip formatter={(v) => formatarMoeda(Number(v ?? 0))} />
-                <Bar dataKey="lucro" fill="#ef4444" radius={[4, 4, 0, 0]} name="Prejuízo" onClick={(e: unknown) => { const p = (e as { payload?: { codProduto?: number } })?.payload; if (p?.codProduto) router.push(DEEP_DIVE.produtoDetalhe(p.codProduto)); else router.push(DEEP_DIVE.produtos); }} style={{ cursor: "pointer" }} />
+                <Bar
+                  dataKey="lucro"
+                  fill="#ef4444"
+                  radius={[4, 4, 0, 0]}
+                  name="Prejuízo"
+                  onClick={(e: unknown) => {
+                    const p = (e as { payload?: { codProduto?: number } })
+                      ?.payload;
+                    if (p?.codProduto)
+                      router.push(DEEP_DIVE.produtoDetalhe(p.codProduto));
+                    else router.push(DEEP_DIVE.produtos);
+                  }}
+                  style={{ cursor: "pointer" }}
+                />
               </BarChart>
             </ResponsiveContainer>
           </CardGrafico>
@@ -136,20 +246,50 @@ export default function PaginaMetricasProdutos(): React.JSX.Element {
         {parados.length > 0 && (
           <CardGrafico titulo="Parados 90+ dias" href={DEEP_DIVE.produtos}>
             <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={parados.slice(0, 6)} layout="vertical" margin={{ top: 5, right: 50, left: 0, bottom: 5 }}>
+              <BarChart
+                data={parados.slice(0, 6)}
+                layout="vertical"
+                margin={{ top: 5, right: 50, left: 0, bottom: 5 }}
+              >
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis type="number" tick={{ fontSize: 9 }} />
-                <YAxis type="category" dataKey="descricao" width={100} tick={{ fontSize: 9 }} tickFormatter={(v) => (v?.length > 14 ? v.slice(0, 13) + "…" : v)} />
+                <YAxis
+                  type="category"
+                  dataKey="descricao"
+                  width={100}
+                  tick={{ fontSize: 9 }}
+                  tickFormatter={(v) =>
+                    v?.length > 14 ? v.slice(0, 13) + "…" : v
+                  }
+                />
                 <Tooltip formatter={(v) => v} />
-                <Bar dataKey="quantidadeEstoque" fill="#f59e0b" radius={[0, 4, 4, 0]} name="Estoque" onClick={(e: unknown) => { const p = (e as { payload?: { codProduto?: number } })?.payload; if (p?.codProduto) router.push(DEEP_DIVE.produtoDetalhe(p.codProduto)); else router.push(DEEP_DIVE.produtos); }} style={{ cursor: "pointer" }} />
+                <Bar
+                  dataKey="quantidadeEstoque"
+                  fill="#f59e0b"
+                  radius={[0, 4, 4, 0]}
+                  name="Estoque"
+                  onClick={(e: unknown) => {
+                    const p = (e as { payload?: { codProduto?: number } })
+                      ?.payload;
+                    if (p?.codProduto)
+                      router.push(DEEP_DIVE.produtoDetalhe(p.codProduto));
+                    else router.push(DEEP_DIVE.produtos);
+                  }}
+                  style={{ cursor: "pointer" }}
+                />
               </BarChart>
             </ResponsiveContainer>
           </CardGrafico>
         )}
 
-        {maisVendidos.length === 0 && maisLucro.length === 0 && prejuizo.length === 0 && parados.length === 0 && (
-          <p className="text-sm text-slate-500 col-span-2 text-center py-12">Sem dados no período</p>
-        )}
+        {maisVendidos.length === 0 &&
+          maisLucro.length === 0 &&
+          prejuizo.length === 0 &&
+          parados.length === 0 && (
+            <p className="text-sm text-slate-500 col-span-2 text-center py-12">
+              Sem dados no período
+            </p>
+          )}
       </div>
     </div>
   );

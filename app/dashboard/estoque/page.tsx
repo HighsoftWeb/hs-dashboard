@@ -52,7 +52,12 @@ export default function DashboardEstoque(): React.JSX.Element {
       descricao: string;
       quantidade: number;
     }[];
-    produtosMaisVendidos?: { codProduto?: number; descricao: string; quantidade: number; valorTotal: number }[];
+    produtosMaisVendidos?: {
+      codProduto?: number;
+      descricao: string;
+      quantidade: number;
+      valorTotal: number;
+    }[];
   } | null>(null);
   const [dataInicio, setDataInicio] = useState(padrao.dataInicio);
   const [dataFim, setDataFim] = useState(padrao.dataFim);
@@ -135,16 +140,48 @@ export default function DashboardEstoque(): React.JSX.Element {
       }}
     >
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
-        <CardKpi titulo="Produtos" valor={stats?.totalProdutos ?? 0} icone={<Package className="w-5 h-5" />} variante="destaque" href={DEEP_DIVE.produtos} />
-        <CardKpi titulo="Depósitos" valor={resumo?.totalDepositos ?? 0} icone={<Boxes className="w-5 h-5" />} href={DEEP_DIVE.produtos} />
-        <CardKpi titulo="Com Estoque" valor={resumo?.totalProdutosComEstoque ?? 0} icone={<Layers className="w-5 h-5" />} href={DEEP_DIVE.produtos} />
-        <CardKpi titulo="Qtd Total" valor={resumo?.somaQuantidade ?? 0} icone={<Package className="w-5 h-5" />} href={DEEP_DIVE.produtos} />
+        <CardKpi
+          titulo="Produtos"
+          valor={stats?.totalProdutos ?? 0}
+          icone={<Package className="w-5 h-5" />}
+          variante="destaque"
+          href={DEEP_DIVE.produtos}
+        />
+        <CardKpi
+          titulo="Depósitos"
+          valor={resumo?.totalDepositos ?? 0}
+          icone={<Boxes className="w-5 h-5" />}
+          href={DEEP_DIVE.produtos}
+        />
+        <CardKpi
+          titulo="Com Estoque"
+          valor={resumo?.totalProdutosComEstoque ?? 0}
+          icone={<Layers className="w-5 h-5" />}
+          href={DEEP_DIVE.produtos}
+        />
+        <CardKpi
+          titulo="Qtd Total"
+          valor={resumo?.somaQuantidade ?? 0}
+          icone={<Package className="w-5 h-5" />}
+          href={DEEP_DIVE.produtos}
+        />
         {analytics?.valorTotalEstoque !== undefined && (
-          <CardKpi titulo="Valor Estoque" valor={formatarMoeda(analytics.valorTotalEstoque!)} icone={<Package className="w-5 h-5" />} href={DEEP_DIVE.produtos} />
+          <CardKpi
+            titulo="Valor Estoque"
+            valor={formatarMoeda(analytics.valorTotalEstoque!)}
+            icone={<Package className="w-5 h-5" />}
+            href={DEEP_DIVE.produtos}
+          />
         )}
-        {analytics?.produtosAbaixoMinimo !== undefined && analytics.produtosAbaixoMinimo > 0 && (
-          <CardKpi titulo="Abaixo Mínimo" valor={analytics.produtosAbaixoMinimo} icone={<Package className="w-5 h-5" />} href={DEEP_DIVE.produtos} />
-        )}
+        {analytics?.produtosAbaixoMinimo !== undefined &&
+          analytics.produtosAbaixoMinimo > 0 && (
+            <CardKpi
+              titulo="Abaixo Mínimo"
+              valor={analytics.produtosAbaixoMinimo}
+              icone={<Package className="w-5 h-5" />}
+              href={DEEP_DIVE.produtos}
+            />
+          )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -156,7 +193,13 @@ export default function DashboardEstoque(): React.JSX.Element {
                 <XAxis dataKey="nome" tick={{ fontSize: 11 }} />
                 <YAxis tick={{ fontSize: 10 }} />
                 <Tooltip />
-                <Bar dataKey="valor" fill={coresGraficos.primario} radius={[4, 4, 0, 0]} onClick={() => router.push(DEEP_DIVE.produtos)} style={{ cursor: "pointer" }} />
+                <Bar
+                  dataKey="valor"
+                  fill={coresGraficos.primario}
+                  radius={[4, 4, 0, 0]}
+                  onClick={() => router.push(DEEP_DIVE.produtos)}
+                  style={{ cursor: "pointer" }}
+                />
               </BarChart>
             </ResponsiveContainer>
           ) : (
@@ -183,7 +226,13 @@ export default function DashboardEstoque(): React.JSX.Element {
                 />
                 <YAxis tick={{ fontSize: 10 }} />
                 <Tooltip />
-                <Bar dataKey="quantidade" fill={coresGraficos.secundario} radius={[4, 4, 0, 0]} onClick={() => router.push(DEEP_DIVE.produtos)} style={{ cursor: "pointer" }} />
+                <Bar
+                  dataKey="quantidade"
+                  fill={coresGraficos.secundario}
+                  radius={[4, 4, 0, 0]}
+                  onClick={() => router.push(DEEP_DIVE.produtos)}
+                  style={{ cursor: "pointer" }}
+                />
               </BarChart>
             </ResponsiveContainer>
           </CardGrafico>
@@ -209,17 +258,37 @@ export default function DashboardEstoque(): React.JSX.Element {
                   }
                 />
                 <Tooltip />
-                <Bar dataKey="quantidade" fill={coresGraficos.primario} radius={[0, 4, 4, 0]} onClick={(e: unknown) => { const p = (e as { payload?: { codProduto?: number } })?.payload; if (p?.codProduto) router.push(DEEP_DIVE.produtoDetalhe(p.codProduto)); else router.push(DEEP_DIVE.produtos); }} style={{ cursor: "pointer" }} />
+                <Bar
+                  dataKey="quantidade"
+                  fill={coresGraficos.primario}
+                  radius={[0, 4, 4, 0]}
+                  onClick={(e: unknown) => {
+                    const p = (e as { payload?: { codProduto?: number } })
+                      ?.payload;
+                    if (p?.codProduto)
+                      router.push(DEEP_DIVE.produtoDetalhe(p.codProduto));
+                    else router.push(DEEP_DIVE.produtos);
+                  }}
+                  style={{ cursor: "pointer" }}
+                />
               </BarChart>
             </ResponsiveContainer>
           </CardGrafico>
         )}
 
-        {analytics?.produtosSemMovimento90Dias !== undefined && analytics.produtosSemMovimento90Dias > 0 && (
+        {analytics?.produtosSemMovimento90Dias !== undefined &&
+          analytics.produtosSemMovimento90Dias > 0 && (
             <div className="rounded-xl border border-amber-200 bg-amber-50/50 shadow-sm overflow-hidden">
-              <Link href={DEEP_DIVE.metricasProdutos} className="block px-4 py-3 border-b border-amber-100 hover:bg-amber-100/50 transition">
-                <h3 className="text-sm font-semibold text-slate-800">Parados 90+ dias</h3>
-                <p className="text-lg font-bold text-amber-700 mt-0.5">{analytics.produtosSemMovimento90Dias}</p>
+              <Link
+                href={DEEP_DIVE.metricasProdutos}
+                className="block px-4 py-3 border-b border-amber-100 hover:bg-amber-100/50 transition"
+              >
+                <h3 className="text-sm font-semibold text-slate-800">
+                  Parados 90+ dias
+                </h3>
+                <p className="text-lg font-bold text-amber-700 mt-0.5">
+                  {analytics.produtosSemMovimento90Dias}
+                </p>
               </Link>
             </div>
           )}
