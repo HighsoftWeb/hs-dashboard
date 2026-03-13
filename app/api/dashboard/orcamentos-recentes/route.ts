@@ -18,8 +18,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       : DASHBOARD_PADRAO.LIMITE_ORCAMENTOS;
     const limite = Math.min(limiteRaw, 100);
 
-    const codEmpresa =
-      obterCodEmpresaDoCookie(request) ?? payload.codEmpresa;
+    const codEmpresa = obterCodEmpresaDoCookie(request) ?? payload.codEmpresa;
     const orcamentos = await dashboardService.listarOrcamentosRecentes(
       codEmpresa,
       limite,

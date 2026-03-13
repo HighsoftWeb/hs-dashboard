@@ -369,10 +369,7 @@ export default function PaginaDashboard(): React.JSX.Element {
           )}
 
           {dadosGrafico.length > 0 && (
-            <CardGrafico
-              titulo="Mês Atual"
-              href={DEEP_DIVE.financeiro}
-            >
+            <CardGrafico titulo="Mês Atual" href={DEEP_DIVE.financeiro}>
               <ResponsiveContainer width="100%" height={160}>
                 <BarChart data={dadosGrafico} margin={{ top: 10, right: 10 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -420,9 +417,14 @@ export default function PaginaDashboard(): React.JSX.Element {
                     dataKey="valor"
                     radius={[0, 4, 4, 0]}
                     onClick={(e: unknown) => {
-                      const p = (e as { payload?: { faixa?: string } })?.payload;
+                      const p = (e as { payload?: { faixa?: string } })
+                        ?.payload;
                       const faixa = p?.faixa ? obterFaixaParam(p.faixa) : null;
-                      router.push(faixa ? DEEP_DIVE.contasReceberComFaixa(faixa) : DEEP_DIVE.contasReceber);
+                      router.push(
+                        faixa
+                          ? DEEP_DIVE.contasReceberComFaixa(faixa)
+                          : DEEP_DIVE.contasReceber
+                      );
                     }}
                   >
                     {agingReceber.map((_, i) => (
@@ -439,8 +441,13 @@ export default function PaginaDashboard(): React.JSX.Element {
           )}
 
           <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-            <Link href={DEEP_DIVE.orcamentos} className="block px-4 py-3 border-b border-slate-100 hover:bg-slate-50 transition">
-              <h3 className="text-sm font-semibold text-slate-800">Orçamentos Recentes</h3>
+            <Link
+              href={DEEP_DIVE.orcamentos}
+              className="block px-4 py-3 border-b border-slate-100 hover:bg-slate-50 transition"
+            >
+              <h3 className="text-sm font-semibold text-slate-800">
+                Orçamentos Recentes
+              </h3>
             </Link>
             <div className="overflow-x-auto max-h-56 overflow-y-auto">
               <table className="min-w-full">
@@ -520,10 +527,7 @@ export default function PaginaDashboard(): React.JSX.Element {
 
         <div className="space-y-6">
           {funil.length > 0 && (
-            <CardGrafico
-              titulo="Funil Status"
-              href={DEEP_DIVE.orcamentos}
-            >
+            <CardGrafico titulo="Funil Status" href={DEEP_DIVE.orcamentos}>
               <ResponsiveContainer width="100%" height={180}>
                 <PieChart>
                   <Pie
@@ -537,10 +541,19 @@ export default function PaginaDashboard(): React.JSX.Element {
                       `${e.name ?? ""}: ${e.value ?? 0}`
                     }
                     onClick={(e: unknown) => {
-                      const d = e as { name?: string; status?: string; payload?: { name?: string } };
-                      const label = d?.name ?? d?.status ?? d?.payload?.name ?? "";
+                      const d = e as {
+                        name?: string;
+                        status?: string;
+                        payload?: { name?: string };
+                      };
+                      const label =
+                        d?.name ?? d?.status ?? d?.payload?.name ?? "";
                       const sit = label ? obterSitOrcamento(label) : "";
-                      router.push(sit ? DEEP_DIVE.orcamentosComSit(sit) : DEEP_DIVE.orcamentos);
+                      router.push(
+                        sit
+                          ? DEEP_DIVE.orcamentosComSit(sit)
+                          : DEEP_DIVE.orcamentos
+                      );
                     }}
                   >
                     {funil.map((_, i) => (
@@ -560,10 +573,7 @@ export default function PaginaDashboard(): React.JSX.Element {
           )}
 
           {topClientes.length > 0 && (
-            <CardGrafico
-              titulo="Top Clientes"
-              href={DEEP_DIVE.clientes}
-            >
+            <CardGrafico titulo="Top Clientes" href={DEEP_DIVE.clientes}>
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart
                   data={topClientes.slice(0, 6)}
@@ -591,7 +601,13 @@ export default function PaginaDashboard(): React.JSX.Element {
                     fill={coresGraficos.primario}
                     radius={[0, 4, 4, 0]}
                     name="Valor"
-                    onClick={(e: unknown) => { const p = (e as { payload?: { codCliFor?: number } })?.payload; if (p?.codCliFor) router.push(DEEP_DIVE.clienteDetalhe(p.codCliFor)); else router.push(DEEP_DIVE.clientes); }}
+                    onClick={(e: unknown) => {
+                      const p = (e as { payload?: { codCliFor?: number } })
+                        ?.payload;
+                      if (p?.codCliFor)
+                        router.push(DEEP_DIVE.clienteDetalhe(p.codCliFor));
+                      else router.push(DEEP_DIVE.clientes);
+                    }}
                     style={{ cursor: "pointer" }}
                   />
                 </BarChart>
@@ -600,10 +616,7 @@ export default function PaginaDashboard(): React.JSX.Element {
           )}
 
           {topProdutos.length > 0 && (
-            <CardGrafico
-              titulo="Top Produtos"
-              href={DEEP_DIVE.produtos}
-            >
+            <CardGrafico titulo="Top Produtos" href={DEEP_DIVE.produtos}>
               <div className="space-y-2 max-h-40 overflow-y-auto">
                 {topProdutos.slice(0, 6).map((p, i) => (
                   <Link
@@ -632,9 +645,14 @@ export default function PaginaDashboard(): React.JSX.Element {
 
           {agingPagar.length > 0 && (
             <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-              <Link href={DEEP_DIVE.contasPagar} className="flex items-center gap-2 px-4 py-3 border-b border-slate-100 hover:bg-slate-50 transition">
+              <Link
+                href={DEEP_DIVE.contasPagar}
+                className="flex items-center gap-2 px-4 py-3 border-b border-slate-100 hover:bg-slate-50 transition"
+              >
                 <AlertTriangle className="w-4 h-4 text-amber-500" />
-                <h3 className="text-sm font-semibold text-slate-800">A Pagar</h3>
+                <h3 className="text-sm font-semibold text-slate-800">
+                  A Pagar
+                </h3>
               </Link>
               <div className="p-3 space-y-1.5">
                 {agingPagar.slice(0, 5).map((a, i) => {
@@ -645,8 +663,12 @@ export default function PaginaDashboard(): React.JSX.Element {
                       href={DEEP_DIVE.contasPagarComFaixa(faixa)}
                       className="flex justify-between text-xs hover:bg-slate-50 rounded px-2 py-1 -mx-2 transition"
                     >
-                      <span className="text-slate-600 truncate flex-1">{a.faixa}</span>
-                      <span className="font-medium text-slate-900 ml-2">{formatarMoeda(a.valor)}</span>
+                      <span className="text-slate-600 truncate flex-1">
+                        {a.faixa}
+                      </span>
+                      <span className="font-medium text-slate-900 ml-2">
+                        {formatarMoeda(a.valor)}
+                      </span>
                     </Link>
                   );
                 })}
@@ -655,7 +677,10 @@ export default function PaginaDashboard(): React.JSX.Element {
           )}
 
           <div className="rounded-xl border border-amber-200 bg-amber-50 shadow-sm overflow-hidden">
-            <Link href={DEEP_DIVE.contasReceber} className="block px-4 py-3 border-b border-amber-100 hover:bg-amber-50/50 transition">
+            <Link
+              href={DEEP_DIVE.contasReceber}
+              className="block px-4 py-3 border-b border-amber-100 hover:bg-amber-50/50 transition"
+            >
               <h3 className="text-sm font-semibold text-slate-800">Alertas</h3>
             </Link>
             <div className="p-3 space-y-2">

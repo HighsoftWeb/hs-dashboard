@@ -18,8 +18,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       : DASHBOARD_PADRAO.DIAS_VENCIMENTO;
     const dias = Math.min(Math.max(diasRaw, 1), 365);
 
-    const codEmpresa =
-      obterCodEmpresaDoCookie(request) ?? payload.codEmpresa;
+    const codEmpresa = obterCodEmpresaDoCookie(request) ?? payload.codEmpresa;
     const [titulosReceber, titulosPagar] = await Promise.all([
       dashboardService.listarTitulosReceberVencendo(
         codEmpresa,

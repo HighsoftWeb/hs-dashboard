@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -28,11 +28,9 @@ export function LayoutDashboard({
   } = useEmpresa();
   const [mostrarEmpresas, setMostrarEmpresas] = useState(false);
   const [mostrarUsuario, setMostrarUsuario] = useState(false);
-  const [usuario, setUsuario] = useState<Usuario | null>(null);
-
-  useEffect(() => {
-    setUsuario(servicoAutenticacao.obterUsuarioAtual());
-  }, []);
+  const [usuario] = useState<Usuario | null>(
+    () => servicoAutenticacao.obterUsuarioAtual()
+  );
 
   const handleLogout = async (): Promise<void> => {
     try {

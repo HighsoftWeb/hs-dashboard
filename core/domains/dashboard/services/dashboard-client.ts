@@ -148,9 +148,7 @@ class ServicoDashboard {
       `/dashboard/analytics?${searchParams.toString()}`
     );
     if (!resposta.success || !resposta.data) {
-      throw new Error(
-        resposta.error?.message || "Erro ao obter análises"
-      );
+      throw new Error(resposta.error?.message || "Erro ao obter análises");
     }
     return resposta.data;
   }

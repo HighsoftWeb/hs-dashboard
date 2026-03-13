@@ -35,7 +35,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const { searchParams } = new URL(request.url);
     const faixaParam = searchParams.get("faixa") as FaixaVencimento | null;
     const faixaRange =
-      faixaParam && ["vencido", "0-30", "31-60", "61-90", "acima-90"].includes(faixaParam)
+      faixaParam &&
+      ["vencido", "0-30", "31-60", "61-90", "acima-90"].includes(faixaParam)
         ? obterDataRangeFaixa(faixaParam)
         : null;
 
@@ -47,7 +48,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       search: searchParams.get("search") || undefined,
       sit: searchParams.get("sit") || undefined,
       codCliFor: searchParams.get("codCliFor") || undefined,
-      dataInicio: faixaRange?.dataInicio || searchParams.get("dataInicio") || undefined,
+      dataInicio:
+        faixaRange?.dataInicio || searchParams.get("dataInicio") || undefined,
       dataFim: faixaRange?.dataFim || searchParams.get("dataFim") || undefined,
     });
 

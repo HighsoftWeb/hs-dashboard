@@ -84,7 +84,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
     const porta =
-      typeof body.porta === "string" ? parseInt(body.porta, 10) : body.porta || 1433;
+      typeof body.porta === "string"
+        ? parseInt(body.porta, 10)
+        : body.porta || 1433;
     if (isNaN(porta) || porta <= 0 || porta > 65535) {
       return NextResponse.json(
         { success: false, error: { message: "Porta inválida" } },

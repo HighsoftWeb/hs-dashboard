@@ -4,7 +4,11 @@ import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { TrendingUp, FileText, BarChart3 } from "lucide-react";
-import { DEEP_DIVE, obterSitOrcamento, obterUrlOrcamentoPorId } from "@/core/utils/deep-dive-urls";
+import {
+  DEEP_DIVE,
+  obterSitOrcamento,
+  obterUrlOrcamentoPorId,
+} from "@/core/utils/deep-dive-urls";
 import { servicoDashboard } from "@/core/domains/dashboard/services/dashboard-client";
 import { Orcamento } from "@/core/tipos";
 import { CardKpi } from "@/core/componentes/dashboard/card-kpi";
@@ -53,8 +57,18 @@ export default function DashboardVendas(): React.JSX.Element {
   const [orcamentos, setOrcamentos] = useState<Orcamento[]>([]);
   const [analytics, setAnalytics] = useState<{
     funilVendas?: { status: string; quantidade: number; valor: number }[];
-    topClientes?: { codCliFor?: number; razaoSocial: string; valorTotal: number; quantidade: number }[];
-    topProdutos?: { codProduto?: number; descricao: string; quantidade: number; valorTotal: number }[];
+    topClientes?: {
+      codCliFor?: number;
+      razaoSocial: string;
+      valorTotal: number;
+      quantidade: number;
+    }[];
+    topProdutos?: {
+      codProduto?: number;
+      descricao: string;
+      quantidade: number;
+      valorTotal: number;
+    }[];
     metaRealizado?: {
       meta: number;
       realizado: number;
@@ -184,9 +198,25 @@ export default function DashboardVendas(): React.JSX.Element {
       )}
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <CardKpi titulo="Documentos" valor={totalOrcamentos} icone={<FileText className="w-5 h-5" />} href={DEEP_DIVE.orcamentos} />
-        <CardKpi titulo="Valor Total" valor={formatarMoeda(totalValor)} icone={<TrendingUp className="w-5 h-5" />} variante="destaque" href={DEEP_DIVE.orcamentos} />
-        <CardKpi titulo="Ticket Médio" valor={formatarMoeda(valorMedio)} icone={<BarChart3 className="w-5 h-5" />} href={DEEP_DIVE.orcamentos} />
+        <CardKpi
+          titulo="Documentos"
+          valor={totalOrcamentos}
+          icone={<FileText className="w-5 h-5" />}
+          href={DEEP_DIVE.orcamentos}
+        />
+        <CardKpi
+          titulo="Valor Total"
+          valor={formatarMoeda(totalValor)}
+          icone={<TrendingUp className="w-5 h-5" />}
+          variante="destaque"
+          href={DEEP_DIVE.orcamentos}
+        />
+        <CardKpi
+          titulo="Ticket Médio"
+          valor={formatarMoeda(valorMedio)}
+          icone={<BarChart3 className="w-5 h-5" />}
+          href={DEEP_DIVE.orcamentos}
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -198,11 +228,28 @@ export default function DashboardVendas(): React.JSX.Element {
                 <XAxis dataKey="nome" tick={{ fontSize: 10 }} />
                 <YAxis tick={{ fontSize: 10 }} />
                 <Tooltip />
-                <Bar dataKey="quantidade" fill={coresGraficos.primario} radius={[4, 4, 0, 0]} onClick={(e: unknown) => { const p = (e as { payload?: { nome?: string } })?.payload; const label = p?.nome ?? ""; const sit = label ? obterSitOrcamento(label) : ""; router.push(sit ? DEEP_DIVE.orcamentosComSit(sit) : DEEP_DIVE.orcamentos); }} style={{ cursor: "pointer" }} />
+                <Bar
+                  dataKey="quantidade"
+                  fill={coresGraficos.primario}
+                  radius={[4, 4, 0, 0]}
+                  onClick={(e: unknown) => {
+                    const p = (e as { payload?: { nome?: string } })?.payload;
+                    const label = p?.nome ?? "";
+                    const sit = label ? obterSitOrcamento(label) : "";
+                    router.push(
+                      sit
+                        ? DEEP_DIVE.orcamentosComSit(sit)
+                        : DEEP_DIVE.orcamentos
+                    );
+                  }}
+                  style={{ cursor: "pointer" }}
+                />
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <p className="text-xs text-slate-500 text-center py-12">Sem dados</p>
+            <p className="text-xs text-slate-500 text-center py-12">
+              Sem dados
+            </p>
           )}
         </CardGrafico>
 
@@ -219,11 +266,23 @@ export default function DashboardVendas(): React.JSX.Element {
                   }
                 />
                 <Tooltip formatter={(v) => formatarMoeda(Number(v ?? 0))} />
-                <Bar dataKey="valor" fill={coresGraficos.primario} radius={[4, 4, 0, 0]} onClick={(e: unknown) => { const p = (e as { payload?: { id?: string } })?.payload; if (p?.id) router.push(obterUrlOrcamentoPorId(p.id)); else router.push(DEEP_DIVE.orcamentos); }} style={{ cursor: "pointer" }} />
+                <Bar
+                  dataKey="valor"
+                  fill={coresGraficos.primario}
+                  radius={[4, 4, 0, 0]}
+                  onClick={(e: unknown) => {
+                    const p = (e as { payload?: { id?: string } })?.payload;
+                    if (p?.id) router.push(obterUrlOrcamentoPorId(p.id));
+                    else router.push(DEEP_DIVE.orcamentos);
+                  }}
+                  style={{ cursor: "pointer" }}
+                />
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <p className="text-xs text-slate-500 text-center py-12">Sem dados</p>
+            <p className="text-xs text-slate-500 text-center py-12">
+              Sem dados
+            </p>
           )}
         </CardGrafico>
 
@@ -231,9 +290,33 @@ export default function DashboardVendas(): React.JSX.Element {
           <CardGrafico titulo="Funil Status" href={DEEP_DIVE.orcamentos}>
             <ResponsiveContainer width="100%" height={200}>
               <PieChart>
-                <Pie data={funil} dataKey="quantidade" nameKey="status" cx="50%" cy="50%" outerRadius={65} label={(e: { name?: string; value?: number }) => `${e.name ?? ""}: ${e.value ?? 0}`} onClick={(e: unknown) => { const d = e as { name?: string; status?: string }; const label = d?.name ?? d?.status ?? ""; const sit = label ? obterSitOrcamento(label) : ""; router.push(sit ? DEEP_DIVE.orcamentosComSit(sit) : DEEP_DIVE.orcamentos); }}>
+                <Pie
+                  data={funil}
+                  dataKey="quantidade"
+                  nameKey="status"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={65}
+                  label={(e: { name?: string; value?: number }) =>
+                    `${e.name ?? ""}: ${e.value ?? 0}`
+                  }
+                  onClick={(e: unknown) => {
+                    const d = e as { name?: string; status?: string };
+                    const label = d?.name ?? d?.status ?? "";
+                    const sit = label ? obterSitOrcamento(label) : "";
+                    router.push(
+                      sit
+                        ? DEEP_DIVE.orcamentosComSit(sit)
+                        : DEEP_DIVE.orcamentos
+                    );
+                  }}
+                >
                   {funil.map((_, i) => (
-                    <Cell key={i} fill={CORES_FUNIL[i % CORES_FUNIL.length]} style={{ cursor: "pointer" }} />
+                    <Cell
+                      key={i}
+                      fill={CORES_FUNIL[i % CORES_FUNIL.length]}
+                      style={{ cursor: "pointer" }}
+                    />
                   ))}
                 </Pie>
                 <Tooltip
@@ -246,8 +329,13 @@ export default function DashboardVendas(): React.JSX.Element {
 
         {topClientes.length > 0 && (
           <div className="lg:col-span-2 rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-            <Link href={DEEP_DIVE.clientes} className="block px-4 py-3 border-b border-slate-100 hover:bg-slate-50 transition">
-              <h3 className="text-sm font-semibold text-slate-800">Top Clientes</h3>
+            <Link
+              href={DEEP_DIVE.clientes}
+              className="block px-4 py-3 border-b border-slate-100 hover:bg-slate-50 transition"
+            >
+              <h3 className="text-sm font-semibold text-slate-800">
+                Top Clientes
+              </h3>
             </Link>
             <ResponsiveContainer width="100%" height={220}>
               <BarChart
@@ -271,7 +359,20 @@ export default function DashboardVendas(): React.JSX.Element {
                   }
                 />
                 <Tooltip formatter={(v) => formatarMoeda(Number(v ?? 0))} />
-                <Bar dataKey="valorTotal" fill={coresGraficos.primario} radius={[0, 4, 4, 0]} name="Valor" onClick={(e: unknown) => { const p = (e as { payload?: { codCliFor?: number } })?.payload; if (p?.codCliFor) router.push(DEEP_DIVE.clienteDetalhe(p.codCliFor)); else router.push(DEEP_DIVE.clientes); }} style={{ cursor: "pointer" }} />
+                <Bar
+                  dataKey="valorTotal"
+                  fill={coresGraficos.primario}
+                  radius={[0, 4, 4, 0]}
+                  name="Valor"
+                  onClick={(e: unknown) => {
+                    const p = (e as { payload?: { codCliFor?: number } })
+                      ?.payload;
+                    if (p?.codCliFor)
+                      router.push(DEEP_DIVE.clienteDetalhe(p.codCliFor));
+                    else router.push(DEEP_DIVE.clientes);
+                  }}
+                  style={{ cursor: "pointer" }}
+                />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -279,8 +380,13 @@ export default function DashboardVendas(): React.JSX.Element {
 
         {topProdutos.length > 0 && (
           <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-            <Link href={DEEP_DIVE.produtos} className="block px-4 py-3 border-b border-slate-100 hover:bg-slate-50 transition">
-              <h3 className="text-sm font-semibold text-slate-800">Top Produtos</h3>
+            <Link
+              href={DEEP_DIVE.produtos}
+              className="block px-4 py-3 border-b border-slate-100 hover:bg-slate-50 transition"
+            >
+              <h3 className="text-sm font-semibold text-slate-800">
+                Top Produtos
+              </h3>
             </Link>
             <ResponsiveContainer width="100%" height={220}>
               <BarChart
@@ -300,7 +406,20 @@ export default function DashboardVendas(): React.JSX.Element {
                   }
                 />
                 <Tooltip formatter={(v) => v} />
-                <Bar dataKey="quantidade" fill={coresGraficos.secundario} radius={[0, 4, 4, 0]} name="Qtd" onClick={(e: unknown) => { const p = (e as { payload?: { codProduto?: number } })?.payload; if (p?.codProduto) router.push(DEEP_DIVE.produtoDetalhe(p.codProduto)); else router.push(DEEP_DIVE.produtos); }} style={{ cursor: "pointer" }} />
+                <Bar
+                  dataKey="quantidade"
+                  fill={coresGraficos.secundario}
+                  radius={[0, 4, 4, 0]}
+                  name="Qtd"
+                  onClick={(e: unknown) => {
+                    const p = (e as { payload?: { codProduto?: number } })
+                      ?.payload;
+                    if (p?.codProduto)
+                      router.push(DEEP_DIVE.produtoDetalhe(p.codProduto));
+                    else router.push(DEEP_DIVE.produtos);
+                  }}
+                  style={{ cursor: "pointer" }}
+                />
               </BarChart>
             </ResponsiveContainer>
           </div>
