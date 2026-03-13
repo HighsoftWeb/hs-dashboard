@@ -84,7 +84,7 @@ export default function DashboardEstoque(): React.JSX.Element {
     } finally {
       setCarregando(false);
     }
-  }, [dataInicio, dataFim]);
+  }, []);
 
   useEffect(() => {
     carregar();

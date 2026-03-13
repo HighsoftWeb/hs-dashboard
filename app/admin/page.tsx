@@ -271,7 +271,7 @@ export default function PaginaAdmin(): React.JSX.Element {
       const json = JSON.parse(texto) as unknown;
       const lista = Array.isArray(json) ? json : [json];
       let sucesso = 0;
-      let falhas: string[] = [];
+      const falhas: string[] = [];
       for (const item of lista) {
         const emp = item as Record<string, unknown>;
         const cnpj = String(emp.cnpj ?? "").replace(/\D/g, "");
