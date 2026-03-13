@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useSyncExternalStore } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -9,6 +9,7 @@ import { servicoAutenticacao } from "../domains/auth/client/auth-client";
 import { useEmpresa } from "../context/empresa-context";
 import { DASHBOARDS } from "../config/dashboards";
 import { logger } from "../utils/logger";
+import type { Usuario } from "../tipos/usuario";
 
 interface PropsLayoutDashboard {
   children: React.ReactNode;
@@ -27,11 +28,12 @@ export function LayoutDashboard({
   } = useEmpresa();
   const [mostrarEmpresas, setMostrarEmpresas] = useState(false);
   const [mostrarUsuario, setMostrarUsuario] = useState(false);
-  const usuario = useSyncExternalStore(
-    () => () => {},
-    () => servicoAutenticacao.obterUsuarioAtual(),
-    () => null
-  );
+  const [usuario, setUsuario] = useState<Usuario | null>(null);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Carrega usuário apenas no client (cookies) para evitar hydration mismatch
+    setUsuario(servicoAutenticacao.obterUsuarioAtual());
+  }, []);
 
   const handleLogout = async (): Promise<void> => {
     try {
