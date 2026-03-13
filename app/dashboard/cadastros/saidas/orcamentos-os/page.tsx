@@ -1,12 +1,13 @@
 "use client";
 
-import React from "react";
+import React, { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   DataTable,
   ColunaDataTable,
   FiltroDataTable,
 } from "@/core/componentes/data-table/data-table";
+import { SkeletonDataTable } from "@/core/componentes/skeleton-data-table/skeleton-data-table";
 import { formatarData } from "@/core/utils/formatar-data";
 import { formatarMoeda } from "@/core/utils/formatar-moeda";
 import { obterStatus, obterCorStatus } from "@/core/utils/status-utils";
@@ -24,7 +25,7 @@ interface OrcamentoOSDB extends Record<string, unknown> {
   RAZ_CLI_FOR: string | null;
 }
 
-export default function PaginaOrcamentosOS(): React.JSX.Element {
+function ConteudoOrcamentosOS(): React.JSX.Element {
   const router = useRouter();
   const searchParams = useSearchParams();
   const sit = searchParams.get("sit") ?? "";
@@ -165,5 +166,13 @@ export default function PaginaOrcamentosOS(): React.JSX.Element {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function PaginaOrcamentosOS(): React.JSX.Element {
+  return (
+    <Suspense fallback={<SkeletonDataTable />}>
+      <ConteudoOrcamentosOS />
+    </Suspense>
   );
 }
