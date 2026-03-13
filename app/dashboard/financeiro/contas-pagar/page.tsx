@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { Suspense, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   DataTable,
   ColunaDataTable,
   FiltroDataTable,
 } from "@/core/componentes/data-table/data-table";
+import { SkeletonDataTable } from "@/core/componentes/skeleton-data-table/skeleton-data-table";
 import { formatarData } from "@/core/utils/formatar-data";
 
 interface TituloPagarDB extends Record<string, unknown> {
@@ -20,7 +21,7 @@ interface TituloPagarDB extends Record<string, unknown> {
   VLR_ORIGINAL: number | null;
 }
 
-export default function PaginaContasPagar(): React.JSX.Element {
+function ConteudoContasPagar(): React.JSX.Element {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -171,5 +172,13 @@ export default function PaginaContasPagar(): React.JSX.Element {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function PaginaContasPagar(): React.JSX.Element {
+  return (
+    <Suspense fallback={<SkeletonDataTable />}>
+      <ConteudoContasPagar />
+    </Suspense>
   );
 }

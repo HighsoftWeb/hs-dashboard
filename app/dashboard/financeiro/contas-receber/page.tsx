@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { Suspense, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   DataTable,
   ColunaDataTable,
   FiltroDataTable,
 } from "@/core/componentes/data-table/data-table";
+import { SkeletonDataTable } from "@/core/componentes/skeleton-data-table/skeleton-data-table";
 import { formatarData } from "@/core/utils/formatar-data";
 
 interface TituloReceberDB extends Record<string, unknown> {
@@ -25,7 +26,7 @@ interface TituloReceberDB extends Record<string, unknown> {
   COD_MOEDA: string | null;
 }
 
-export default function PaginaContasReceber(): React.JSX.Element {
+function ConteudoContasReceber(): React.JSX.Element {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -210,5 +211,13 @@ export default function PaginaContasReceber(): React.JSX.Element {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function PaginaContasReceber(): React.JSX.Element {
+  return (
+    <Suspense fallback={<SkeletonDataTable />}>
+      <ConteudoContasReceber />
+    </Suspense>
   );
 }
