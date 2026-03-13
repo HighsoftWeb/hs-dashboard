@@ -28,8 +28,8 @@ export function LayoutDashboard({
   } = useEmpresa();
   const [mostrarEmpresas, setMostrarEmpresas] = useState(false);
   const [mostrarUsuario, setMostrarUsuario] = useState(false);
-  const [usuario] = useState<Usuario | null>(
-    () => servicoAutenticacao.obterUsuarioAtual()
+  const [usuario] = useState<Usuario | null>(() =>
+    servicoAutenticacao.obterUsuarioAtual()
   );
 
   const handleLogout = async (): Promise<void> => {
