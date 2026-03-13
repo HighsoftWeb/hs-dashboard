@@ -96,7 +96,7 @@ export default function PaginaDetalhesNotaFiscal(): React.JSX.Element {
         <p className="text-sm text-red-800">{erro || "Nota não encontrada"}</p>
         <button
           onClick={() => router.back()}
-          className="mt-4 px-4 py-2 bg-[#094A73] text-white rounded hover:bg-[#073a5c]"
+          className="mt-4 px-4 py-2 bg-highsoft-primario text-white rounded hover:bg-highsoft-primario-hover"
         >
           Voltar
         </button>
@@ -145,7 +145,7 @@ export default function PaginaDetalhesNotaFiscal(): React.JSX.Element {
               type="text"
               value={`${nota.RAZ_CLI_FOR || "-"} (${nota.COD_CLI_FOR})`}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
 
@@ -157,7 +157,7 @@ export default function PaginaDetalhesNotaFiscal(): React.JSX.Element {
               type="text"
               value={formatarDataHora(nota.HOR_EMISSAO || nota.DAT_EMISSAO)}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
 
@@ -169,7 +169,7 @@ export default function PaginaDetalhesNotaFiscal(): React.JSX.Element {
               type="text"
               value={nota.DES_REPRESENTANTE || nota.COD_REPRESENTANTE || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
 
@@ -181,7 +181,7 @@ export default function PaginaDetalhesNotaFiscal(): React.JSX.Element {
               type="text"
               value={nota.DES_TRANSPORTADORA || nota.COD_TRANSPORTADORA || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
         </div>
@@ -194,7 +194,7 @@ export default function PaginaDetalhesNotaFiscal(): React.JSX.Element {
               onClick={() => setAbaAtiva("itens")}
               className={`px-3 py-2 text-sm font-medium rounded-t-lg transition-colors ${
                 abaAtiva === "itens"
-                  ? "bg-[#094A73] text-white"
+                  ? "bg-highsoft-primario text-white"
                   : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
               }`}
             >
@@ -285,7 +285,7 @@ export default function PaginaDetalhesNotaFiscal(): React.JSX.Element {
               type="text"
               value={formatarMoeda(nota.VLR_BRUTO)}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white text-right"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white text-right"
             />
           </div>
 
@@ -301,7 +301,7 @@ export default function PaginaDetalhesNotaFiscal(): React.JSX.Element {
                   : formatarMoeda(0)
               }
               readOnly
-              className={`w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white text-right ${nota.VLR_DESCONTO && Number(nota.VLR_DESCONTO) !== 0 ? "text-red-600 font-semibold" : ""}`}
+              className={`w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white text-right ${nota.VLR_DESCONTO && Number(nota.VLR_DESCONTO) !== 0 ? "text-red-600 font-semibold" : ""}`}
             />
           </div>
 
@@ -313,7 +313,7 @@ export default function PaginaDetalhesNotaFiscal(): React.JSX.Element {
               type="text"
               value={formatarMoeda(nota.VLR_PRODUTOS)}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white text-right"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white text-right"
             />
           </div>
 
@@ -325,7 +325,7 @@ export default function PaginaDetalhesNotaFiscal(): React.JSX.Element {
               type="text"
               value={formatarMoeda(nota.VLR_LIQUIDO)}
               readOnly
-              className="w-full px-2 py-1.5 text-base font-bold border-2 border-[#094A73] rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-[#094A73] text-white text-right"
+              className="w-full px-2 py-1.5 text-base font-bold border-2 border-highsoft-primario rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-highsoft-primario text-white text-right"
             />
           </div>
         </div>

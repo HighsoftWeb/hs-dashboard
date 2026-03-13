@@ -75,7 +75,7 @@ export default function PaginaDetalhesCliente(): React.JSX.Element {
         </p>
         <button
           onClick={() => router.back()}
-          className="mt-4 px-4 py-2 bg-[#094A73] text-white rounded hover:bg-[#073a5c]"
+          className="mt-4 px-4 py-2 bg-highsoft-primario text-white rounded hover:bg-highsoft-primario-hover"
         >
           Voltar
         </button>
@@ -126,7 +126,7 @@ export default function PaginaDetalhesCliente(): React.JSX.Element {
               type="text"
               value={cliente.RAZ_CLI_FOR || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -137,7 +137,7 @@ export default function PaginaDetalhesCliente(): React.JSX.Element {
               type="text"
               value={cliente.FAN_CLI_FOR || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -148,7 +148,7 @@ export default function PaginaDetalhesCliente(): React.JSX.Element {
               type="text"
               value={cliente.CGC_CPF || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -159,7 +159,7 @@ export default function PaginaDetalhesCliente(): React.JSX.Element {
               type="text"
               value={cliente.END_CLI_FOR || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -170,7 +170,7 @@ export default function PaginaDetalhesCliente(): React.JSX.Element {
               type="text"
               value={cliente.NUM_END_CLI_FOR || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white text-right"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white text-right"
             />
           </div>
           <div className="flex flex-col">
@@ -181,7 +181,7 @@ export default function PaginaDetalhesCliente(): React.JSX.Element {
               type="text"
               value={cliente.COM_ENDERECO || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -192,7 +192,7 @@ export default function PaginaDetalhesCliente(): React.JSX.Element {
               type="text"
               value={cliente.BAI_CLI_FOR || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -203,7 +203,7 @@ export default function PaginaDetalhesCliente(): React.JSX.Element {
               type="text"
               value={cliente.CEP_CLI_FOR || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -218,7 +218,7 @@ export default function PaginaDetalhesCliente(): React.JSX.Element {
                   : cliente.NOM_CIDADE || "-"
               }
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -229,7 +229,7 @@ export default function PaginaDetalhesCliente(): React.JSX.Element {
               type="text"
               value={cliente.TEL_CLI_FOR || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -240,7 +240,7 @@ export default function PaginaDetalhesCliente(): React.JSX.Element {
               type="text"
               value={cliente.FAX_CLI_FOR || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -251,7 +251,7 @@ export default function PaginaDetalhesCliente(): React.JSX.Element {
               type="text"
               value={cliente.CEL_CLI_FOR || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -262,7 +262,7 @@ export default function PaginaDetalhesCliente(): React.JSX.Element {
               type="text"
               value={cliente.END_ELETRONICO || "-"}
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
           <div className="flex flex-col">
@@ -279,7 +279,7 @@ export default function PaginaDetalhesCliente(): React.JSX.Element {
                     : cliente.SIT_CLI_FOR || "-"
               }
               readOnly
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-[#094A73] focus:border-transparent bg-white"
+              className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-highsoft-primario focus:border-transparent bg-white"
             />
           </div>
         </div>

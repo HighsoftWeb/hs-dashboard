@@ -11,10 +11,10 @@ const config: Config = {
     extend: {
       colors: {
         highsoft: {
-          cinza: "#A4A5A6",
-          primario: "#094A73",
-          secundario: "#048ABF",
-          terciario: "#04B2D9",
+          cinza: "#94a3b8",
+          primario: "#64748b",
+          secundario: "#94a3b8",
+          terciario: "#cbd5e1",
           sucesso: "#10B981",
           erro: "#EF4444",
           aviso: "#F59E0B",

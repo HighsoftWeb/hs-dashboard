@@ -1,5 +1,6 @@
 import { obterBancoEmpresas } from "../db/banco-empresas";
 import { EmpresaConfig, EmpresaConfigInput } from "../entities/EmpresaConfig";
+import { CORES_HIGHSOFT_PADRAO } from "../temas/cores-highsoft";
 import type { EmpresaRow } from "../db/types-sqlite";
 
 function mapearRowParaEmpresaConfig(row: EmpresaRow): EmpresaConfig {
@@ -13,9 +14,9 @@ function mapearRowParaEmpresaConfig(row: EmpresaRow): EmpresaConfig {
     usuario: row.usuario,
     senha: row.senha,
     codigosUsuariosPermitidos: row.codigos_usuarios_permitidos,
-    corPrimaria: row.cor_primaria || "#094a73",
-    corSecundaria: row.cor_secundaria || "#048abf",
-    corTerciaria: row.cor_terciaria || "#04b2d9",
+    corPrimaria: row.cor_primaria || "#64748b",
+    corSecundaria: row.cor_secundaria || "#94a3b8",
+    corTerciaria: row.cor_terciaria || "#cbd5e1",
     criadoEm: row.criado_em,
     atualizadoEm: row.atualizado_em,
   };
@@ -60,9 +61,9 @@ class EmpresaConfigRepository {
       empresa.usuario,
       empresa.senha,
       empresa.codigosUsuariosPermitidos || null,
-      empresa.corPrimaria || "#094a73",
-      empresa.corSecundaria || "#048abf",
-      empresa.corTerciaria || "#04b2d9"
+      empresa.corPrimaria || CORES_HIGHSOFT_PADRAO.primaria,
+      empresa.corSecundaria || CORES_HIGHSOFT_PADRAO.secundaria,
+      empresa.corTerciaria || CORES_HIGHSOFT_PADRAO.terciaria
     );
 
     const novaEmpresa = this.obterPorId(result.lastInsertRowid as number);
@@ -92,9 +93,9 @@ class EmpresaConfigRepository {
       empresa.usuario,
       empresa.senha,
       empresa.codigosUsuariosPermitidos || null,
-      empresa.corPrimaria || "#094a73",
-      empresa.corSecundaria || "#048abf",
-      empresa.corTerciaria || "#04b2d9",
+      empresa.corPrimaria || CORES_HIGHSOFT_PADRAO.primaria,
+      empresa.corSecundaria || CORES_HIGHSOFT_PADRAO.secundaria,
+      empresa.corTerciaria || CORES_HIGHSOFT_PADRAO.terciaria,
       id
     );
 

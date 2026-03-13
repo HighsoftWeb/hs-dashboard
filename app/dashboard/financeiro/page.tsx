@@ -33,9 +33,10 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
-import { obterCoresGraficos } from "@/core/constants/cores-graficos";
-import { useEmpresa } from "@/core/context/empresa-context";
-
+import {
+  obterCorPorNomeGrafico,
+  CORES_FINANCEIRAS,
+} from "@/core/constants/cores-graficos";
 function formatarMoeda(v: number): string {
   return new Intl.NumberFormat("pt-BR", {
     style: "currency",
@@ -48,8 +49,6 @@ const CORES_AGING = ["#ef4444", "#f59e0b", "#eab308", "#22c55e", "#3b82f6"];
 
 export default function DashboardFinanceiro(): React.JSX.Element {
   const router = useRouter();
-  const { cores } = useEmpresa();
-  const coresGraficos = obterCoresGraficos(cores);
   const padrao = obterIntervaloPadrao();
 
   const [stats, setStats] = useState<{
@@ -77,10 +76,14 @@ export default function DashboardFinanceiro(): React.JSX.Element {
     try {
       setCarregando(true);
       const [estatRes, contasRes, analGeral, analMetricas] = await Promise.all([
-        servicoDashboard.obterEstatisticas(),
+        servicoDashboard.obterEstatisticas({ dataInicio, dataFim }),
         servicoDashboard.listarContasVencendo(60),
         servicoDashboard.obterAnalytics({ dataInicio, dataFim, tipo: "geral" }),
-        servicoDashboard.obterAnalytics({ tipo: "metricas" }),
+        servicoDashboard.obterAnalytics({
+          dataInicio,
+          dataFim,
+          tipo: "metricas",
+        }),
       ]);
       setStats({
         receitasMes: estatRes.receitasMes,
@@ -182,17 +185,19 @@ export default function DashboardFinanceiro(): React.JSX.Element {
           titulo="Receitas"
           valor={formatarMoeda(s.receitasMes)}
           icone={<TrendingUp className="w-5 h-5" />}
-          variante="destaque"
+          tipoFinanceiro="receita"
         />
         <CardKpi
           titulo="Despesas"
           valor={formatarMoeda(s.despesasMes)}
           icone={<TrendingDown className="w-5 h-5" />}
+          tipoFinanceiro="despesa"
         />
         <CardKpi
           titulo="Lucro"
           valor={formatarMoeda(s.lucroMes)}
           icone={<DollarSign className="w-5 h-5" />}
+          tipoFinanceiro="lucro"
           negativo={s.lucroMes < 0}
         />
         <CardKpi
@@ -207,15 +212,16 @@ export default function DashboardFinanceiro(): React.JSX.Element {
               titulo="A Receber"
               valor={formatarMoeda(inadimplencia.valorTotalReceber)}
               icone={<DollarSign className="w-5 h-5" />}
+              tipoFinanceiro="receita"
               href={DEEP_DIVE.contasReceber}
             />
             <CardKpi
               titulo="Inadimplência"
               valor={`${inadimplencia.percentualInadimplencia.toFixed(1)}%`}
               icone={<AlertTriangle className="w-5 h-5" />}
-              variante={
+              tipoFinanceiro={
                 inadimplencia.percentualInadimplencia > 10
-                  ? "destaque"
+                  ? "despesa"
                   : undefined
               }
               href={DEEP_DIVE.contasReceber}
@@ -225,7 +231,7 @@ export default function DashboardFinanceiro(): React.JSX.Element {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <CardGrafico titulo="Mês Atual">
+        <CardGrafico titulo="Receitas x Despesas x Lucro (período)">
           {dadosGrafico.length > 0 ? (
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={dadosGrafico} margin={{ top: 10, right: 10 }}>
@@ -238,11 +244,14 @@ export default function DashboardFinanceiro(): React.JSX.Element {
                   }
                 />
                 <Tooltip formatter={(v) => formatarMoeda(Number(v ?? 0))} />
-                <Bar
-                  dataKey="valor"
-                  fill={coresGraficos.primario}
-                  radius={[4, 4, 0, 0]}
-                />
+                <Bar dataKey="valor" radius={[4, 4, 0, 0]}>
+                  {dadosGrafico.map((entry, i) => (
+                    <Cell
+                      key={i}
+                      fill={obterCorPorNomeGrafico(entry.nome, entry.valor)}
+                    />
+                  ))}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           ) : (
@@ -320,7 +329,7 @@ export default function DashboardFinanceiro(): React.JSX.Element {
                 <Tooltip formatter={(v) => formatarMoeda(Number(v ?? 0))} />
                 <Bar
                   dataKey="valor"
-                  fill={coresGraficos.primario}
+                  fill={CORES_FINANCEIRAS.receita}
                   radius={[4, 4, 0, 0]}
                   name="A receber"
                   onClick={() => router.push(DEEP_DIVE.contasReceber)}
@@ -331,13 +340,13 @@ export default function DashboardFinanceiro(): React.JSX.Element {
           </CardGrafico>
         )}
 
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 shadow-sm overflow-hidden">
+        <div className="rounded-xl border border-blue-200 bg-blue-50/50 shadow-sm overflow-hidden">
           <Link
             href={DEEP_DIVE.contasReceber}
-            className="block px-4 py-3 border-b border-emerald-100 hover:bg-emerald-50/50 transition"
+            className="block px-4 py-3 border-b border-blue-100 hover:bg-blue-50/50 transition"
           >
             <h3 className="text-sm font-semibold text-slate-800">A Receber</h3>
-            <p className="text-lg font-bold text-emerald-700 mt-0.5">
+            <p className="text-lg font-bold text-blue-700 mt-0.5">
               {formatarMoeda(totalReceber)}
             </p>
           </Link>
@@ -346,10 +355,12 @@ export default function DashboardFinanceiro(): React.JSX.Element {
               <Link
                 key={c.id}
                 href={obterUrlTitulo(c)}
-                className="flex justify-between text-xs hover:bg-emerald-100/50 rounded px-2 py-1 -mx-2 transition"
+                className="flex justify-between text-xs hover:bg-blue-100/50 rounded px-2 py-1 -mx-2 transition"
               >
-                <span className="truncate flex-1">{c.descricao}</span>
-                <span className="font-medium ml-2">
+                <span className="truncate flex-1 text-slate-700">
+                  {c.descricao}
+                </span>
+                <span className="font-medium ml-2 text-blue-700">
                   {formatarMoeda(c.valor)}
                 </span>
               </Link>
@@ -377,8 +388,10 @@ export default function DashboardFinanceiro(): React.JSX.Element {
                 href={obterUrlTitulo(c)}
                 className="flex justify-between text-xs hover:bg-red-100/50 rounded px-2 py-1 -mx-2 transition"
               >
-                <span className="truncate flex-1">{c.descricao}</span>
-                <span className="font-medium ml-2">
+                <span className="truncate flex-1 text-slate-700">
+                  {c.descricao}
+                </span>
+                <span className="font-medium ml-2 text-red-700">
                   {formatarMoeda(c.valor)}
                 </span>
               </Link>
@@ -412,7 +425,7 @@ export default function DashboardFinanceiro(): React.JSX.Element {
                 <Tooltip formatter={(v) => formatarMoeda(Number(v ?? 0))} />
                 <Bar
                   dataKey="valor"
-                  fill="#ef4444"
+                  fill={CORES_FINANCEIRAS.despesa}
                   radius={[0, 4, 4, 0]}
                   onClick={(e: unknown) => {
                     const p = (e as { payload?: { faixa?: string } })?.payload;
@@ -473,7 +486,7 @@ export default function DashboardFinanceiro(): React.JSX.Element {
                       <td className="px-3 py-2">
                         <Link href={obterUrlTitulo(c)} className="block">
                           <span
-                            className={`px-1.5 py-0.5 rounded text-xs font-medium ${c.tipo === "receber" ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}
+                            className={`px-1.5 py-0.5 rounded text-xs font-medium ${c.tipo === "receber" ? "bg-blue-100 text-blue-700" : "bg-red-100 text-red-700"}`}
                           >
                             {c.tipo === "receber" ? "Rec." : "Pag."}
                           </span>

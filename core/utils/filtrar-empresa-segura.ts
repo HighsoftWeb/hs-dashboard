@@ -16,9 +16,9 @@ export function filtrarEmpresaSegura(empresa: EmpresaConfig): EmpresaSegura {
     id: empresa.id,
     cnpj: empresa.cnpj,
     nomeEmpresa: empresa.nomeEmpresa,
-    corPrimaria: empresa.corPrimaria || "#094a73",
-    corSecundaria: empresa.corSecundaria || "#048abf",
-    corTerciaria: empresa.corTerciaria || "#04b2d9",
+    corPrimaria: empresa.corPrimaria || "#64748b",
+    corSecundaria: empresa.corSecundaria || "#94a3b8",
+    corTerciaria: empresa.corTerciaria || "#cbd5e1",
     criadoEm: empresa.criadoEm,
     atualizadoEm: empresa.atualizadoEm,
   };

@@ -109,25 +109,42 @@ export class AnalyticsRepository {
 
   async obterTendenciaMensal(
     codEmpresa: number,
-    meses: number,
+    dataInicio: string,
+    dataFim: string,
     empresaConfig: EmpresaConfig
   ): Promise<TendenciaMensal[]> {
     const resultados: TendenciaMensal[] = [];
-    const hoje = new Date();
+    let inicio = new Date(dataInicio + "T00:00:00");
+    let fim = new Date(dataFim + "T23:59:59");
+    if (isNaN(inicio.getTime()) || isNaN(fim.getTime())) {
+      const hoje = new Date();
+      inicio = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+      fim = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
+    }
 
-    for (let i = meses - 1; i >= 0; i--) {
-      const dataRef = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1);
-      const mes = dataRef.getMonth() + 1;
-      const ano = dataRef.getFullYear();
+    const mesesIterar: { mes: number; ano: number }[] = [];
+    const cursor = new Date(inicio.getFullYear(), inicio.getMonth(), 1);
+    const fimMes = new Date(fim.getFullYear(), fim.getMonth(), 1);
+
+    while (cursor <= fimMes) {
+      mesesIterar.push({
+        mes: cursor.getMonth() + 1,
+        ano: cursor.getFullYear(),
+      });
+      cursor.setMonth(cursor.getMonth() + 1);
+    }
+
+    for (const { mes, ano } of mesesIterar) {
+      const dataRef = new Date(ano, mes - 1, 1);
 
       const query = `
         SELECT 
-          ISNULL((SELECT SUM(VLR_ABERTO) FROM dbo.TITULOS_RECEBER 
-            WHERE COD_EMPRESA = @codEmpresa AND SIT_TITULO = 'AB'
-              AND MONTH(VCT_ORIGINAL) = @mes AND YEAR(VCT_ORIGINAL) = @ano), 0) AS receitas,
-          ISNULL((SELECT SUM(VLR_ABERTO) FROM dbo.TITULOS_PAGAR 
-            WHERE COD_EMPRESA = @codEmpresa AND SIT_TITULO = 'AB'
-              AND MONTH(VCT_ORIGINAL) = @mes AND YEAR(VCT_ORIGINAL) = @ano), 0) AS despesas,
+          ISNULL((SELECT SUM(ISNULL(VLR_ORIGINAL, VLR_ABERTO)) FROM dbo.TITULOS_RECEBER 
+            WHERE COD_EMPRESA = @codEmpresa AND (SIT_TITULO IS NULL OR SIT_TITULO != 'CA')
+              AND MONTH(COALESCE(DAT_EMISSAO, VCT_ORIGINAL)) = @mes AND YEAR(COALESCE(DAT_EMISSAO, VCT_ORIGINAL)) = @ano), 0) AS receitas,
+          ISNULL((SELECT SUM(ISNULL(VLR_ORIGINAL, VLR_ABERTO)) FROM dbo.TITULOS_PAGAR 
+            WHERE COD_EMPRESA = @codEmpresa AND (SIT_TITULO IS NULL OR SIT_TITULO != 'CA')
+              AND MONTH(COALESCE(DAT_EMISSAO, VCT_ORIGINAL)) = @mes AND YEAR(COALESCE(DAT_EMISSAO, VCT_ORIGINAL)) = @ano), 0) AS despesas,
           (SELECT COUNT(*) FROM dbo.ORCAMENTOS_OS 
             WHERE COD_EMPRESA = @codEmpresa
               AND MONTH(DAT_EMISSAO) = @mes AND YEAR(DAT_EMISSAO) = @ano) AS orcamentos,
@@ -466,7 +483,9 @@ export class AnalyticsRepository {
 
   async obterResumoEstoqueAvancado(
     codEmpresa: number,
-    empresaConfig: EmpresaConfig
+    empresaConfig: EmpresaConfig,
+    dataInicio?: string,
+    dataFim?: string
   ): Promise<ResumoEstoqueAvancado> {
     const queryValor = `
       SELECT 
@@ -529,13 +548,16 @@ export class AnalyticsRepository {
       const a = abaixoR?.[0];
       const s = semMovR?.[0];
 
+      const hoje = new Date();
+      const inicioPadrao =
+        dataInicio ??
+        formatarDataSql(new Date(hoje.getFullYear(), hoje.getMonth() - 1, 1));
+      const fimPadrao = dataFim ?? formatarDataSql(new Date());
       const topProdutos = await this.obterTopProdutosOrcamento(
         codEmpresa,
         5,
-        formatarDataSql(
-          new Date(new Date().setMonth(new Date().getMonth() - 1))
-        ),
-        formatarDataSql(new Date()),
+        inicioPadrao,
+        fimPadrao,
         empresaConfig
       );
 
@@ -838,22 +860,39 @@ export class AnalyticsRepository {
 
   async obterIndicadoresCaixa(
     codEmpresa: number,
-    empresaConfig: EmpresaConfig
+    empresaConfig: EmpresaConfig,
+    dataInicio?: string,
+    dataFim?: string
   ): Promise<IndicadoresCaixa> {
+    const hoje = new Date();
+    const mesAtual =
+      dataInicio && dataFim
+        ? (() => {
+            const d = new Date(dataInicio + "T00:00:00");
+            return !isNaN(d.getTime())
+              ? { mes: d.getMonth() + 1, ano: d.getFullYear() }
+              : { mes: hoje.getMonth() + 1, ano: hoje.getFullYear() };
+          })()
+        : { mes: hoje.getMonth() + 1, ano: hoje.getFullYear() };
+    const mesAnt = new Date(mesAtual.ano, mesAtual.mes - 2, 1);
+    const mesAnterior = {
+      mes: mesAnt.getMonth() + 1,
+      ano: mesAnt.getFullYear(),
+    };
     const query = `
       SELECT
         (SELECT ISNULL(SUM(VLR_ABERTO), 0) FROM dbo.TITULOS_RECEBER
           WHERE COD_EMPRESA = @codEmpresa AND SIT_TITULO = 'AB'
-          AND MONTH(VCT_ORIGINAL) = MONTH(GETDATE()) AND YEAR(VCT_ORIGINAL) = YEAR(GETDATE())) AS receitasMesAtual,
+          AND MONTH(VCT_ORIGINAL) = @mesAtual AND YEAR(VCT_ORIGINAL) = @anoAtual) AS receitasMesAtual,
         (SELECT ISNULL(SUM(VLR_ABERTO), 0) FROM dbo.TITULOS_PAGAR
           WHERE COD_EMPRESA = @codEmpresa AND SIT_TITULO = 'AB'
-          AND MONTH(VCT_ORIGINAL) = MONTH(GETDATE()) AND YEAR(VCT_ORIGINAL) = YEAR(GETDATE())) AS despesasMesAtual,
+          AND MONTH(VCT_ORIGINAL) = @mesAtual AND YEAR(VCT_ORIGINAL) = @anoAtual) AS despesasMesAtual,
         (SELECT ISNULL(SUM(VLR_ABERTO), 0) FROM dbo.TITULOS_RECEBER
           WHERE COD_EMPRESA = @codEmpresa AND SIT_TITULO = 'AB'
-          AND MONTH(VCT_ORIGINAL) = MONTH(DATEADD(MONTH, -1, GETDATE())) AND YEAR(VCT_ORIGINAL) = YEAR(DATEADD(MONTH, -1, GETDATE()))) AS receitasMesAnterior,
+          AND MONTH(VCT_ORIGINAL) = @mesAnt AND YEAR(VCT_ORIGINAL) = @anoAnt) AS receitasMesAnterior,
         (SELECT ISNULL(SUM(VLR_ABERTO), 0) FROM dbo.TITULOS_PAGAR
           WHERE COD_EMPRESA = @codEmpresa AND SIT_TITULO = 'AB'
-          AND MONTH(VCT_ORIGINAL) = MONTH(DATEADD(MONTH, -1, GETDATE())) AND YEAR(VCT_ORIGINAL) = YEAR(DATEADD(MONTH, -1, GETDATE()))) AS despesasMesAnterior
+          AND MONTH(VCT_ORIGINAL) = @mesAnt AND YEAR(VCT_ORIGINAL) = @anoAnt) AS despesasMesAnterior
     `;
     try {
       const r = await poolBanco.executarConsulta<{
@@ -861,7 +900,17 @@ export class AnalyticsRepository {
         despesasMesAtual: number;
         receitasMesAnterior: number;
         despesasMesAnterior: number;
-      }>(query, { codEmpresa }, empresaConfig);
+      }>(
+        query,
+        {
+          codEmpresa,
+          mesAtual: mesAtual.mes,
+          anoAtual: mesAtual.ano,
+          mesAnt: mesAnterior.mes,
+          anoAnt: mesAnterior.ano,
+        },
+        empresaConfig
+      );
       const row = r?.[0];
       const receitasAtual = Number(row?.receitasMesAtual) || 0;
       const despesasAtual = Number(row?.despesasMesAtual) || 0;
@@ -951,9 +1000,31 @@ export class AnalyticsRepository {
   async obterFluxoRecebimentoMensal(
     codEmpresa: number,
     meses: number,
-    empresaConfig: EmpresaConfig
+    empresaConfig: EmpresaConfig,
+    dataInicio?: string,
+    dataFim?: string
   ): Promise<FluxoRecebimentoMensal[]> {
-    const query = `
+    const usarPeriodo =
+      dataInicio &&
+      dataFim &&
+      !isNaN(new Date(dataInicio).getTime()) &&
+      !isNaN(new Date(dataFim).getTime());
+
+    const query = usarPeriodo
+      ? `
+      SELECT
+        MONTH(T.VCT_ORIGINAL) AS mes,
+        YEAR(T.VCT_ORIGINAL) AS ano,
+        SUM(T.VLR_ABERTO) AS valor,
+        COUNT(*) AS quantidade
+      FROM dbo.TITULOS_RECEBER T
+      WHERE T.COD_EMPRESA = @codEmpresa AND T.SIT_TITULO = 'AB' AND T.VLR_ABERTO > 0
+        AND T.VCT_ORIGINAL >= CAST(@dataInicio AS DATE)
+        AND T.VCT_ORIGINAL <= CAST(@dataFim AS DATE)
+      GROUP BY MONTH(T.VCT_ORIGINAL), YEAR(T.VCT_ORIGINAL)
+      ORDER BY ano, mes
+    `
+      : `
       SELECT
         MONTH(T.VCT_ORIGINAL) AS mes,
         YEAR(T.VCT_ORIGINAL) AS ano,
@@ -986,7 +1057,13 @@ export class AnalyticsRepository {
         ano: number;
         valor: number;
         quantidade: number;
-      }>(query, { codEmpresa, meses }, empresaConfig);
+      }>(
+        query,
+        usarPeriodo
+          ? { codEmpresa, dataInicio, dataFim }
+          : { codEmpresa, meses },
+        empresaConfig
+      );
       return (rows || []).map((r) => ({
         mes: `${r.ano}-${String(r.mes).padStart(2, "0")}`,
         mesAno: `${nomesMes[r.mes - 1]}/${r.ano}`,

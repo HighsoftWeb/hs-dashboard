@@ -27,9 +27,16 @@ interface OrcamentoOSDB {
 }
 
 class ServicoDashboard {
-  async obterEstatisticas(): Promise<EstatisticasDashboard> {
+  async obterEstatisticas(params?: {
+    dataInicio?: string;
+    dataFim?: string;
+  }): Promise<EstatisticasDashboard> {
+    const searchParams = new URLSearchParams();
+    if (params?.dataInicio) searchParams.set("dataInicio", params.dataInicio);
+    if (params?.dataFim) searchParams.set("dataFim", params.dataFim);
+    const query = searchParams.toString() ? `?${searchParams.toString()}` : "";
     const resposta = await clienteHttp.get<EstatisticasDashboard>(
-      "/dashboard/estatisticas"
+      `/dashboard/estatisticas${query}`
     );
 
     if (!resposta.success || !resposta.data) {

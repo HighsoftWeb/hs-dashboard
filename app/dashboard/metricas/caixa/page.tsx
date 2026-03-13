@@ -18,13 +18,9 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { obterCoresGraficos } from "@/core/constants/cores-graficos";
-import { useEmpresa } from "@/core/context/empresa-context";
-
+import { CORES_FINANCEIRAS } from "@/core/constants/cores-graficos";
 export default function PaginaMetricasCaixa(): React.JSX.Element {
   const router = useRouter();
-  const { cores } = useEmpresa();
-  const coresGraficos = obterCoresGraficos(cores);
   const [dados, setDados] = useState<{
     indicadoresCaixa?: {
       receitasMesAtual: number;
@@ -112,12 +108,14 @@ export default function PaginaMetricasCaixa(): React.JSX.Element {
               titulo="Receitas"
               valor={formatarMoeda(caixa.receitasMesAtual)}
               icone={<TrendingUp className="w-5 h-5" />}
+              tipoFinanceiro="receita"
               href={DEEP_DIVE.contasReceber}
             />
             <CardKpi
               titulo="Despesas"
               valor={formatarMoeda(caixa.despesasMesAtual)}
               icone={<TrendingDown className="w-5 h-5" />}
+              tipoFinanceiro="despesa"
               href={DEEP_DIVE.contasPagar}
             />
             <CardKpi
@@ -130,12 +128,13 @@ export default function PaginaMetricasCaixa(): React.JSX.Element {
                   <TrendingDown className="w-5 h-5" />
                 )
               }
-              variante={caixa.tendencia === "subindo" ? "destaque" : undefined}
+              tipoFinanceiro={caixa.saldoMesAtual >= 0 ? "lucro" : "despesa"}
             />
             <CardKpi
               titulo="Var. vs Mês ant."
               valor={`${caixa.variacaoPercentual >= 0 ? "+" : ""}${caixa.variacaoPercentual.toFixed(1)}%`}
               icone={<TrendingUp className="w-5 h-5" />}
+              negativo={caixa.variacaoPercentual < 0}
             />
           </>
         )}
@@ -144,19 +143,21 @@ export default function PaginaMetricasCaixa(): React.JSX.Element {
             <CardKpi
               titulo="A Receber"
               valor={formatarMoeda(inadimplencia.valorTotalReceber)}
+              tipoFinanceiro="receita"
               href={DEEP_DIVE.contasReceber}
             />
             <CardKpi
               titulo="Vencido"
               valor={formatarMoeda(inadimplencia.valorVencido)}
+              tipoFinanceiro="despesa"
               href={DEEP_DIVE.contasReceber}
             />
             <CardKpi
               titulo="Inadimplência"
               valor={`${inadimplencia.percentualInadimplencia.toFixed(1)}%`}
-              variante={
+              tipoFinanceiro={
                 inadimplencia.percentualInadimplencia > 10
-                  ? "destaque"
+                  ? "despesa"
                   : undefined
               }
             />
@@ -183,7 +184,7 @@ export default function PaginaMetricasCaixa(): React.JSX.Element {
               <Tooltip formatter={(v) => formatarMoeda(Number(v ?? 0))} />
               <Bar
                 dataKey="valor"
-                fill={coresGraficos.primario}
+                fill={CORES_FINANCEIRAS.receita}
                 radius={[4, 4, 0, 0]}
                 name="A receber"
                 onClick={() => router.push(DEEP_DIVE.contasReceber)}

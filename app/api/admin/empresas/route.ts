@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { empresaConfigRepository } from "@/core/repository/empresa-config-repository";
 import { filtrarEmpresaSegura } from "@/core/utils/filtrar-empresa-segura";
 import { EmpresaConfigInput } from "@/core/entities/EmpresaConfig";
+import { CORES_HIGHSOFT_PADRAO } from "@/core/temas/cores-highsoft";
 
 const ADMIN_PASSWORD = "hs@010896@hs";
 
@@ -109,9 +110,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       usuario: body.usuario || "",
       senha: body.senha || "",
       codigosUsuariosPermitidos: body.codigosUsuariosPermitidos || undefined,
-      corPrimaria: body.corPrimaria || "#094a73",
-      corSecundaria: body.corSecundaria || "#048abf",
-      corTerciaria: body.corTerciaria || "#04b2d9",
+      corPrimaria: body.corPrimaria || CORES_HIGHSOFT_PADRAO.primaria,
+      corSecundaria: body.corSecundaria || CORES_HIGHSOFT_PADRAO.secundaria,
+      corTerciaria: body.corTerciaria || CORES_HIGHSOFT_PADRAO.terciaria,
     };
     const novaEmpresa = empresaConfigRepository.criar(empresa);
     return NextResponse.json({ success: true, data: novaEmpresa });

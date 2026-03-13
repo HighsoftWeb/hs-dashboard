@@ -35,9 +35,9 @@ interface EmpresaContextValue {
 }
 
 const CORES_PADRAO: CoresEmpresa = {
-  primaria: "#094a73",
-  secundaria: "#048abf",
-  terciaria: "#04b2d9",
+  primaria: "#64748b",
+  secundaria: "#94a3b8",
+  terciaria: "#cbd5e1",
 };
 
 const EmpresaContext = createContext<EmpresaContextValue | null>(null);

@@ -24,11 +24,26 @@ import { logger } from "@/core/utils/logger";
 const TOKEN_REVOGADO_KEY = "tokenRevogado";
 const MENSAGEM_REVOGACAO_KEY = "mensagemRevogacao";
 
+interface CoresEmpresa {
+  primaria: string;
+  secundaria: string;
+  terciaria: string;
+}
+
+function aplicarCoresNoDocumento(cores: CoresEmpresa): void {
+  const root = document.documentElement;
+  root.style.setProperty("--highsoft-primario", cores.primaria);
+  root.style.setProperty("--highsoft-primario-hover", cores.primaria + "ee");
+  root.style.setProperty("--highsoft-secundario", cores.secundaria);
+  root.style.setProperty("--highsoft-terciario", cores.terciaria);
+}
+
 export default function PaginaLogin(): React.JSX.Element {
   const router = useRouter();
   const [cnpj, setCnpj] = useState<string>("");
   const [cnpjValidado, setCnpjValidado] = useState<boolean>(false);
   const [nomeEmpresa, setNomeEmpresa] = useState<string>("");
+  const [coresEmpresa, setCoresEmpresa] = useState<CoresEmpresa | null>(null);
   const [credenciais, setCredenciais] = useState<CredenciaisLogin>({
     login: "",
     senha: "",
@@ -44,6 +59,7 @@ export default function PaginaLogin(): React.JSX.Element {
     setCnpj("");
     setCnpjValidado(false);
     setNomeEmpresa("");
+    setCoresEmpresa(null);
     setCredenciais({ login: "", senha: "" });
     setErro("");
     setIsTokenRevogado(false);
@@ -62,9 +78,12 @@ export default function PaginaLogin(): React.JSX.Element {
           return;
         }
 
-        const resposta = await clienteHttp.get<{ nomeEmpresa: string }>(
-          `/admin/empresas/cnpj/${cnpjLimpo}`
-        );
+        const resposta = await clienteHttp.get<{
+          nomeEmpresa: string;
+          corPrimaria?: string;
+          corSecundaria?: string;
+          corTerciaria?: string;
+        }>(`/admin/empresas/cnpj/${cnpjLimpo}`);
 
         if (!resposta.success || !resposta.data) {
           limparEstadoLogin();
@@ -72,7 +91,15 @@ export default function PaginaLogin(): React.JSX.Element {
           return;
         }
 
-        setNomeEmpresa(resposta.data.nomeEmpresa || "");
+        const d = resposta.data;
+        setNomeEmpresa(d.nomeEmpresa || "");
+        if (d.corPrimaria && d.corSecundaria && d.corTerciaria) {
+          setCoresEmpresa({
+            primaria: d.corPrimaria,
+            secundaria: d.corSecundaria,
+            terciaria: d.corTerciaria,
+          });
+        }
         setCnpjValidado(true);
         salvarCnpjNoCookie(cnpjLimpo);
       } catch (err) {
@@ -122,6 +149,18 @@ export default function PaginaLogin(): React.JSX.Element {
     }
   }, [validarCnpjAutomatico]);
 
+  useEffect(() => {
+    if (coresEmpresa) {
+      aplicarCoresNoDocumento(coresEmpresa);
+    } else {
+      aplicarCoresNoDocumento({
+        primaria: "#64748b",
+        secundaria: "#94a3b8",
+        terciaria: "#cbd5e1",
+      });
+    }
+  }, [coresEmpresa]);
+
   const handleValidarCnpj = async (
     evento: React.FormEvent<HTMLFormElement>
   ): Promise<void> => {
@@ -137,15 +176,26 @@ export default function PaginaLogin(): React.JSX.Element {
         return;
       }
 
-      const resposta = await clienteHttp.get<{ nomeEmpresa: string }>(
-        `/admin/empresas/cnpj/${cnpjLimpo}`
-      );
+      const resposta = await clienteHttp.get<{
+        nomeEmpresa: string;
+        corPrimaria?: string;
+        corSecundaria?: string;
+        corTerciaria?: string;
+      }>(`/admin/empresas/cnpj/${cnpjLimpo}`);
 
       if (!resposta.success || !resposta.data) {
         throw new Error(resposta.error?.message || "Empresa não encontrada");
       }
 
-      setNomeEmpresa(resposta.data.nomeEmpresa || "");
+      const d = resposta.data;
+      setNomeEmpresa(d.nomeEmpresa || "");
+      if (d.corPrimaria && d.corSecundaria && d.corTerciaria) {
+        setCoresEmpresa({
+          primaria: d.corPrimaria,
+          secundaria: d.corSecundaria,
+          terciaria: d.corTerciaria,
+        });
+      }
       salvarCnpjNoCookie(cnpjLimpo);
       setCnpjValidado(true);
     } catch (erroValidacao) {
@@ -213,25 +263,65 @@ export default function PaginaLogin(): React.JSX.Element {
     }
   };
 
+  const cores = coresEmpresa ?? {
+    primaria: "#64748b",
+    secundaria: "#94a3b8",
+    terciaria: "#cbd5e1",
+  };
+  const bgGradient = {
+    background: `linear-gradient(to bottom right, ${cores.terciaria}1a, ${cores.secundaria}1a, ${cores.primaria}1a)`,
+  };
+  const blobStyle = (c: string, opacity: number) => ({
+    background: c,
+    opacity,
+  });
+
   if (carregandoInicial) {
     return (
-      <div className="min-h-screen relative flex items-center justify-center overflow-hidden bg-gradient-to-br from-[#04B2D9]/10 via-[#048ABF]/10 to-[#094A73]/10">
+      <div
+        className="min-h-screen relative flex items-center justify-center overflow-hidden"
+        style={bgGradient}
+      >
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#04B2D9] rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-[#048ABF] rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-[#094A73] rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-blob animation-delay-4000"></div>
+          <div
+            className="absolute -top-40 -right-40 w-80 h-80 rounded-full mix-blend-multiply filter blur-xl animate-blob"
+            style={blobStyle(cores.terciaria, 0.2)}
+          />
+          <div
+            className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-2000"
+            style={blobStyle(cores.secundaria, 0.2)}
+          />
+          <div
+            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-4000"
+            style={blobStyle(cores.primaria, 0.15)}
+          />
         </div>
-        <Loader2 className="w-8 h-8 animate-spin text-[#094A73] relative z-10" />
+        <Loader2
+          className="w-8 h-8 animate-spin relative z-10"
+          style={{ color: cores.primaria }}
+        />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen relative flex items-center justify-center overflow-hidden bg-gradient-to-br from-[#04B2D9]/10 via-[#048ABF]/10 to-[#094A73]/10 px-4">
+    <div
+      className="min-h-screen relative flex items-center justify-center overflow-hidden px-4"
+      style={bgGradient}
+    >
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#04B2D9] rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-[#048ABF] rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-[#094A73] rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-blob animation-delay-4000"></div>
+        <div
+          className="absolute -top-40 -right-40 w-80 h-80 rounded-full mix-blend-multiply filter blur-xl animate-blob"
+          style={blobStyle(cores.terciaria, 0.2)}
+        />
+        <div
+          className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-2000"
+          style={blobStyle(cores.secundaria, 0.2)}
+        />
+        <div
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-4000"
+          style={blobStyle(cores.primaria, 0.15)}
+        />
       </div>
 
       <div className="relative z-10 w-full max-w-md animate-fade-in">

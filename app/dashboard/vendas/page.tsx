@@ -38,20 +38,19 @@ function formatarMoeda(v: number): string {
   }).format(v);
 }
 
-const CORES_FUNIL = [
-  "#094a73",
-  "#048abf",
-  "#04b2d9",
-  "#10b981",
-  "#6366f1",
-  "#a855f7",
-  "#94a3b8",
-];
-
 export default function DashboardVendas(): React.JSX.Element {
   const router = useRouter();
   const { cores } = useEmpresa();
   const coresGraficos = obterCoresGraficos(cores);
+  const coresFunil = [
+    cores.primaria,
+    cores.secundaria,
+    cores.terciaria,
+    coresGraficos.sucesso,
+    "#6366f1",
+    "#a855f7",
+    "#94a3b8",
+  ];
   const padrao = obterIntervaloPadrao();
 
   const [orcamentos, setOrcamentos] = useState<Orcamento[]>([]);
@@ -174,14 +173,14 @@ export default function DashboardVendas(): React.JSX.Element {
               </div>
               <div>
                 <p className="text-xs text-slate-500">Realizado</p>
-                <p className="text-lg font-bold text-emerald-600">
+                <p className="text-lg font-bold text-blue-600">
                   {formatarMoeda(meta.realizado)}
                 </p>
               </div>
               <div>
                 <p className="text-xs text-slate-500">%</p>
                 <p
-                  className={`text-lg font-bold ${meta.percentual >= 100 ? "text-emerald-600" : "text-amber-600"}`}
+                  className={`text-lg font-bold ${meta.percentual >= 100 ? "text-blue-600" : "text-amber-600"}`}
                 >
                   {meta.percentual}%
                 </p>
@@ -314,7 +313,7 @@ export default function DashboardVendas(): React.JSX.Element {
                   {funil.map((_, i) => (
                     <Cell
                       key={i}
-                      fill={CORES_FUNIL[i % CORES_FUNIL.length]}
+                      fill={coresFunil[i % coresFunil.length]}
                       style={{ cursor: "pointer" }}
                     />
                   ))}

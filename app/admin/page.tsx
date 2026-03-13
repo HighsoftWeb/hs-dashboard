@@ -17,6 +17,7 @@ import {
   FileJson,
   FileCode,
 } from "lucide-react";
+import { CORES_HIGHSOFT_PADRAO } from "@/core/temas/cores-highsoft";
 
 const ADMIN_PASSWORD = "hs@010896@hs";
 
@@ -40,11 +41,7 @@ function formatarCnpj(cnpj: string): string {
   return n.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, "$1.$2.$3/$4-$5");
 }
 
-const CORES_PADRAO = {
-  primaria: "#094A73",
-  secundaria: "#048ABF",
-  terciaria: "#04B2D9",
-};
+const CORES_PADRAO = CORES_HIGHSOFT_PADRAO;
 
 export default function PaginaAdmin(): React.JSX.Element {
   const [autenticado, setAutenticado] = useState(false);
@@ -354,15 +351,15 @@ export default function PaginaAdmin(): React.JSX.Element {
   };
 
   const inputClasse =
-    "w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#094A73] focus:border-[#094A73]";
+    "w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500";
 
   if (!autenticado) {
     return (
-      <div className="min-h-screen relative flex items-center justify-center overflow-hidden bg-gradient-to-br from-[#04B2D9]/10 via-[#048ABF]/10 to-[#094A73]/10 px-4">
+      <div className="min-h-screen relative flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-200/50 via-slate-100 to-slate-200/50 px-4">
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#04B2D9] rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-[#048ABF] rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-[#094A73] rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-blob animation-delay-4000"></div>
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-slate-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-slate-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-slate-500 rounded-full mix-blend-multiply filter blur-xl opacity-15 animate-blob animation-delay-4000"></div>
         </div>
 
         <div className="relative z-10 w-full max-w-md animate-fade-in">
@@ -379,7 +376,7 @@ export default function PaginaAdmin(): React.JSX.Element {
                 />
               </div>
               <div className="flex items-center justify-center gap-2">
-                <Shield className="w-5 h-5 text-[#094A73]" />
+                <Shield className="w-5 h-5 text-slate-600" />
                 <h1 className="text-xl font-bold text-gray-800">
                   Acesso Administrativo
                 </h1>
@@ -405,7 +402,7 @@ export default function PaginaAdmin(): React.JSX.Element {
                     type="password"
                     value={senha}
                     onChange={(e) => setSenha(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-[#A4A5A6] rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#094A73] focus:border-[#094A73] transition-all"
+                    className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-all"
                     placeholder="Digite a senha administrativa"
                     required
                   />
@@ -817,7 +814,7 @@ export default function PaginaAdmin(): React.JSX.Element {
                     <td className="px-4 py-2 whitespace-nowrap text-right text-sm font-medium space-x-2">
                       <button
                         onClick={() => handleEditar(empresa)}
-                        className="text-[#094A73] hover:text-[#048ABF] inline-flex items-center gap-1"
+                        className="text-slate-600 hover:text-slate-800 inline-flex items-center gap-1"
                       >
                         <Pencil className="w-4 h-4" />
                         Editar

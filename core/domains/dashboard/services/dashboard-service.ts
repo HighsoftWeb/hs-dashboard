@@ -16,11 +16,15 @@ import type { EmpresaConfig } from "@/core/entities/EmpresaConfig";
 export class DashboardService {
   async obterEstatisticas(
     codEmpresa: number,
-    empresaConfig: EmpresaConfig
+    empresaConfig: EmpresaConfig,
+    dataInicio?: string,
+    dataFim?: string
   ): Promise<EstatisticasDashboard> {
     const estatisticas = await dashboardRepository.obterEstatisticas(
       codEmpresa,
-      empresaConfig
+      empresaConfig,
+      dataInicio,
+      dataFim
     );
     return EstatisticasDashboardSchema.parse(estatisticas);
   }

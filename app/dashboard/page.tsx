@@ -43,7 +43,11 @@ import {
   Pie,
   Cell,
 } from "recharts";
-import { obterCoresGraficos } from "@/core/constants/cores-graficos";
+import {
+  obterCoresGraficos,
+  obterCorPorNomeGrafico,
+  CORES_FINANCEIRAS,
+} from "@/core/constants/cores-graficos";
 import { useEmpresa } from "@/core/context/empresa-context";
 
 function formatarMoeda(valor: number): string {
@@ -57,7 +61,7 @@ function formatarMoeda(valor: number): string {
 function obterCorStatus(status: string): string {
   const s = status.toUpperCase();
   if (s.includes("APROVADO") || s.includes("FATURADO"))
-    return "bg-emerald-100 text-emerald-700";
+    return "bg-blue-100 text-blue-700";
   if (s.includes("CANCELADO")) return "bg-red-100 text-red-700";
   return "bg-amber-100 text-amber-700";
 }
@@ -93,20 +97,20 @@ interface AnalyticsGeral {
 }
 
 const CORES_AGING = ["#ef4444", "#f59e0b", "#eab308", "#22c55e", "#3b82f6"];
-const CORES_FUNIL = [
-  "#094a73",
-  "#048abf",
-  "#04b2d9",
-  "#10b981",
-  "#6366f1",
-  "#a855f7",
-  "#94a3b8",
-];
 
 export default function PaginaDashboard(): React.JSX.Element {
   const router = useRouter();
   const { cores } = useEmpresa();
   const coresGraficos = obterCoresGraficos(cores);
+  const coresFunil = [
+    cores.primaria,
+    cores.secundaria,
+    cores.terciaria,
+    coresGraficos.sucesso,
+    "#6366f1",
+    "#a855f7",
+    "#94a3b8",
+  ];
   const padrao = obterIntervaloPadrao();
 
   const [estatisticas, setEstatisticas] =
@@ -123,7 +127,7 @@ export default function PaginaDashboard(): React.JSX.Element {
     try {
       setCarregando(true);
       const [stats, orcs, contas, anal] = await Promise.all([
-        servicoDashboard.obterEstatisticas(),
+        servicoDashboard.obterEstatisticas({ dataInicio, dataFim }),
         servicoDashboard.listarOrcamentosRecentes(10),
         servicoDashboard.listarContasVencendo(30),
         servicoDashboard.obterAnalytics({ dataInicio, dataFim, tipo: "geral" }),
@@ -226,7 +230,7 @@ export default function PaginaDashboard(): React.JSX.Element {
                 </div>
                 <div>
                   <p className="text-xs opacity-80">Realizado</p>
-                  <p className="text-xl font-bold text-emerald-300">
+                  <p className="text-xl font-bold text-blue-300">
                     {formatarMoeda(metaRealizado.realizado)}
                   </p>
                 </div>
@@ -235,7 +239,7 @@ export default function PaginaDashboard(): React.JSX.Element {
                   <p
                     className={`text-xl font-bold ${
                       metaRealizado.percentual >= 100
-                        ? "text-emerald-300"
+                        ? "text-blue-300"
                         : metaRealizado.percentual >= 80
                           ? "text-amber-300"
                           : "text-red-300"
@@ -260,7 +264,7 @@ export default function PaginaDashboard(): React.JSX.Element {
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
         <Link
           href={DEEP_DIVE.contasReceber}
-          className="rounded-xl border-0 bg-gradient-to-br from-emerald-500 to-emerald-600 p-5 text-white shadow-md hover:shadow-lg transition cursor-pointer block"
+          className="rounded-xl border-0 bg-gradient-to-br from-blue-500 to-blue-600 p-5 text-white shadow-md hover:shadow-lg transition cursor-pointer block"
         >
           <p className="text-sm font-medium opacity-90">Receitas</p>
           <p className="mt-1 text-2xl font-bold">
@@ -280,7 +284,11 @@ export default function PaginaDashboard(): React.JSX.Element {
         </Link>
         <Link
           href={DEEP_DIVE.financeiro}
-          className="rounded-xl border-0 bg-gradient-to-br from-blue-500 to-blue-600 p-5 text-white shadow-md hover:shadow-lg transition cursor-pointer block"
+          className={`rounded-xl border-0 p-5 text-white shadow-md hover:shadow-lg transition cursor-pointer block ${
+            stats.lucroMes >= 0
+              ? "bg-gradient-to-br from-green-500 to-green-600"
+              : "bg-gradient-to-br from-red-500 to-red-600"
+          }`}
         >
           <p className="text-sm font-medium opacity-90">Lucro</p>
           <p className="mt-1 text-2xl font-bold">
@@ -310,7 +318,10 @@ export default function PaginaDashboard(): React.JSX.Element {
         </Link>
         <Link
           href={DEEP_DIVE.orcamentos}
-          className="rounded-xl border-0 bg-gradient-to-br from-violet-500 to-violet-600 p-5 text-white shadow-md hover:shadow-lg transition cursor-pointer block"
+          className="rounded-xl border-0 p-5 text-white shadow-md hover:shadow-lg transition cursor-pointer block"
+          style={{
+            background: `linear-gradient(to bottom right, ${cores.terciaria}, ${cores.primaria})`,
+          }}
         >
           <p className="text-sm font-medium opacity-90">Orç. Hoje</p>
           <p className="mt-1 text-2xl font-bold">{stats.orcamentosHoje}</p>
@@ -343,7 +354,7 @@ export default function PaginaDashboard(): React.JSX.Element {
                     type="monotone"
                     dataKey="receitas"
                     name="Receitas"
-                    stroke={coresGraficos.primario}
+                    stroke={CORES_FINANCEIRAS.receita}
                     strokeWidth={2}
                     dot={{ r: 3 }}
                   />
@@ -351,7 +362,7 @@ export default function PaginaDashboard(): React.JSX.Element {
                     type="monotone"
                     dataKey="despesas"
                     name="Despesas"
-                    stroke="#ef4444"
+                    stroke={CORES_FINANCEIRAS.despesa}
                     strokeWidth={2}
                     dot={{ r: 3 }}
                   />
@@ -359,7 +370,7 @@ export default function PaginaDashboard(): React.JSX.Element {
                     type="monotone"
                     dataKey="lucro"
                     name="Lucro"
-                    stroke="#22c55e"
+                    stroke={CORES_FINANCEIRAS.lucro}
                     strokeWidth={2}
                     dot={{ r: 3 }}
                   />
@@ -369,7 +380,10 @@ export default function PaginaDashboard(): React.JSX.Element {
           )}
 
           {dadosGrafico.length > 0 && (
-            <CardGrafico titulo="Mês Atual" href={DEEP_DIVE.financeiro}>
+            <CardGrafico
+              titulo="Receitas x Despesas x Lucro (últimos 12 meses)"
+              href={DEEP_DIVE.financeiro}
+            >
               <ResponsiveContainer width="100%" height={160}>
                 <BarChart data={dadosGrafico} margin={{ top: 10, right: 10 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -379,11 +393,14 @@ export default function PaginaDashboard(): React.JSX.Element {
                     tickFormatter={(v) => formatarMoeda(v).replace(/\s/g, "")}
                   />
                   <Tooltip formatter={(v) => formatarMoeda(Number(v ?? 0))} />
-                  <Bar
-                    dataKey="valor"
-                    fill={coresGraficos.primario}
-                    radius={[4, 4, 0, 0]}
-                  />
+                  <Bar dataKey="valor" radius={[4, 4, 0, 0]}>
+                    {dadosGrafico.map((entry, i) => (
+                      <Cell
+                        key={i}
+                        fill={obterCorPorNomeGrafico(entry.nome, entry.valor)}
+                      />
+                    ))}
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </CardGrafico>
@@ -559,7 +576,7 @@ export default function PaginaDashboard(): React.JSX.Element {
                     {funil.map((_, i) => (
                       <Cell
                         key={i}
-                        fill={CORES_FUNIL[i % CORES_FUNIL.length]}
+                        fill={coresFunil[i % coresFunil.length]}
                         style={{ cursor: "pointer" }}
                       />
                     ))}

@@ -40,9 +40,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         empresas: empresas || [],
         codEmpresaAtual,
         cores: {
-          primaria: empresaConfig.corPrimaria || "#094a73",
-          secundaria: empresaConfig.corSecundaria || "#048abf",
-          terciaria: empresaConfig.corTerciaria || "#04b2d9",
+          primaria: empresaConfig.corPrimaria || "#64748b",
+          secundaria: empresaConfig.corSecundaria || "#94a3b8",
+          terciaria: empresaConfig.corTerciaria || "#cbd5e1",
         },
       })
     );
