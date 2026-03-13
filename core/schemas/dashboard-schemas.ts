@@ -32,7 +32,7 @@ export const TituloReceberSchema = z.object({
   NUM_TITULO: z.string().max(15),
   SEQ_TITULO: z.number().int().positive(),
   VCT_ORIGINAL: z.date(),
-  VLR_ABERTO: z.number().nonnegative(),
+  VLR_ABERTO: z.number(),
   SIT_TITULO: z.string().length(2),
   RAZ_CLI_FOR: z.string().max(60).nullable(),
 });
@@ -43,7 +43,7 @@ export const TituloPagarSchema = z.object({
   NUM_PARCELA: z.number().int().positive(),
   COD_CLI_FOR: z.number().int().positive(),
   VCT_ORIGINAL: z.date(),
-  VLR_ABERTO: z.number().nonnegative(),
+  VLR_ABERTO: z.number(),
   SIT_TITULO: z.string().length(2),
   RAZ_CLI_FOR: z.string().max(60).nullable(),
 });
