@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { FileText, TrendingUp } from "lucide-react";
+import { DEEP_DIVE, obterSitOrcamento } from "@/core/utils/deep-dive-urls";
 import { CardKpi } from "@/core/componentes/dashboard/card-kpi";
 import { CardGrafico } from "@/core/componentes/dashboard/card-grafico";
 import { PaginaBI } from "@/core/componentes/dashboard/pagina-bi";
@@ -26,12 +28,13 @@ import { obterIntervaloPadrao } from "@/core/componentes/dashboard/filtro-period
 const CORES_FUNIL = ["#094a73", "#048abf", "#04b2d9", "#10b981", "#6366f1", "#a855f7"];
 
 export default function PaginaComercial(): React.JSX.Element {
+  const router = useRouter();
   const { cores } = useEmpresa();
   const coresGraficos = obterCoresGraficos(cores);
   const padrao = obterIntervaloPadrao();
   const [analytics, setAnalytics] = useState<{
     funilVendas?: { status: string; quantidade: number; valor: number }[];
-    topClientes?: { razaoSocial: string; valorTotal: number; quantidade: number }[];
+    topClientes?: { codCliFor?: number; razaoSocial: string; valorTotal: number; quantidade: number }[];
   } | null>(null);
   const [dataInicio, setDataInicio] = useState(padrao.dataInicio);
   const [dataFim, setDataFim] = useState(padrao.dataFim);
@@ -93,18 +96,23 @@ export default function PaginaComercial(): React.JSX.Element {
       }}
     >
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <CardKpi titulo="Documentos" valor={totalDocs} icone={<FileText className="w-5 h-5" />} />
-        <CardKpi titulo="Valor Total" valor={formatarMoeda(totalFunil)} icone={<TrendingUp className="w-5 h-5" />} variante="destaque" />
+        <CardKpi titulo="Documentos" valor={totalDocs} icone={<FileText className="w-5 h-5" />} href={DEEP_DIVE.orcamentos} />
+        <CardKpi titulo="Valor Total" valor={formatarMoeda(totalFunil)} icone={<TrendingUp className="w-5 h-5" />} variante="destaque" href={DEEP_DIVE.orcamentos} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {funil.length > 0 && (
-          <CardGrafico titulo="Funil por Status">
+          <CardGrafico titulo="Funil por Status" href={DEEP_DIVE.orcamentos}>
             <ResponsiveContainer width="100%" height={220}>
               <PieChart>
-                <Pie data={funil} dataKey="quantidade" nameKey="status" cx="50%" cy="50%" outerRadius={80} label={(e: { name?: string; value?: number }) => `${e.name ?? ""}: ${e.value ?? 0}`}>
+                <Pie data={funil} dataKey="quantidade" nameKey="status" cx="50%" cy="50%" outerRadius={80} label={(e: { name?: string; value?: number }) => `${e.name ?? ""}: ${e.value ?? 0}`} onClick={(e: unknown) => {
+                  const d = e as { name?: string; status?: string; payload?: { name?: string } };
+                  const label = d?.name ?? d?.status ?? d?.payload?.name ?? "";
+                  const sit = label ? obterSitOrcamento(label) : "";
+                  router.push(sit ? DEEP_DIVE.orcamentosComSit(sit) : DEEP_DIVE.orcamentos);
+                }}>
                   {funil.map((_, i) => (
-                    <Cell key={i} fill={CORES_FUNIL[i % CORES_FUNIL.length]} />
+                    <Cell key={i} fill={CORES_FUNIL[i % CORES_FUNIL.length]} style={{ cursor: "pointer" }} />
                   ))}
                 </Pie>
                 <Tooltip formatter={(v, name) => [`${v} docs · ${formatarMoeda(funil.find((f) => f.status === name)?.valor ?? 0)}`, String(name ?? "")]} />
@@ -114,14 +122,14 @@ export default function PaginaComercial(): React.JSX.Element {
         )}
         {topClientes.length > 0 && (
           <div className={funil.length > 0 ? "lg:col-span-2" : "lg:col-span-3"}>
-            <CardGrafico titulo="Top Clientes por Valor">
+            <CardGrafico titulo="Top Clientes por Valor" href={DEEP_DIVE.clientes}>
               <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={topClientes.slice(0, 8)} layout="vertical" margin={{ top: 5, right: 50, left: 0, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                   <XAxis type="number" tick={{ fontSize: 9 }} tickFormatter={(v) => formatarMoeda(v).replace(/\s/g, "").slice(0, 8)} />
                   <YAxis type="category" dataKey="razaoSocial" width={120} tick={{ fontSize: 9 }} tickFormatter={(v) => (v?.length > 18 ? v.slice(0, 17) + "…" : v)} />
                   <Tooltip formatter={(v) => formatarMoeda(Number(v ?? 0))} />
-                  <Bar dataKey="valorTotal" fill={coresGraficos.primario} radius={[0, 4, 4, 0]} />
+                  <Bar dataKey="valorTotal" fill={coresGraficos.primario} radius={[0, 4, 4, 0]} onClick={(e: unknown) => { const p = (e as { payload?: { codCliFor?: number } })?.payload; if (p?.codCliFor) router.push(DEEP_DIVE.clienteDetalhe(p.codCliFor)); else router.push(DEEP_DIVE.clientes); }} style={{ cursor: "pointer" }} />
                 </BarChart>
               </ResponsiveContainer>
             </CardGrafico>

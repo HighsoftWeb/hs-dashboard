@@ -4,9 +4,6 @@ interface LogContext {
   [key: string]: string | number | boolean | null | undefined;
 }
 
-/**
- * Campos sensíveis que devem ser redigidos nos logs
- */
 const SENSITIVE_FIELDS = [
   "senha",
   "password",
@@ -28,9 +25,6 @@ class Logger {
     return new Date().toISOString();
   }
 
-  /**
-   * Sanitiza contexto removendo campos sensíveis
-   */
   private sanitizeContext(context?: LogContext): LogContext | undefined {
     if (!context) {
       return undefined;

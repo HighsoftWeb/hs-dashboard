@@ -68,7 +68,13 @@ export const schemaFiltroOrcamentoOS = schemaParametrosConsulta.extend({
   }, z.number().int().positive().optional()),
 });
 
+const FAIXAS_VENCIMENTO = ["vencido", "0-30", "31-60", "61-90", "acima-90"] as const;
+
 export const schemaFiltroTitulo = schemaParametrosConsulta.extend({
+  faixa: z.preprocess(
+    (val) => (val === null || val === "" ? undefined : val),
+    z.enum(FAIXAS_VENCIMENTO).optional()
+  ),
   sit: z.preprocess(
     (val) => (val === null || val === "" ? undefined : val),
     z.string().optional()

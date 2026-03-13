@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   TrendingUp,
   TrendingDown,
@@ -15,8 +17,15 @@ import {
   type ContaVencendo,
 } from "@/core/domains/dashboard/services/dashboard-client";
 import { EstatisticasDashboard } from "@/core/tipos/dashboard-db";
-import { Orcamento } from "@/core/tipos";
+import { Orcamento } from "@/core/tipos/comercial";
 import { formatarData } from "@/core/utils/formatar-data";
+import {
+  DEEP_DIVE,
+  obterUrlTitulo,
+  obterUrlOrcamento,
+  obterFaixaParam,
+  obterSitOrcamento,
+} from "@/core/utils/deep-dive-urls";
 import { CardGrafico } from "@/core/componentes/dashboard/card-grafico";
 import { PaginaBI } from "@/core/componentes/dashboard/pagina-bi";
 import { obterIntervaloPadrao } from "@/core/componentes/dashboard/filtro-periodo";
@@ -64,11 +73,17 @@ interface AnalyticsGeral {
     orcamentos: number;
   }[];
   topClientes?: {
+    codCliFor?: number;
     razaoSocial: string;
     valorTotal: number;
     quantidade: number;
   }[];
-  topProdutos?: { descricao: string; quantidade: number; valorTotal: number }[];
+  topProdutos?: {
+    codProduto?: number;
+    descricao: string;
+    quantidade: number;
+    valorTotal: number;
+  }[];
   funilVendas?: { status: string; quantidade: number; valor: number }[];
   metaRealizado?: {
     meta: number;
@@ -89,6 +104,7 @@ const CORES_FUNIL = [
 ];
 
 export default function PaginaDashboard(): React.JSX.Element {
+  const router = useRouter();
   const { cores } = useEmpresa();
   const coresGraficos = obterCoresGraficos(cores);
   const padrao = obterIntervaloPadrao();
@@ -196,12 +212,8 @@ export default function PaginaDashboard(): React.JSX.Element {
         setDataFim(f);
       }}
     >
-      {/* Hero executivo */}
       <div className="rounded-2xl bg-highsoft-primario p-6 text-white shadow-sm border border-slate-200/50">
         <h2 className="text-lg font-semibold opacity-90">Painel do Gestor</h2>
-        <p className="text-sm mt-1 opacity-80">
-          Visão consolidada do negócio em um único lugar
-        </p>
         {metaRealizado && (
           <div className="mt-4 p-4 bg-white/10 rounded-xl backdrop-blur">
             <div className="flex flex-wrap items-center justify-between gap-4">
@@ -245,55 +257,74 @@ export default function PaginaDashboard(): React.JSX.Element {
           </div>
         )}
       </div>
-
-      {/* KPIs coloridos */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-        <div className="rounded-xl border-0 bg-gradient-to-br from-emerald-500 to-emerald-600 p-5 text-white shadow-md">
+        <Link
+          href={DEEP_DIVE.contasReceber}
+          className="rounded-xl border-0 bg-gradient-to-br from-emerald-500 to-emerald-600 p-5 text-white shadow-md hover:shadow-lg transition cursor-pointer block"
+        >
           <p className="text-sm font-medium opacity-90">Receitas</p>
           <p className="mt-1 text-2xl font-bold">
             {formatarMoeda(stats.receitasMes)}
           </p>
           <TrendingUp className="w-8 h-8 mt-2 opacity-80" />
-        </div>
-        <div className="rounded-xl border-0 bg-gradient-to-br from-red-500 to-red-600 p-5 text-white shadow-md">
+        </Link>
+        <Link
+          href={DEEP_DIVE.contasPagar}
+          className="rounded-xl border-0 bg-gradient-to-br from-red-500 to-red-600 p-5 text-white shadow-md hover:shadow-lg transition cursor-pointer block"
+        >
           <p className="text-sm font-medium opacity-90">Despesas</p>
           <p className="mt-1 text-2xl font-bold">
             {formatarMoeda(stats.despesasMes)}
           </p>
           <TrendingDown className="w-8 h-8 mt-2 opacity-80" />
-        </div>
-        <div className="rounded-xl border-0 bg-gradient-to-br from-blue-500 to-blue-600 p-5 text-white shadow-md">
+        </Link>
+        <Link
+          href={DEEP_DIVE.financeiro}
+          className="rounded-xl border-0 bg-gradient-to-br from-blue-500 to-blue-600 p-5 text-white shadow-md hover:shadow-lg transition cursor-pointer block"
+        >
           <p className="text-sm font-medium opacity-90">Lucro</p>
           <p className="mt-1 text-2xl font-bold">
             {formatarMoeda(stats.lucroMes)}
           </p>
           <DollarSign className="w-8 h-8 mt-2 opacity-80" />
-        </div>
-        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        </Link>
+        <Link
+          href={DEEP_DIVE.clientes}
+          className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md hover:border-highsoft-primario/40 transition cursor-pointer block"
+        >
           <p className="text-sm font-medium text-slate-500">Clientes</p>
           <p className="mt-1 text-2xl font-bold text-slate-900">
             {stats.totalClientes}
           </p>
           <Users className="w-8 h-8 mt-2 text-slate-400" />
-        </div>
-        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        </Link>
+        <Link
+          href={DEEP_DIVE.produtos}
+          className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md hover:border-highsoft-primario/40 transition cursor-pointer block"
+        >
           <p className="text-sm font-medium text-slate-500">Produtos</p>
           <p className="mt-1 text-2xl font-bold text-slate-900">
             {stats.totalProdutos}
           </p>
           <Package className="w-8 h-8 mt-2 text-slate-400" />
-        </div>
-        <div className="rounded-xl border-0 bg-gradient-to-br from-violet-500 to-violet-600 p-5 text-white shadow-md">
+        </Link>
+        <Link
+          href={DEEP_DIVE.orcamentos}
+          className="rounded-xl border-0 bg-gradient-to-br from-violet-500 to-violet-600 p-5 text-white shadow-md hover:shadow-lg transition cursor-pointer block"
+        >
           <p className="text-sm font-medium opacity-90">Orç. Hoje</p>
           <p className="mt-1 text-2xl font-bold">{stats.orcamentosHoje}</p>
           <FileText className="w-8 h-8 mt-2 opacity-80" />
-        </div>
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           {tendencia.length > 0 && (
-            <CardGrafico titulo="Receitas x Despesas x Lucro">
+            <CardGrafico
+              titulo="Receitas x Despesas x Lucro"
+              href={DEEP_DIVE.financeiro}
+            >
               <ResponsiveContainer width="100%" height={200}>
                 <LineChart
                   data={tendencia}
@@ -338,7 +369,10 @@ export default function PaginaDashboard(): React.JSX.Element {
           )}
 
           {dadosGrafico.length > 0 && (
-            <CardGrafico titulo="Mês Atual">
+            <CardGrafico
+              titulo="Mês Atual"
+              href={DEEP_DIVE.financeiro}
+            >
               <ResponsiveContainer width="100%" height={160}>
                 <BarChart data={dadosGrafico} margin={{ top: 10, right: 10 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -359,7 +393,10 @@ export default function PaginaDashboard(): React.JSX.Element {
           )}
 
           {agingReceber.length > 0 && (
-            <CardGrafico titulo="A Receber por Faixa">
+            <CardGrafico
+              titulo="A Receber por Faixa"
+              href={DEEP_DIVE.contasReceber}
+            >
               <ResponsiveContainer width="100%" height={180}>
                 <BarChart
                   data={agingReceber}
@@ -379,11 +416,20 @@ export default function PaginaDashboard(): React.JSX.Element {
                     tick={{ fontSize: 10 }}
                   />
                   <Tooltip formatter={(v) => formatarMoeda(Number(v ?? 0))} />
-                  <Bar dataKey="valor" radius={[0, 4, 4, 0]}>
+                  <Bar
+                    dataKey="valor"
+                    radius={[0, 4, 4, 0]}
+                    onClick={(e: unknown) => {
+                      const p = (e as { payload?: { faixa?: string } })?.payload;
+                      const faixa = p?.faixa ? obterFaixaParam(p.faixa) : null;
+                      router.push(faixa ? DEEP_DIVE.contasReceberComFaixa(faixa) : DEEP_DIVE.contasReceber);
+                    }}
+                  >
                     {agingReceber.map((_, i) => (
                       <Cell
                         key={i}
                         fill={CORES_AGING[i % CORES_AGING.length]}
+                        style={{ cursor: "pointer" }}
                       />
                     ))}
                   </Bar>
@@ -393,11 +439,9 @@ export default function PaginaDashboard(): React.JSX.Element {
           )}
 
           <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-            <div className="px-4 py-3 border-b border-slate-100">
-              <h3 className="text-sm font-semibold text-slate-800">
-                Orçamentos Recentes
-              </h3>
-            </div>
+            <Link href={DEEP_DIVE.orcamentos} className="block px-4 py-3 border-b border-slate-100 hover:bg-slate-50 transition">
+              <h3 className="text-sm font-semibold text-slate-800">Orçamentos Recentes</h3>
+            </Link>
             <div className="overflow-x-auto max-h-56 overflow-y-auto">
               <table className="min-w-full">
                 <thead className="bg-slate-50 sticky top-0">
@@ -432,17 +476,31 @@ export default function PaginaDashboard(): React.JSX.Element {
                   ) : (
                     orcamentosRecentes.map((orc) => (
                       <tr key={orc.id} className="hover:bg-slate-50">
-                        <td className="px-3 py-2 text-xs font-medium text-slate-800">
-                          {orc.tipo === "orcamento" ? "Orç." : "OS"}
+                        <td className="px-3 py-2">
+                          <Link href={obterUrlOrcamento(orc)} className="block">
+                            <span className="text-xs font-medium text-slate-800">
+                              {orc.tipo === "orcamento" ? "Orç." : "OS"}
+                            </span>
+                          </Link>
                         </td>
-                        <td className="px-3 py-2 text-xs text-slate-700">
-                          {orc.numero}
+                        <td className="px-3 py-2">
+                          <Link
+                            href={obterUrlOrcamento(orc)}
+                            className="text-xs text-slate-700 hover:text-highsoft-primario hover:underline"
+                          >
+                            {orc.numero}
+                          </Link>
                         </td>
                         <td className="px-3 py-2 text-xs text-slate-600">
                           {formatarData(orc.data)}
                         </td>
-                        <td className="px-3 py-2 text-xs font-medium text-slate-800 text-right">
-                          {formatarMoeda(orc.valorTotal)}
+                        <td className="px-3 py-2">
+                          <Link
+                            href={obterUrlOrcamento(orc)}
+                            className="text-xs font-medium text-slate-800 text-right block hover:text-highsoft-primario"
+                          >
+                            {formatarMoeda(orc.valorTotal)}
+                          </Link>
                         </td>
                         <td className="px-3 py-2">
                           <span
@@ -462,7 +520,10 @@ export default function PaginaDashboard(): React.JSX.Element {
 
         <div className="space-y-6">
           {funil.length > 0 && (
-            <CardGrafico titulo="Funil Status">
+            <CardGrafico
+              titulo="Funil Status"
+              href={DEEP_DIVE.orcamentos}
+            >
               <ResponsiveContainer width="100%" height={180}>
                 <PieChart>
                   <Pie
@@ -475,11 +536,18 @@ export default function PaginaDashboard(): React.JSX.Element {
                     label={(e: { name?: string; value?: number }) =>
                       `${e.name ?? ""}: ${e.value ?? 0}`
                     }
+                    onClick={(e: unknown) => {
+                      const d = e as { name?: string; status?: string; payload?: { name?: string } };
+                      const label = d?.name ?? d?.status ?? d?.payload?.name ?? "";
+                      const sit = label ? obterSitOrcamento(label) : "";
+                      router.push(sit ? DEEP_DIVE.orcamentosComSit(sit) : DEEP_DIVE.orcamentos);
+                    }}
                   >
                     {funil.map((_, i) => (
                       <Cell
                         key={i}
                         fill={CORES_FUNIL[i % CORES_FUNIL.length]}
+                        style={{ cursor: "pointer" }}
                       />
                     ))}
                   </Pie>
@@ -492,7 +560,10 @@ export default function PaginaDashboard(): React.JSX.Element {
           )}
 
           {topClientes.length > 0 && (
-            <CardGrafico titulo="Top Clientes">
+            <CardGrafico
+              titulo="Top Clientes"
+              href={DEEP_DIVE.clientes}
+            >
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart
                   data={topClientes.slice(0, 6)}
@@ -520,6 +591,8 @@ export default function PaginaDashboard(): React.JSX.Element {
                     fill={coresGraficos.primario}
                     radius={[0, 4, 4, 0]}
                     name="Valor"
+                    onClick={(e: unknown) => { const p = (e as { payload?: { codCliFor?: number } })?.payload; if (p?.codCliFor) router.push(DEEP_DIVE.clienteDetalhe(p.codCliFor)); else router.push(DEEP_DIVE.clientes); }}
+                    style={{ cursor: "pointer" }}
                   />
                 </BarChart>
               </ResponsiveContainer>
@@ -527,10 +600,21 @@ export default function PaginaDashboard(): React.JSX.Element {
           )}
 
           {topProdutos.length > 0 && (
-            <CardGrafico titulo="Top Produtos">
+            <CardGrafico
+              titulo="Top Produtos"
+              href={DEEP_DIVE.produtos}
+            >
               <div className="space-y-2 max-h-40 overflow-y-auto">
                 {topProdutos.slice(0, 6).map((p, i) => (
-                  <div key={i} className="flex justify-between text-xs">
+                  <Link
+                    key={i}
+                    href={
+                      p.codProduto
+                        ? DEEP_DIVE.produtoDetalhe(p.codProduto)
+                        : DEEP_DIVE.produtos
+                    }
+                    className="flex justify-between text-xs hover:bg-slate-50 rounded px-2 py-1 -mx-2 transition"
+                  >
                     <span
                       className="truncate max-w-[140px] text-slate-700"
                       title={p.descricao}
@@ -540,7 +624,7 @@ export default function PaginaDashboard(): React.JSX.Element {
                     <span className="font-medium text-slate-900 shrink-0">
                       {p.quantidade} un
                     </span>
-                  </div>
+                  </Link>
                 ))}
               </div>
             </CardGrafico>
@@ -548,36 +632,38 @@ export default function PaginaDashboard(): React.JSX.Element {
 
           {agingPagar.length > 0 && (
             <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-              <div className="px-4 py-3 border-b border-slate-100 flex items-center gap-2">
+              <Link href={DEEP_DIVE.contasPagar} className="flex items-center gap-2 px-4 py-3 border-b border-slate-100 hover:bg-slate-50 transition">
                 <AlertTriangle className="w-4 h-4 text-amber-500" />
-                <h3 className="text-sm font-semibold text-slate-800">
-                  A Pagar
-                </h3>
-              </div>
+                <h3 className="text-sm font-semibold text-slate-800">A Pagar</h3>
+              </Link>
               <div className="p-3 space-y-1.5">
-                {agingPagar.slice(0, 5).map((a, i) => (
-                  <div key={i} className="flex justify-between text-xs">
-                    <span className="text-slate-600 truncate flex-1">
-                      {a.faixa}
-                    </span>
-                    <span className="font-medium text-slate-900 ml-2">
-                      {formatarMoeda(a.valor)}
-                    </span>
-                  </div>
-                ))}
+                {agingPagar.slice(0, 5).map((a, i) => {
+                  const faixa = obterFaixaParam(a.faixa);
+                  return (
+                    <Link
+                      key={i}
+                      href={DEEP_DIVE.contasPagarComFaixa(faixa)}
+                      className="flex justify-between text-xs hover:bg-slate-50 rounded px-2 py-1 -mx-2 transition"
+                    >
+                      <span className="text-slate-600 truncate flex-1">{a.faixa}</span>
+                      <span className="font-medium text-slate-900 ml-2">{formatarMoeda(a.valor)}</span>
+                    </Link>
+                  );
+                })}
               </div>
             </div>
           )}
 
           <div className="rounded-xl border border-amber-200 bg-amber-50 shadow-sm overflow-hidden">
-            <div className="px-4 py-3 border-b border-amber-100">
+            <Link href={DEEP_DIVE.contasReceber} className="block px-4 py-3 border-b border-amber-100 hover:bg-amber-50/50 transition">
               <h3 className="text-sm font-semibold text-slate-800">Alertas</h3>
-            </div>
+            </Link>
             <div className="p-3 space-y-2">
               {contasVencendo.slice(0, 4).map((c) => (
-                <div
+                <Link
                   key={c.id}
-                  className="block border-l-4 border-amber-400 pl-3 py-1"
+                  href={obterUrlTitulo(c)}
+                  className="block border-l-4 border-amber-400 pl-3 py-1 hover:bg-amber-100/50 rounded-r transition"
                 >
                   <p className="text-xs font-medium text-slate-800 truncate">
                     {c.descricao}
@@ -585,7 +671,7 @@ export default function PaginaDashboard(): React.JSX.Element {
                   <p className="text-xs text-slate-600">
                     {formatarData(c.dataVencimento)} · {formatarMoeda(c.valor)}
                   </p>
-                </div>
+                </Link>
               ))}
               {contasVencendo.length === 0 && (
                 <p className="text-xs text-slate-500">Nenhum alerta</p>

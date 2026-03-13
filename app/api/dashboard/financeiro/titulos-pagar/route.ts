@@ -11,6 +11,10 @@ import {
   criarRespostaSucesso,
   criarRespostaErro,
 } from "@/core/utils/resposta-api";
+import {
+  obterDataRangeFaixa,
+  type FaixaVencimento,
+} from "@/core/utils/faixa-vencimento";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
@@ -29,6 +33,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
 
     const { searchParams } = new URL(request.url);
+    const faixaParam = searchParams.get("faixa") as FaixaVencimento | null;
+    const faixaRange =
+      faixaParam && ["vencido", "0-30", "31-60", "61-90", "acima-90"].includes(faixaParam)
+        ? obterDataRangeFaixa(faixaParam)
+        : null;
+
     const parametros = schemaFiltroTitulo.parse({
       page: searchParams.get("page") || undefined,
       pageSize: searchParams.get("pageSize") || undefined,
@@ -37,8 +47,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       search: searchParams.get("search") || undefined,
       sit: searchParams.get("sit") || undefined,
       codCliFor: searchParams.get("codCliFor") || undefined,
-      dataInicio: searchParams.get("dataInicio") || undefined,
-      dataFim: searchParams.get("dataFim") || undefined,
+      dataInicio: faixaRange?.dataInicio || searchParams.get("dataInicio") || undefined,
+      dataFim: faixaRange?.dataFim || searchParams.get("dataFim") || undefined,
     });
 
     const colunas = [
@@ -55,6 +65,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const filtrosAdicionais: Record<string, unknown> = {};
     if (parametros.sit) {
       filtrosAdicionais.SIT_TITULO = parametros.sit;
+    } else if (faixaRange) {
+      filtrosAdicionais.SIT_TITULO = "AB";
     }
     if (parametros.codCliFor) {
       filtrosAdicionais.COD_CLI_FOR = parametros.codCliFor;

@@ -1,13 +1,6 @@
-/**
- * Utilitários para manipulação e validação de CNPJ
- */
-
 const CNPJ_LENGTH = 14;
 const CNPJ_NUMBERS_ONLY_REGEX = /^\d{14}$/;
 
-/**
- * Remove caracteres não numéricos do CNPJ
- */
 export function limparCnpj(cnpj: string): string {
   if (!cnpj || typeof cnpj !== "string") {
     return "";
@@ -15,9 +8,6 @@ export function limparCnpj(cnpj: string): string {
   return cnpj.replace(/\D/g, "");
 }
 
-/**
- * Valida se o CNPJ tem o formato correto (14 dígitos)
- */
 export function validarFormatoCnpj(cnpj: string): boolean {
   const cnpjLimpo = limparCnpj(cnpj);
   return (
@@ -25,10 +15,6 @@ export function validarFormatoCnpj(cnpj: string): boolean {
   );
 }
 
-/**
- * Valida os dígitos verificadores do CNPJ
- * Implementa o algoritmo oficial de validação de CNPJ
- */
 export function validarDigitosVerificadoresCnpj(cnpj: string): boolean {
   const cnpjLimpo = limparCnpj(cnpj);
 
@@ -78,9 +64,6 @@ export function validarDigitosVerificadoresCnpj(cnpj: string): boolean {
   return true;
 }
 
-/**
- * Validação completa de CNPJ (formato + dígitos verificadores)
- */
 export function validarCnpjCompleto(cnpj: string): boolean {
   if (!validarFormatoCnpj(cnpj)) {
     return false;
@@ -88,9 +71,6 @@ export function validarCnpjCompleto(cnpj: string): boolean {
   return validarDigitosVerificadoresCnpj(cnpj);
 }
 
-/**
- * Formata CNPJ para exibição (XX.XXX.XXX/XXXX-XX)
- */
 export function formatarCnpj(cnpj: string): string {
   const cnpjLimpo = limparCnpj(cnpj);
 
@@ -104,10 +84,6 @@ export function formatarCnpj(cnpj: string): string {
   );
 }
 
-/**
- * Valida e limpa CNPJ, retornando o CNPJ limpo ou null se inválido
- * Por padrão, valida apenas formato. Use validarDigitos: true para validação completa.
- */
 export function validarELimparCnpj(
   cnpj: string | null | undefined,
   opcoes?: { validarDigitos?: boolean }

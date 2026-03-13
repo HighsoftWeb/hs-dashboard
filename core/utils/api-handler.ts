@@ -1,8 +1,3 @@
-/**
- * Utilitário para padronizar handlers de API
- * Facilita tratamento de erros e autenticação consistente
- */
-
 import { NextRequest, NextResponse } from "next/server";
 import { tratarErroAPI } from "./tratar-erro";
 import { validarAutenticacao } from "../middleware/auth-middleware";
@@ -16,10 +11,6 @@ export interface OpcoesHandler {
   requerAutenticacao?: boolean;
 }
 
-/**
- * Cria um handler de API com tratamento de erros padronizado
- * e opcionalmente valida autenticação
- */
 export function criarHandler<T = unknown>(
   handler: ApiHandler<T>,
   opcoes?: OpcoesHandler
@@ -42,9 +33,6 @@ export function criarHandler<T = unknown>(
   };
 }
 
-/**
- * Wrapper para rotas GET
- */
 export function criarHandlerGET(
   handler: ApiHandler,
   opcoes?: OpcoesHandler
@@ -52,9 +40,6 @@ export function criarHandlerGET(
   return criarHandler(handler, opcoes);
 }
 
-/**
- * Wrapper para rotas POST
- */
 export function criarHandlerPOST(
   handler: ApiHandler,
   opcoes?: OpcoesHandler
@@ -62,9 +47,6 @@ export function criarHandlerPOST(
   return criarHandler(handler, opcoes);
 }
 
-/**
- * Wrapper para rotas PUT
- */
 export function criarHandlerPUT(
   handler: ApiHandler,
   opcoes?: OpcoesHandler
@@ -72,9 +54,6 @@ export function criarHandlerPUT(
   return criarHandler(handler, opcoes);
 }
 
-/**
- * Wrapper para rotas DELETE
- */
 export function criarHandlerDELETE(
   handler: ApiHandler,
   opcoes?: OpcoesHandler

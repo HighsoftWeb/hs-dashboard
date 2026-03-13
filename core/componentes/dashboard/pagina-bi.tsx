@@ -12,11 +12,6 @@ interface PaginaBIProps {
   presetsCompletos?: boolean;
 }
 
-/**
- * Layout padrão para páginas BI conforme Guia Mestre.
- * 6 blocos: KPIs, Tendências, Distribuições, Rankings, Tabela, Alertas.
- * Máximo de gráficos, mínimo de texto.
- */
 export function PaginaBI({
   titulo,
   dataInicio,

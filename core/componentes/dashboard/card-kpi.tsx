@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 
 interface CardKpiProps {
   titulo: string;
@@ -9,8 +10,8 @@ interface CardKpiProps {
     positiva: boolean;
   };
   variante?: "padrao" | "destaque";
-  /** Quando true, exibe o valor em vermelho (ex: lucro negativo) */
   negativo?: boolean;
+  href?: string;
   className?: string;
 }
 
@@ -21,15 +22,18 @@ export function CardKpi({
   tendencia,
   variante = "padrao",
   negativo = false,
+  href,
   className = "",
 }: CardKpiProps): React.JSX.Element {
   const isDestaque = variante === "destaque";
-  const corValor = negativo ? "text-red-600" : isDestaque ? "text-highsoft-primario" : "text-slate-900";
+  const corValor = negativo
+    ? "text-red-600"
+    : isDestaque
+      ? "text-highsoft-primario"
+      : "text-slate-900";
 
-  return (
-    <div
-      className={`rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md ${className}`}
-    >
+  const conteudo = (
+    <>
       <div className="flex items-start justify-between">
         <div className="min-w-0 flex-1">
           <p className="text-sm font-medium text-slate-500">{titulo}</p>
@@ -51,13 +55,30 @@ export function CardKpi({
         {icone && (
           <div
             className={`w-12 h-12 rounded-lg flex items-center justify-center ${
-              isDestaque ? "bg-highsoft-primario/10 text-highsoft-primario" : "bg-slate-100 text-slate-600"
+              isDestaque
+                ? "bg-highsoft-primario/10 text-highsoft-primario"
+                : "bg-slate-100 text-slate-600"
             }`}
           >
             {icone}
           </div>
         )}
       </div>
-    </div>
+    </>
   );
+
+  const baseClass = `rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md ${className}`;
+  const interactiveClass = href
+    ? "cursor-pointer hover:border-highsoft-primario/40"
+    : "";
+
+  if (href) {
+    return (
+      <Link href={href} className={`${baseClass} ${interactiveClass} block`}>
+        {conteudo}
+      </Link>
+    );
+  }
+
+  return <div className={`${baseClass} ${interactiveClass}`}>{conteudo}</div>;
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   DataTable,
   ColunaDataTable,
@@ -26,6 +26,12 @@ interface OrcamentoOSDB extends Record<string, unknown> {
 
 export default function PaginaOrcamentosOS(): React.JSX.Element {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const sit = searchParams.get("sit") ?? "";
+  const ind = searchParams.get("ind") ?? "";
+  const valoresFiltrosIniciais: Record<string, string> = {};
+  if (sit) valoresFiltrosIniciais.sit = sit;
+  if (ind) valoresFiltrosIniciais.ind = ind;
 
   const handleRowClick = (registro: OrcamentoOSDB): void => {
     router.push(
@@ -151,6 +157,7 @@ export default function PaginaOrcamentosOS(): React.JSX.Element {
             colunas={colunasOrcamentos}
             endpoint="/dashboard/comercial/orcamentos"
             filtros={filtrosOrcamentos}
+            valoresFiltrosIniciais={valoresFiltrosIniciais}
             ordenacaoPadrao={{ campo: "DAT_EMISSAO", ordem: "desc" }}
             onRowClick={handleRowClick}
             colunasTotalizar={["VLR_LIQUIDO"]}

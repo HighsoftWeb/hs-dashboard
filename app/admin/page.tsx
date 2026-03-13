@@ -46,9 +46,6 @@ const CORES_PADRAO = {
   terciaria: "#04B2D9",
 };
 
-/**
- * Página admin - gerenciamento de empresas (criar, editar, excluir, importar, cores).
- */
 export default function PaginaAdmin(): React.JSX.Element {
   const [autenticado, setAutenticado] = useState(false);
   const [senha, setSenha] = useState("");

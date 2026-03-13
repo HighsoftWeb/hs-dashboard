@@ -1,7 +1,3 @@
-/**
- * Cores do tema HighSoft para gráficos (Recharts precisa de hex)
- * Consistente com globals.css e tema da aplicação
- */
 import { coresHighSoft } from "@/core/temas/cores-highsoft";
 
 export const CORES_GRAFICOS = {
@@ -15,10 +11,6 @@ export const CORES_GRAFICOS = {
 
 export type CoresGraficos = typeof CORES_GRAFICOS;
 
-/**
- * Gera objeto de cores para gráficos com cores personalizadas da empresa.
- * Use em dashboards dentro do EmpresaProvider.
- */
 export function obterCoresGraficos(coresEmpresa?: {
   primaria: string;
   secundaria: string;

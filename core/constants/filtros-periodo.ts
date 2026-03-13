@@ -1,8 +1,3 @@
-/**
- * Presets de período para o BI - conforme Guia Mestre seção 5.3.
- * Todo módulo do dashboard deve suportar estes intervalos.
- */
-
 export interface IntervaloPeriodo {
   dataInicio: string;
   dataFim: string;
@@ -14,14 +9,6 @@ function formatarData(d: Date): string {
   return d.toISOString().slice(0, 10);
 }
 
-/**
- * Gera intervalos de período conforme especificação do Guia Mestre.
- * - hoje, ontem
- * - últimos 7, 15, 30 dias
- * - mês atual, mês anterior
- * - últimos 3, 6 meses
- * - ano atual
- */
 export function obterIntervalosPeriodo(): IntervaloPeriodo[] {
   const hoje = new Date();
   const ano = hoje.getFullYear();
@@ -97,17 +84,11 @@ export function obterIntervalosPeriodo(): IntervaloPeriodo[] {
   ];
 }
 
-/**
- * Aplica um preset por código.
- */
 export function aplicarPresetPeriodo(codigo: string): IntervaloPeriodo | null {
   const intervalos = obterIntervalosPeriodo();
   return intervalos.find((i) => i.codigo === codigo) ?? null;
 }
 
-/**
- * Intervalo padrão para dashboards (mês atual).
- */
 export function obterIntervaloPadraoBI(): IntervaloPeriodo {
   const hoje = new Date();
   const ano = hoje.getFullYear();

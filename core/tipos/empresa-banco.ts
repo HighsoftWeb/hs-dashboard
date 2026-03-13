@@ -1,7 +1,3 @@
-/**
- * Tipos relacionados a empresas do banco de dados principal
- */
-
 export interface EmpresaBanco {
   COD_EMPRESA: number;
   NOM_EMPRESA: string;

@@ -1,7 +1,3 @@
-/**
- * Utilitários para respostas de API padronizadas
- */
-
 export interface RespostaApiSucesso<T> {
   success: true;
   data: T;
@@ -17,9 +13,6 @@ export interface RespostaApiErro {
 
 export type RespostaApi<T> = RespostaApiSucesso<T> | RespostaApiErro;
 
-/**
- * Cria uma resposta de sucesso padronizada
- */
 export function criarRespostaSucesso<T>(data: T): RespostaApiSucesso<T> {
   return {
     success: true,
@@ -27,9 +20,6 @@ export function criarRespostaSucesso<T>(data: T): RespostaApiSucesso<T> {
   };
 }
 
-/**
- * Cria uma resposta de erro padronizada
- */
 export function criarRespostaErro(
   message: string,
   code?: string
@@ -43,9 +33,6 @@ export function criarRespostaErro(
   };
 }
 
-/**
- * Verifica se uma resposta é de sucesso
- */
 export function isRespostaSucesso<T>(
   resposta: RespostaApi<T>
 ): resposta is RespostaApiSucesso<T> {

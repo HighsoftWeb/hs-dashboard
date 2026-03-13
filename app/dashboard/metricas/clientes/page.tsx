@@ -2,7 +2,9 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
+import { DEEP_DIVE } from "@/core/utils/deep-dive-urls";
 import { servicoDashboard } from "@/core/domains/dashboard/services/dashboard-client";
 import { formatarMoeda } from "@/core/utils/formatar-moeda";
 import { CardGrafico } from "@/core/componentes/dashboard/card-grafico";
@@ -19,11 +21,12 @@ import { obterCoresGraficos } from "@/core/constants/cores-graficos";
 import { useEmpresa } from "@/core/context/empresa-context";
 
 export default function PaginaMetricasClientes(): React.JSX.Element {
+  const router = useRouter();
   const { cores } = useEmpresa();
   const coresGraficos = obterCoresGraficos(cores);
   const [dados, setDados] = useState<{
-    topClientesFaturamento?: { razaoSocial: string; valorTotal: number; quantidade: number }[];
-    clientesInativos?: { razaoSocial: string; valorUltimoAno: number; diasSemCompra: number }[];
+    topClientesFaturamento?: { codCliFor?: number; razaoSocial: string; valorTotal: number; quantidade: number }[];
+    clientesInativos?: { codCliFor?: number; razaoSocial: string; valorUltimoAno: number; diasSemCompra: number }[];
   } | null>(null);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
@@ -81,28 +84,28 @@ export default function PaginaMetricasClientes(): React.JSX.Element {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {topClientes.length > 0 && (
-          <CardGrafico titulo="Top Faturamento">
+          <CardGrafico titulo="Top Faturamento" href={DEEP_DIVE.clientes}>
             <ResponsiveContainer width="100%" height={260}>
               <BarChart data={topClientes.slice(0, 10)} layout="vertical" margin={{ top: 5, right: 60, left: 0, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis type="number" tick={{ fontSize: 9 }} tickFormatter={(v) => formatarMoeda(v).replace(/\s/g, "").slice(0, 10)} />
                 <YAxis type="category" dataKey="razaoSocial" width={110} tick={{ fontSize: 9 }} tickFormatter={(v) => (v?.length > 16 ? v.slice(0, 15) + "…" : v)} />
                 <Tooltip formatter={(v) => formatarMoeda(Number(v ?? 0))} />
-                <Bar dataKey="valorTotal" fill={coresGraficos.primario} radius={[0, 4, 4, 0]} name="Valor" />
+                <Bar dataKey="valorTotal" fill={coresGraficos.primario} radius={[0, 4, 4, 0]} name="Valor" onClick={(e: unknown) => { const p = (e as { payload?: { codCliFor?: number } })?.payload; if (p?.codCliFor) router.push(DEEP_DIVE.clienteDetalhe(p.codCliFor)); else router.push(DEEP_DIVE.clientes); }} style={{ cursor: "pointer" }} />
               </BarChart>
             </ResponsiveContainer>
           </CardGrafico>
         )}
 
         {inativos.length > 0 && (
-          <CardGrafico titulo="Em Risco (sem compra 90+ dias)">
+          <CardGrafico titulo="Em Risco (sem compra 90+ dias)" href={DEEP_DIVE.clientes}>
             <ResponsiveContainer width="100%" height={260}>
               <BarChart data={inativos.slice(0, 10)} layout="vertical" margin={{ top: 5, right: 50, left: 0, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis type="number" tick={{ fontSize: 9 }} />
                 <YAxis type="category" dataKey="razaoSocial" width={110} tick={{ fontSize: 9 }} tickFormatter={(v) => (v?.length > 16 ? v.slice(0, 15) + "…" : v)} />
                 <Tooltip formatter={(v) => v} />
-                <Bar dataKey="diasSemCompra" fill="#f59e0b" radius={[0, 4, 4, 0]} name="Dias" />
+                <Bar dataKey="diasSemCompra" fill="#f59e0b" radius={[0, 4, 4, 0]} name="Dias" onClick={(e: unknown) => { const p = (e as { payload?: { codCliFor?: number } })?.payload; if (p?.codCliFor) router.push(DEEP_DIVE.clienteDetalhe(p.codCliFor)); else router.push(DEEP_DIVE.clientes); }} style={{ cursor: "pointer" }} />
               </BarChart>
             </ResponsiveContainer>
           </CardGrafico>

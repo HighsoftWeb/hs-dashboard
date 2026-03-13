@@ -4,9 +4,6 @@ const COD_EMPRESA_COOKIE_NAME = "cod_empresa";
 const COOKIE_EXPIRES_DAYS = 365 * 10;
 const RADIX_DECIMAL = 10;
 
-/**
- * Valida se um código de empresa é válido
- */
 function validarCodEmpresa(codEmpresa: number): boolean {
   return (
     typeof codEmpresa === "number" &&

@@ -33,6 +33,7 @@ interface PropsDataTable<T> {
   colunas: ColunaDataTable<T>[];
   endpoint: string;
   filtros?: FiltroDataTable[];
+  valoresFiltrosIniciais?: Record<string, string>;
   ordenacaoPadrao?: { campo: string; ordem: "asc" | "desc" };
   titulo?: string;
   mostrarPaginacao?: boolean;
@@ -45,6 +46,7 @@ export function DataTable<T extends Record<string, unknown>>({
   colunas,
   endpoint,
   filtros = [],
+  valoresFiltrosIniciais = {},
   ordenacaoPadrao = { campo: "", ordem: "asc" },
   titulo,
   mostrarPaginacao = true,
@@ -65,7 +67,7 @@ export function DataTable<T extends Record<string, unknown>>({
     ordem: "asc" | "desc";
   }>(ordenacaoPadrao);
   const [valoresFiltros, setValoresFiltros] = useState<Record<string, string>>(
-    {}
+    () => valoresFiltrosIniciais
   );
   const [buscaTexto, setBuscaTexto] = useState<string>("");
 
@@ -115,6 +117,11 @@ export function DataTable<T extends Record<string, unknown>>({
           const valor = valoresFiltrosRef.current[filtro.chave];
           if (valor) {
             params[filtro.chave] = valor;
+          }
+        }
+        for (const [key, value] of Object.entries(valoresFiltrosRef.current)) {
+          if (value && !(key in params)) {
+            params[key] = value;
           }
         }
 

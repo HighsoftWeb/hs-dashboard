@@ -56,9 +56,6 @@ class RefreshTokenRepository {
     ).run(cutoffDate.toISOString());
   }
 
-  /**
-   * Armazena um refresh token
-   */
   salvarRefreshToken(
     jti: string,
     codUsuario: number,
@@ -75,9 +72,6 @@ class RefreshTokenRepository {
     ).run(jti, codUsuario, codEmpresa);
   }
 
-  /**
-   * Verifica se um refresh token existe e não foi usado/revogado
-   */
   isRefreshTokenValido(jti: string): boolean {
     this.ensureInitialized();
     const db = obterBancoEmpresas();
@@ -97,9 +91,6 @@ class RefreshTokenRepository {
     return !!resultado;
   }
 
-  /**
-   * Marca um refresh token como usado (rotação)
-   */
   marcarComoUsado(jti: string): void {
     this.ensureInitialized();
     const db = obterBancoEmpresas();
@@ -113,9 +104,6 @@ class RefreshTokenRepository {
     ).run(jti);
   }
 
-  /**
-   * Revoga todos os refresh tokens de um usuário
-   */
   revogarTodosRefreshTokensUsuario(
     codUsuario: number,
     codEmpresa: number
@@ -134,9 +122,6 @@ class RefreshTokenRepository {
     ).run(codUsuario, codEmpresa);
   }
 
-  /**
-   * Revoga um refresh token específico
-   */
   revogarRefreshToken(jti: string): void {
     this.ensureInitialized();
     const db = obterBancoEmpresas();

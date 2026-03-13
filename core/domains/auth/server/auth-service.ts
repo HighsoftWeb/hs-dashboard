@@ -234,8 +234,6 @@ export class AutenticacaoService {
       Buffer.from(novoRefreshToken.split(".")[1], "base64").toString()
     );
 
-    console.log(novoRefreshTokenDecoded);
-
     refreshTokenRepository.salvarRefreshToken(
       novoRefreshTokenDecoded.jti,
       usuario.COD_USUARIO,

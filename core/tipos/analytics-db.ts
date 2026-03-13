@@ -1,7 +1,3 @@
-/**
- * Tipos para análises avançadas das dashboards (visão gestor)
- */
-
 export interface AgingReceber {
   faixa: string;
   quantidade: number;
@@ -79,7 +75,6 @@ export interface AnalyticsGeral {
   metaRealizado: MetaRealizado | null;
 }
 
-/** Produto com lucro/prejuízo (NF de venda) */
 export interface ProdutoLucro {
   codProduto: number;
   descricao: string;
@@ -90,7 +85,6 @@ export interface ProdutoLucro {
   margemPercentual: number;
 }
 
-/** Produto parado (com estoque, sem venda há X dias) */
 export interface ProdutoParado {
   codProduto: number;
   descricao: string;
@@ -100,7 +94,6 @@ export interface ProdutoParado {
   dataUltimaSaida: string | null;
 }
 
-/** Cliente que comprava e parou */
 export interface ClienteInativo {
   codCliFor: number;
   razaoSocial: string;
@@ -109,7 +102,6 @@ export interface ClienteInativo {
   diasSemCompra: number;
 }
 
-/** Indicadores de caixa */
 export interface IndicadoresCaixa {
   receitasMesAtual: number;
   despesasMesAtual: number;
@@ -121,7 +113,6 @@ export interface IndicadoresCaixa {
   tendencia: "subindo" | "descendo" | "estavel";
 }
 
-/** Indicadores de inadimplência */
 export interface IndicadoresInadimplencia {
   valorTotalReceber: number;
   valorVencido: number;
@@ -130,7 +121,6 @@ export interface IndicadoresInadimplencia {
   quantidadeClientesInadimplentes: number;
 }
 
-/** Fluxo de recebimento por mês (vencimento) */
 export interface FluxoRecebimentoMensal {
   mes: string;
   mesAno: string;

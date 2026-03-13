@@ -24,9 +24,6 @@ function gerarRefreshJTI(): string {
   return randomBytes(REFRESH_TOKEN_BYTES).toString("hex");
 }
 
-/**
- * Gera um refresh token com expiração longa
- */
 export function gerarRefreshToken(
   codUsuario: number,
   codEmpresa: number,
@@ -47,9 +44,6 @@ export function gerarRefreshToken(
   });
 }
 
-/**
- * Verifica e decodifica um refresh token
- */
 export function verificarRefreshToken(token: string): RefreshTokenPayload {
   const secret = obterJwtSecret();
 

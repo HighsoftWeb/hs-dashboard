@@ -1,7 +1,7 @@
 "use client";
 
-import React from "react";
-import { useRouter } from "next/navigation";
+import React, { useMemo } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   DataTable,
   ColunaDataTable,
@@ -22,6 +22,18 @@ interface TituloPagarDB extends Record<string, unknown> {
 
 export default function PaginaContasPagar(): React.JSX.Element {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const valoresFiltrosIniciais = useMemo(() => {
+    const ini: Record<string, string> = {};
+    const faixa = searchParams.get("faixa");
+    if (faixa) ini.faixa = faixa;
+    const sit = searchParams.get("sit");
+    if (sit) ini.sit = sit;
+    const codCliFor = searchParams.get("codCliFor");
+    if (codCliFor) ini.codCliFor = codCliFor;
+    return ini;
+  }, [searchParams]);
 
   const colunasTitulosPagar: ColunaDataTable<TituloPagarDB>[] = [
     {
@@ -101,6 +113,18 @@ export default function PaginaContasPagar(): React.JSX.Element {
 
   const filtrosTitulos: FiltroDataTable[] = [
     {
+      chave: "faixa",
+      tipo: "select",
+      rotulo: "Faixa Vencimento",
+      opcoes: [
+        { valor: "vencido", label: "Vencido" },
+        { valor: "0-30", label: "0-30 dias" },
+        { valor: "31-60", label: "31-60 dias" },
+        { valor: "61-90", label: "61-90 dias" },
+        { valor: "acima-90", label: "Acima 90 dias" },
+      ],
+    },
+    {
       chave: "sit",
       tipo: "select",
       rotulo: "Status",
@@ -135,6 +159,7 @@ export default function PaginaContasPagar(): React.JSX.Element {
             colunas={colunasTitulosPagar}
             endpoint="/dashboard/financeiro/titulos-pagar"
             filtros={filtrosTitulos}
+            valoresFiltrosIniciais={valoresFiltrosIniciais}
             ordenacaoPadrao={{ campo: "VCT_ORIGINAL", ordem: "asc" }}
             colunasTotalizar={["VLR_ORIGINAL", "VLR_ABERTO"]}
             onRowClick={(titulo) => {

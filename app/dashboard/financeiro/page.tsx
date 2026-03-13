@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import {
   DollarSign,
   TrendingUp,
@@ -12,6 +13,12 @@ import {
   type ContaVencendo,
 } from "@/core/domains/dashboard/services/dashboard-client";
 import { formatarData } from "@/core/utils/formatar-data";
+import {
+  DEEP_DIVE,
+  obterUrlTitulo,
+  obterFaixaParam,
+} from "@/core/utils/deep-dive-urls";
+import Link from "next/link";
 import { CardKpi } from "@/core/componentes/dashboard/card-kpi";
 import { CardGrafico } from "@/core/componentes/dashboard/card-grafico";
 import { PaginaBI } from "@/core/componentes/dashboard/pagina-bi";
@@ -40,6 +47,7 @@ function formatarMoeda(v: number): string {
 const CORES_AGING = ["#ef4444", "#f59e0b", "#eab308", "#22c55e", "#3b82f6"];
 
 export default function DashboardFinanceiro(): React.JSX.Element {
+  const router = useRouter();
   const { cores } = useEmpresa();
   const coresGraficos = obterCoresGraficos(cores);
   const padrao = obterIntervaloPadrao();
@@ -191,6 +199,7 @@ export default function DashboardFinanceiro(): React.JSX.Element {
           titulo="A Vencer"
           valor={contasVencendo.length}
           icone={<AlertTriangle className="w-5 h-5" />}
+          href={DEEP_DIVE.contasReceber}
         />
         {inadimplencia && (
           <>
@@ -198,6 +207,7 @@ export default function DashboardFinanceiro(): React.JSX.Element {
               titulo="A Receber"
               valor={formatarMoeda(inadimplencia.valorTotalReceber)}
               icone={<DollarSign className="w-5 h-5" />}
+              href={DEEP_DIVE.contasReceber}
             />
             <CardKpi
               titulo="Inadimplência"
@@ -208,6 +218,7 @@ export default function DashboardFinanceiro(): React.JSX.Element {
                   ? "destaque"
                   : undefined
               }
+              href={DEEP_DIVE.contasReceber}
             />
           </>
         )}
@@ -242,7 +253,7 @@ export default function DashboardFinanceiro(): React.JSX.Element {
         </CardGrafico>
 
         {agingReceber.length > 0 && (
-          <CardGrafico titulo="A Receber por Faixa">
+          <CardGrafico titulo="A Receber por Faixa" href={DEEP_DIVE.contasReceber}>
             <ResponsiveContainer width="100%" height={200}>
               <BarChart
                 data={agingReceber}
@@ -262,9 +273,17 @@ export default function DashboardFinanceiro(): React.JSX.Element {
                   tick={{ fontSize: 9 }}
                 />
                 <Tooltip formatter={(v) => formatarMoeda(Number(v ?? 0))} />
-                <Bar dataKey="valor" radius={[0, 4, 4, 0]}>
+                <Bar
+                  dataKey="valor"
+                  radius={[0, 4, 4, 0]}
+                  onClick={(e: unknown) => {
+                    const p = (e as { payload?: { faixa?: string } })?.payload;
+                    const faixa = p?.faixa ? obterFaixaParam(p.faixa) : null;
+                    router.push(faixa ? DEEP_DIVE.contasReceberComFaixa(faixa) : DEEP_DIVE.contasReceber);
+                  }}
+                >
                   {agingReceber.map((_, i) => (
-                    <Cell key={i} fill={CORES_AGING[i % CORES_AGING.length]} />
+                    <Cell key={i} fill={CORES_AGING[i % CORES_AGING.length]} style={{ cursor: "pointer" }} />
                   ))}
                 </Bar>
               </BarChart>
@@ -273,7 +292,7 @@ export default function DashboardFinanceiro(): React.JSX.Element {
         )}
 
         {fluxo.length > 0 && (
-          <CardGrafico titulo="Fluxo Recebimento">
+          <CardGrafico titulo="Fluxo Recebimento" href={DEEP_DIVE.contasReceber}>
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={fluxo} margin={{ top: 10, right: 10 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -290,6 +309,8 @@ export default function DashboardFinanceiro(): React.JSX.Element {
                   fill={coresGraficos.primario}
                   radius={[4, 4, 0, 0]}
                   name="A receber"
+                  onClick={() => router.push(DEEP_DIVE.contasReceber)}
+                  style={{ cursor: "pointer" }}
                 />
               </BarChart>
             </ResponsiveContainer>
@@ -297,20 +318,16 @@ export default function DashboardFinanceiro(): React.JSX.Element {
         )}
 
         <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 shadow-sm overflow-hidden">
-          <div className="px-4 py-3 border-b border-emerald-100">
+          <Link href={DEEP_DIVE.contasReceber} className="block px-4 py-3 border-b border-emerald-100 hover:bg-emerald-50/50 transition">
             <h3 className="text-sm font-semibold text-slate-800">A Receber</h3>
-            <p className="text-lg font-bold text-emerald-700 mt-0.5">
-              {formatarMoeda(totalReceber)}
-            </p>
-          </div>
+            <p className="text-lg font-bold text-emerald-700 mt-0.5">{formatarMoeda(totalReceber)}</p>
+          </Link>
           <div className="p-3 max-h-44 overflow-y-auto space-y-2">
             {receber.slice(0, 5).map((c) => (
-              <div key={c.id} className="flex justify-between text-xs">
+              <Link key={c.id} href={obterUrlTitulo(c)} className="flex justify-between text-xs hover:bg-emerald-100/50 rounded px-2 py-1 -mx-2 transition">
                 <span className="truncate flex-1">{c.descricao}</span>
-                <span className="font-medium ml-2">
-                  {formatarMoeda(c.valor)}
-                </span>
-              </div>
+                <span className="font-medium ml-2">{formatarMoeda(c.valor)}</span>
+              </Link>
             ))}
             {receber.length === 0 && (
               <p className="text-xs text-slate-500">Nenhum</p>
@@ -319,20 +336,16 @@ export default function DashboardFinanceiro(): React.JSX.Element {
         </div>
 
         <div className="rounded-xl border border-red-200 bg-red-50/50 shadow-sm overflow-hidden">
-          <div className="px-4 py-3 border-b border-red-100">
+          <Link href={DEEP_DIVE.contasPagar} className="block px-4 py-3 border-b border-red-100 hover:bg-red-50/50 transition">
             <h3 className="text-sm font-semibold text-slate-800">A Pagar</h3>
-            <p className="text-lg font-bold text-red-700 mt-0.5">
-              {formatarMoeda(totalPagar)}
-            </p>
-          </div>
+            <p className="text-lg font-bold text-red-700 mt-0.5">{formatarMoeda(totalPagar)}</p>
+          </Link>
           <div className="p-3 max-h-44 overflow-y-auto space-y-2">
             {pagar.slice(0, 5).map((c) => (
-              <div key={c.id} className="flex justify-between text-xs">
+              <Link key={c.id} href={obterUrlTitulo(c)} className="flex justify-between text-xs hover:bg-red-100/50 rounded px-2 py-1 -mx-2 transition">
                 <span className="truncate flex-1">{c.descricao}</span>
-                <span className="font-medium ml-2">
-                  {formatarMoeda(c.valor)}
-                </span>
-              </div>
+                <span className="font-medium ml-2">{formatarMoeda(c.valor)}</span>
+              </Link>
             ))}
             {pagar.length === 0 && (
               <p className="text-xs text-slate-500">Nenhum</p>
@@ -341,7 +354,7 @@ export default function DashboardFinanceiro(): React.JSX.Element {
         </div>
 
         {agingPagar.length > 0 && (
-          <CardGrafico titulo="A Pagar por Faixa">
+          <CardGrafico titulo="A Pagar por Faixa" href={DEEP_DIVE.contasPagar}>
             <ResponsiveContainer width="100%" height={180}>
               <BarChart
                 data={agingPagar}
@@ -361,61 +374,60 @@ export default function DashboardFinanceiro(): React.JSX.Element {
                   tick={{ fontSize: 9 }}
                 />
                 <Tooltip formatter={(v) => formatarMoeda(Number(v ?? 0))} />
-                <Bar dataKey="valor" fill="#ef4444" radius={[0, 4, 4, 0]} />
+                <Bar
+                  dataKey="valor"
+                  fill="#ef4444"
+                  radius={[0, 4, 4, 0]}
+                  onClick={(e: unknown) => {
+                    const p = (e as { payload?: { faixa?: string } })?.payload;
+                    const faixa = p?.faixa ? obterFaixaParam(p.faixa) : null;
+                    router.push(faixa ? DEEP_DIVE.contasPagarComFaixa(faixa) : DEEP_DIVE.contasPagar);
+                  }}
+                  style={{ cursor: "pointer" }}
+                />
               </BarChart>
             </ResponsiveContainer>
           </CardGrafico>
         )}
 
         <div className="lg:col-span-3 rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-          <div className="px-4 py-3 border-b border-slate-100">
-            <h3 className="text-sm font-semibold text-slate-800">
-              Contas a Vencer
-            </h3>
-          </div>
+          <Link href={DEEP_DIVE.contasReceber} className="block px-4 py-3 border-b border-slate-100 hover:bg-slate-50 transition">
+            <h3 className="text-sm font-semibold text-slate-800">Contas a Vencer</h3>
+          </Link>
           <div className="overflow-x-auto max-h-64 overflow-y-auto">
             <table className="min-w-full">
               <thead className="bg-slate-50 sticky top-0">
                 <tr>
-                  <th className="px-3 py-2 text-left text-xs font-medium text-slate-500">
-                    Tipo
-                  </th>
-                  <th className="px-3 py-2 text-left text-xs font-medium text-slate-500">
-                    Descrição
-                  </th>
-                  <th className="px-3 py-2 text-right text-xs font-medium text-slate-500">
-                    Valor
-                  </th>
-                  <th className="px-3 py-2 text-left text-xs font-medium text-slate-500">
-                    Venc.
-                  </th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-slate-500">Tipo</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-slate-500">Descrição</th>
+                  <th className="px-3 py-2 text-right text-xs font-medium text-slate-500">Valor</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-slate-500">Venc.</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {contasVencendo.length === 0 ? (
                   <tr>
-                    <td
-                      colSpan={4}
-                      className="px-3 py-8 text-center text-xs text-slate-500"
-                    >
-                      Nenhum
-                    </td>
+                    <td colSpan={4} className="px-3 py-8 text-center text-xs text-slate-500">Nenhum</td>
                   </tr>
                 ) : (
                   contasVencendo.map((c) => (
                     <tr key={c.id} className="hover:bg-slate-50">
                       <td className="px-3 py-2">
-                        <span
-                          className={`px-1.5 py-0.5 rounded text-xs font-medium ${c.tipo === "receber" ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}
-                        >
-                          {c.tipo === "receber" ? "Rec." : "Pag."}
-                        </span>
+                        <Link href={obterUrlTitulo(c)} className="block">
+                          <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${c.tipo === "receber" ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}>
+                            {c.tipo === "receber" ? "Rec." : "Pag."}
+                          </span>
+                        </Link>
                       </td>
                       <td className="px-3 py-2 text-xs truncate max-w-[180px]">
-                        {c.descricao}
+                        <Link href={obterUrlTitulo(c)} className="hover:text-highsoft-primario hover:underline">
+                          {c.descricao}
+                        </Link>
                       </td>
                       <td className="px-3 py-2 text-xs font-medium text-right">
-                        {formatarMoeda(c.valor)}
+                        <Link href={obterUrlTitulo(c)} className="block hover:text-highsoft-primario">
+                          {formatarMoeda(c.valor)}
+                        </Link>
                       </td>
                       <td className="px-3 py-2 text-xs text-slate-600">
                         {formatarData(c.dataVencimento)}

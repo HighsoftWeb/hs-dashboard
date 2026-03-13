@@ -12,11 +12,9 @@ interface FiltroPeriodoProps {
   dataFim: string;
   onChange: (dataInicio: string, dataFim: string) => void;
   className?: string;
-  /** Se true, mostra todos os presets do Guia Mestre (hoje, 7d, 30d, etc.) */
   presetsCompletos?: boolean;
 }
 
-/** Intervalo padrão: mês atual (retrocompatível com código existente) */
 function obterIntervaloPadrao(): { dataInicio: string; dataFim: string } {
   const padrao = obterIntervaloPadraoBI();
   return {

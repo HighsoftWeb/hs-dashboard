@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { DEEP_DIVE } from "@/core/utils/deep-dive-urls";
 import { ChevronLeft, TrendingUp, TrendingDown } from "lucide-react";
 import { servicoDashboard } from "@/core/domains/dashboard/services/dashboard-client";
 import { formatarMoeda } from "@/core/utils/formatar-moeda";
@@ -20,6 +22,7 @@ import { obterCoresGraficos } from "@/core/constants/cores-graficos";
 import { useEmpresa } from "@/core/context/empresa-context";
 
 export default function PaginaMetricasCaixa(): React.JSX.Element {
+  const router = useRouter();
   const { cores } = useEmpresa();
   const coresGraficos = obterCoresGraficos(cores);
   const [dados, setDados] = useState<{
@@ -98,8 +101,8 @@ export default function PaginaMetricasCaixa(): React.JSX.Element {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {caixa && (
           <>
-            <CardKpi titulo="Receitas" valor={formatarMoeda(caixa.receitasMesAtual)} icone={<TrendingUp className="w-5 h-5" />} />
-            <CardKpi titulo="Despesas" valor={formatarMoeda(caixa.despesasMesAtual)} icone={<TrendingDown className="w-5 h-5" />} />
+            <CardKpi titulo="Receitas" valor={formatarMoeda(caixa.receitasMesAtual)} icone={<TrendingUp className="w-5 h-5" />} href={DEEP_DIVE.contasReceber} />
+            <CardKpi titulo="Despesas" valor={formatarMoeda(caixa.despesasMesAtual)} icone={<TrendingDown className="w-5 h-5" />} href={DEEP_DIVE.contasPagar} />
             <CardKpi
               titulo="Saldo"
               valor={formatarMoeda(caixa.saldoMesAtual)}
@@ -111,8 +114,8 @@ export default function PaginaMetricasCaixa(): React.JSX.Element {
         )}
         {inadimplencia && (
           <>
-            <CardKpi titulo="A Receber" valor={formatarMoeda(inadimplencia.valorTotalReceber)} />
-            <CardKpi titulo="Vencido" valor={formatarMoeda(inadimplencia.valorVencido)} />
+            <CardKpi titulo="A Receber" valor={formatarMoeda(inadimplencia.valorTotalReceber)} href={DEEP_DIVE.contasReceber} />
+            <CardKpi titulo="Vencido" valor={formatarMoeda(inadimplencia.valorVencido)} href={DEEP_DIVE.contasReceber} />
             <CardKpi
               titulo="Inadimplência"
               valor={`${inadimplencia.percentualInadimplencia.toFixed(1)}%`}
@@ -124,14 +127,14 @@ export default function PaginaMetricasCaixa(): React.JSX.Element {
       </div>
 
       {fluxo.length > 0 && (
-        <CardGrafico titulo="Fluxo Recebimento">
+        <CardGrafico titulo="Fluxo Recebimento" href={DEEP_DIVE.contasReceber}>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={fluxo} margin={{ top: 10, right: 10 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
               <XAxis dataKey="mesAno" tick={{ fontSize: 10 }} />
               <YAxis tick={{ fontSize: 9 }} tickFormatter={(v) => formatarMoeda(v).replace(/\s/g, "").slice(0, 8)} />
               <Tooltip formatter={(v) => formatarMoeda(Number(v ?? 0))} />
-              <Bar dataKey="valor" fill={coresGraficos.primario} radius={[4, 4, 0, 0]} name="A receber" />
+              <Bar dataKey="valor" fill={coresGraficos.primario} radius={[4, 4, 0, 0]} name="A receber" onClick={() => router.push(DEEP_DIVE.contasReceber)} style={{ cursor: "pointer" }} />
             </BarChart>
           </ResponsiveContainer>
         </CardGrafico>

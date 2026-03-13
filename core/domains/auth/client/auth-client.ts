@@ -61,10 +61,6 @@ class ServicoAutenticacao {
     }
   }
 
-  /**
-   * Realiza logout do usuário, removendo apenas dados de autenticação e código da empresa.
-   * O CNPJ da empresa é mantido para facilitar novo login.
-   */
   async fazerLogout(): Promise<void> {
     try {
     } catch {

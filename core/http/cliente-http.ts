@@ -149,11 +149,6 @@ class ClienteHttp {
           "Outro usuário acessou o sistema com este mesmo login e empresa. Você foi desconectado por segurança.";
         sessionStorage.setItem(TOKEN_REVOGADO_KEY, "true");
         sessionStorage.setItem(MENSAGEM_REVOGACAO_KEY, mensagemFinal);
-
-        console.log(
-          "[ClienteHttp] Token revogado detectado. Mensagem salva:",
-          mensagemFinal
-        );
       }
 
       if (!window.location.pathname.includes("/login")) {
@@ -178,10 +173,6 @@ class ClienteHttp {
     return resposta.data;
   }
 
-  /**
-   * POST mantido apenas para autenticação (login, refresh).
-   * Projeto é somente leitura (Power BI style) - use apenas GET para dados.
-   */
   async post<T>(
     url: string,
     dados?:
@@ -197,17 +188,19 @@ class ClienteHttp {
     return resposta.data;
   }
 
-  /** Stub para compatibilidade - projeto é somente leitura (Power BI style). */
   async put<T>(): Promise<RespostaApi<T>> {
     return Promise.reject(
-      new Error("Operação não permitida. Projeto é somente leitura (Power BI style).")
+      new Error(
+        "Operação não permitida. Projeto é somente leitura (Power BI style)."
+      )
     );
   }
 
-  /** Stub para compatibilidade - projeto é somente leitura (Power BI style). */
   async delete<T>(): Promise<RespostaApi<T>> {
     return Promise.reject(
-      new Error("Operação não permitida. Projeto é somente leitura (Power BI style).")
+      new Error(
+        "Operação não permitida. Projeto é somente leitura (Power BI style)."
+      )
     );
   }
 }

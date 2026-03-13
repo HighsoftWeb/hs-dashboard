@@ -1,6 +1,3 @@
-/**
- * Utilitários para exibição de status de documentos comerciais.
- */
 export function obterStatus(sit: string | null | undefined): string {
   if (!sit) return "-";
   const status: Record<string, string> = {

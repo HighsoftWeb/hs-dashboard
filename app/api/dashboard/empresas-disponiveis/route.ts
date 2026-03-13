@@ -21,10 +21,6 @@ const QUERY_EMPRESAS = `
   ORDER BY NOM_EMPRESA
 ` as const;
 
-/**
- * Lista empresas disponíveis para o usuário (para seletor no header).
- * Usa CNPJ do cookie para identificar o tenant.
- */
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     validarAutenticacao(request);
