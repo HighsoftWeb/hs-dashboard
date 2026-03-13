@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronDown, LogOut, Building2, User } from "lucide-react";
-import type { Usuario } from "../tipos/usuario";
 import { servicoAutenticacao } from "../domains/auth/client/auth-client";
 import { useEmpresa } from "../context/empresa-context";
 import { DASHBOARDS } from "../config/dashboards";
@@ -28,8 +27,10 @@ export function LayoutDashboard({
   } = useEmpresa();
   const [mostrarEmpresas, setMostrarEmpresas] = useState(false);
   const [mostrarUsuario, setMostrarUsuario] = useState(false);
-  const [usuario] = useState<Usuario | null>(() =>
-    servicoAutenticacao.obterUsuarioAtual()
+  const usuario = useSyncExternalStore(
+    () => () => {},
+    () => servicoAutenticacao.obterUsuarioAtual(),
+    () => null
   );
 
   const handleLogout = async (): Promise<void> => {
