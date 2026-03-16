@@ -1,6 +1,5 @@
 import { coresHighSoft } from "@/core/temas/cores-highsoft";
 
-/** Cores semânticas fixas para financeiro: receita=azul, despesa=vermelho, lucro=verde, negativo=vermelho */
 export const CORES_FINANCEIRAS = {
   receita: "#3b82f6",
   despesa: "#ef4444",

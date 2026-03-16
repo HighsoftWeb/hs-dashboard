@@ -711,7 +711,10 @@ export default function PaginaDashboard(): React.JSX.Element {
                     }
                     className="flex justify-between text-xs hover:bg-slate-50 rounded px-2 py-1 -mx-2 transition"
                   >
-                    <span className="truncate text-slate-700" title={p.descricao}>
+                    <span
+                      className="truncate text-slate-700"
+                      title={p.descricao}
+                    >
                       {p.descricao}
                     </span>
                     <span className="font-medium text-slate-900 shrink-0">
@@ -724,7 +727,7 @@ export default function PaginaDashboard(): React.JSX.Element {
           )}
 
           {topVendedores.length > 0 && (
-            <CardGrafico titulo="Top Vendedores" href="/dashboard/vendas">
+            <CardGrafico titulo="Top Representantes" href="/dashboard/vendas">
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart
                   data={topVendedores.slice(0, 6)}
@@ -801,22 +804,48 @@ export default function PaginaDashboard(): React.JSX.Element {
               </h3>
             </div>
             <div className="p-3 space-y-2">
-              {alertasGestor.map((a, idx) => (
-                <div
-                  key={`${a.tipo}-${idx}`}
-                  className={`border-l-4 pl-3 py-1 rounded-r text-xs ${
-                    a.severidade === "error"
-                      ? "border-red-500 bg-red-50"
-                      : a.severidade === "warning"
-                        ? "border-amber-500 bg-amber-50"
-                        : "border-blue-500 bg-blue-50"
-                  }`}
-                >
+              {alertasGestor.map((a, idx) => {
+                let href: string | null = null;
+                if (a.tipo === "inadimplencia") {
+                  href = DEEP_DIVE.contasReceber;
+                } else if (a.tipo === "despesas_centro_custo") {
+                  href = DEEP_DIVE.contasPagar;
+                } else if (a.tipo === "produtos_prejuizo") {
+                  href = "/dashboard/metricas/produtos";
+                }
+
+                const inner = (
                   <p className="font-medium text-slate-800 truncate">
                     {a.mensagem}
                   </p>
-                </div>
-              ))}
+                );
+
+                const baseClasses = `border-l-4 pl-3 py-1 rounded-r text-xs ${
+                  a.severidade === "error"
+                    ? "border-red-500 bg-red-50"
+                    : a.severidade === "warning"
+                      ? "border-amber-500 bg-amber-50"
+                      : "border-blue-500 bg-blue-50"
+                }`;
+
+                if (href) {
+                  return (
+                    <Link
+                      key={`${a.tipo}-${idx}`}
+                      href={href}
+                      className={`${baseClasses} block hover:opacity-90 transition`}
+                    >
+                      {inner}
+                    </Link>
+                  );
+                }
+
+                return (
+                  <div key={`${a.tipo}-${idx}`} className={baseClasses}>
+                    {inner}
+                  </div>
+                );
+              })}
 
               {alertasGestor.length === 0 &&
                 contasVencendo.slice(0, 4).map((c) => (

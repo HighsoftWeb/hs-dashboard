@@ -1340,7 +1340,6 @@ export class AnalyticsRepository {
         empresaConfig
       );
 
-      console.log("aqui", rows);
       return (rows || []).map((r) => ({
         codRepresentante: Number(r.codRepresentante),
         nome: r.nome || "Representante",

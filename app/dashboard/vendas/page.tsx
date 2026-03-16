@@ -155,7 +155,6 @@ export default function DashboardVendas(): React.JSX.Element {
   const graficoValores = [...orcamentos]
     .filter((o) => {
       const s = (o.status || "").toUpperCase();
-      // Considera apenas orçamentos/OS efetivamente processados/faturados
       return ["APROVADO", "PROCESSADO", "FATURADO PARCIAL", "ROMANEIO"].some(
         (palavra) => s.includes(palavra.toUpperCase())
       );

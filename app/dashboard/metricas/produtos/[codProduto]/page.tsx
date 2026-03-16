@@ -54,8 +54,9 @@ export default function PaginaDeepDiveProduto({
     searchParams.get("dataFim") ?? padrao.dataFim
   );
   const [dados, setDados] = useState<RespostaProdutoAnalytics | null>(null);
-  const [codMateriaSelecionada, setCodMateriaSelecionada] =
-    useState<number | null>(null);
+  const [codMateriaSelecionada, setCodMateriaSelecionada] = useState<
+    number | null
+  >(null);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
 
@@ -69,10 +70,9 @@ export default function PaginaDeepDiveProduto({
           dataInicio,
           dataFim,
         });
-        const resp =
-          await clienteHttp.get<RespostaProdutoAnalytics>(
-            `/dashboard/analytics/produto?${sp.toString()}`
-          );
+        const resp = await clienteHttp.get<RespostaProdutoAnalytics>(
+          `/dashboard/analytics/produto?${sp.toString()}`
+        );
         if (!resp.success || !resp.data) {
           throw new Error(resp.error?.message || "Erro ao carregar analytics");
         }
@@ -282,7 +282,8 @@ export default function PaginaDeepDiveProduto({
               </ResponsiveContainer>
             ) : (
               <p className="text-xs text-slate-500 mt-8 text-center">
-                Nenhum histórico de compra encontrado para o período selecionado.
+                Nenhum histórico de compra encontrado para o período
+                selecionado.
               </p>
             )}
           </div>
@@ -291,4 +292,3 @@ export default function PaginaDeepDiveProduto({
     </PaginaBI>
   );
 }
-

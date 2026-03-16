@@ -1,4 +1,3 @@
-/** Cores da marca HighSoft - usadas como padrão ao cadastrar nova empresa */
 export const CORES_HIGHSOFT_PADRAO: {
   primaria: string;
   secundaria: string;

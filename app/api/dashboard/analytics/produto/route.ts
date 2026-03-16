@@ -6,7 +6,10 @@ import {
 } from "@/core/utils/obter-empresa-cookie";
 import { analyticsRepository } from "@/core/repository/analytics-repository";
 import { tratarErroAPI } from "@/core/utils/tratar-erro";
-import { criarRespostaErro, criarRespostaSucesso } from "@/core/utils/resposta-api";
+import {
+  criarRespostaErro,
+  criarRespostaSucesso,
+} from "@/core/utils/resposta-api";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
@@ -31,7 +34,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     if (!codProdutoParam) {
       return NextResponse.json(
-        criarRespostaErro("Parâmetro codProduto é obrigatório", "VALIDATION_ERROR"),
+        criarRespostaErro(
+          "Parâmetro codProduto é obrigatório",
+          "VALIDATION_ERROR"
+        ),
         { status: 400 }
       );
     }
@@ -85,4 +91,3 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     });
   }
 }
-

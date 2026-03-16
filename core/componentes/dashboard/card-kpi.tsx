@@ -11,7 +11,6 @@ interface CardKpiProps {
   };
   variante?: "padrao" | "destaque";
   negativo?: boolean;
-  /** Receita=azul, Despesa=vermelho, Lucro=verde (positivo) ou vermelho (negativo). */
   tipoFinanceiro?: "receita" | "despesa" | "lucro";
   href?: string;
   className?: string;

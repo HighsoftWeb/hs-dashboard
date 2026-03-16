@@ -85,7 +85,6 @@ export class DashboardRepositoryORM {
             DAT_EMISSAO: Between(inicioPeriodo, fimPeriodo),
           },
         }),
-        // contas a receber hoje (vcto hoje)
         tituloReceberRepo
           .createQueryBuilder("titulo")
           .select(
@@ -105,7 +104,6 @@ export class DashboardRepositoryORM {
             { fim: fimPeriodo }
           )
           .getRawOne(),
-        // contas a pagar hoje (vcto hoje)
         tituloPagarRepo
           .createQueryBuilder("titulo")
           .select(
@@ -125,7 +123,6 @@ export class DashboardRepositoryORM {
             { fim: fimPeriodo }
           )
           .getRawOne(),
-        // contas a receber no período (por vencimento)
         tituloReceberRepo
           .createQueryBuilder("titulo")
           .select(
@@ -138,7 +135,6 @@ export class DashboardRepositoryORM {
             hoje,
           })
           .getRawOne(),
-        // contas a pagar no período (por vencimento)
         tituloPagarRepo
           .createQueryBuilder("titulo")
           .select(
@@ -185,11 +181,13 @@ export class DashboardRepositoryORM {
       const contasPagarHoje =
         parseFloat((despesasMesHoje as { total?: string })?.total || "0") || 0;
       const contasReceberMes =
-        parseFloat((receitasMesVencimento as { total?: string })?.total || "0") ||
-        0;
+        parseFloat(
+          (receitasMesVencimento as { total?: string })?.total || "0"
+        ) || 0;
       const contasPagarMes =
-        parseFloat((despesasMesVencimento as { total?: string })?.total || "0") ||
-        0;
+        parseFloat(
+          (despesasMesVencimento as { total?: string })?.total || "0"
+        ) || 0;
 
       return {
         totalUsuarios,
