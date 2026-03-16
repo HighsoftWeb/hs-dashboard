@@ -174,7 +174,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       const [
         produtosMaisVendidos,
         produtosMaisLucro,
-        produtosPrejuizo,
+        produtosPrejuizoBruto,
         produtosParados,
         topClientesFaturamento,
         clientesInativos,
@@ -242,6 +242,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           dataFim
         ),
       ]);
+
+      const produtosPrejuizo = produtosPrejuizoBruto.filter((p) => p.lucro < 0);
 
       return NextResponse.json(
         criarRespostaSucesso({
