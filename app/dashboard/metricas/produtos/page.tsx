@@ -11,6 +11,7 @@ import { CardGrafico } from "@/core/componentes/dashboard/card-grafico";
 import {
   BarChart,
   Bar,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -219,7 +220,10 @@ export default function PaginaMetricasProdutos(): React.JSX.Element {
           )}
 
           {maisLucro.length > 0 && (
-            <CardGrafico titulo="Maior Lucro" href={DEEP_DIVE.produtos}>
+            <CardGrafico
+              titulo="Maior Lucro (faturamento, lucro e custo)"
+              href={DEEP_DIVE.produtos}
+            >
               <ResponsiveContainer width="100%" height={220}>
                 <BarChart
                   data={maisLucro.slice(0, 8)}
@@ -245,10 +249,10 @@ export default function PaginaMetricasProdutos(): React.JSX.Element {
                   />
                   <Tooltip formatter={(v) => formatarMoeda(Number(v ?? 0))} />
                   <Bar
-                    dataKey="lucro"
-                    fill="#22c55e"
+                    dataKey="receita"
+                    fill={coresGraficos.primario}
                     radius={[0, 4, 4, 0]}
-                    name="Lucro"
+                    name="Faturamento"
                     onClick={(e: unknown) => {
                       const p = (e as { payload?: { codProduto?: number } })
                         ?.payload;
@@ -257,6 +261,22 @@ export default function PaginaMetricasProdutos(): React.JSX.Element {
                       else router.push(DEEP_DIVE.produtos);
                     }}
                     style={{ cursor: "pointer" }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="lucro"
+                    stroke="#22c55e"
+                    strokeWidth={2}
+                    dot={{ r: 3 }}
+                    name="Lucro"
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="custo"
+                    stroke="#f97316"
+                    strokeWidth={2}
+                    dot={{ r: 3 }}
+                    name="Custo"
                   />
                 </BarChart>
               </ResponsiveContainer>
