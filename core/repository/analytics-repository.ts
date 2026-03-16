@@ -960,6 +960,7 @@ export class AnalyticsRepository {
       SELECT
         ISNULL(SUM(VLR_ABERTO), 0) AS valorTotalReceber,
         ISNULL(SUM(CASE WHEN VCT_ORIGINAL < GETDATE() THEN VLR_ABERTO ELSE 0 END), 0) AS valorVencido,
+        ISNULL(SUM(CASE WHEN VCT_ORIGINAL >= GETDATE() THEN VLR_ABERTO ELSE 0 END), 0) AS valorEmDia,
         SUM(CASE WHEN VCT_ORIGINAL < GETDATE() AND VLR_ABERTO > 0 THEN 1 ELSE 0 END) AS quantidadeTitulosVencidos,
         (SELECT COUNT(DISTINCT COD_CLI_FOR) FROM dbo.TITULOS_RECEBER
           WHERE COD_EMPRESA = @codEmpresa AND SIT_TITULO = 'AB'
@@ -971,13 +972,17 @@ export class AnalyticsRepository {
       const r = await poolBanco.executarConsulta<{
         valorTotalReceber: number;
         valorVencido: number;
+        valorEmDia: number;
         quantidadeTitulosVencidos: number;
         quantidadeClientesInadimplentes: number;
       }>(query, { codEmpresa }, empresaConfig);
       const row = r?.[0];
       const valorTotal = Number(row?.valorTotalReceber) || 0;
       const valorVencido = Number(row?.valorVencido) || 0;
-      const percentual = valorTotal > 0 ? (valorVencido / valorTotal) * 100 : 0;
+      const valorEmDia = Number(row?.valorEmDia) || 0;
+      const basePercentual = valorEmDia > 0 ? valorEmDia : valorTotal;
+      const percentual =
+        basePercentual > 0 ? (valorVencido / basePercentual) * 100 : 0;
       return {
         valorTotalReceber: valorTotal,
         valorVencido,
