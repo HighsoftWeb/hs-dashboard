@@ -54,7 +54,8 @@ function formatarMoeda(valor: number): string {
   return new Intl.NumberFormat("pt-BR", {
     style: "currency",
     currency: "BRL",
-    maximumFractionDigits: 0,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   }).format(valor);
 }
 
@@ -88,12 +89,23 @@ interface AnalyticsGeral {
     quantidade: number;
     valorTotal: number;
   }[];
+  topVendedores?: {
+    codVendedor?: number;
+    nome: string;
+    valorTotal: number;
+    quantidade: number;
+  }[];
   funilVendas?: { status: string; quantidade: number; valor: number }[];
   metaRealizado?: {
     meta: number;
     realizado: number;
     percentual: number;
   } | null;
+  alertasGestor?: {
+    tipo: string;
+    mensagem: string;
+    severidade: "info" | "warning" | "error";
+  }[];
 }
 
 const CORES_AGING = ["#ef4444", "#f59e0b", "#eab308", "#22c55e", "#3b82f6"];
@@ -198,6 +210,8 @@ export default function PaginaDashboard(): React.JSX.Element {
   const funil = analytics?.funilVendas ?? [];
   const topClientes = analytics?.topClientes ?? [];
   const topProdutos = analytics?.topProdutos ?? [];
+  const topVendedores = analytics?.topVendedores ?? [];
+  const alertasGestor = analytics?.alertasGestor ?? [];
   const metaRealizado = analytics?.metaRealizado;
 
   const dadosGrafico = [
@@ -266,7 +280,7 @@ export default function PaginaDashboard(): React.JSX.Element {
           href={DEEP_DIVE.contasReceber}
           className="rounded-xl border-0 bg-gradient-to-br from-blue-500 to-blue-600 p-5 text-white shadow-md hover:shadow-lg transition cursor-pointer block"
         >
-          <p className="text-sm font-medium opacity-90">Receitas</p>
+          <p className="text-sm font-medium opacity-90">Faturamento (mês)</p>
           <p className="mt-1 text-2xl font-bold">
             {formatarMoeda(stats.receitasMes)}
           </p>
@@ -328,6 +342,52 @@ export default function PaginaDashboard(): React.JSX.Element {
           <FileText className="w-8 h-8 mt-2 opacity-80" />
         </Link>
       </div>
+
+      {(stats.contasReceberHoje ||
+        stats.contasPagarHoje ||
+        stats.contasReceberMes ||
+        stats.contasPagarMes) && (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <Link
+            href={DEEP_DIVE.contasReceber}
+            className="rounded-xl border border-blue-200 bg-blue-50/60 p-4 shadow-sm hover:shadow-md hover:border-blue-300 transition cursor-pointer block"
+          >
+            <p className="text-xs font-medium text-blue-800">A Receber Hoje</p>
+            <p className="mt-1 text-lg font-bold text-blue-900">
+              {formatarMoeda(stats.contasReceberHoje || 0)}
+            </p>
+          </Link>
+          <Link
+            href={DEEP_DIVE.contasPagar}
+            className="rounded-xl border border-red-200 bg-red-50/60 p-4 shadow-sm hover:shadow-md hover:border-red-300 transition cursor-pointer block"
+          >
+            <p className="text-xs font-medium text-red-800">A Pagar Hoje</p>
+            <p className="mt-1 text-lg font-bold text-red-900">
+              {formatarMoeda(stats.contasPagarHoje || 0)}
+            </p>
+          </Link>
+          <Link
+            href={DEEP_DIVE.contasReceber}
+            className="rounded-xl border border-blue-200 bg-blue-50/40 p-4 shadow-sm hover:shadow-md hover:border-blue-300 transition cursor-pointer block"
+          >
+            <p className="text-xs font-medium text-blue-800">
+              A Receber no Mês
+            </p>
+            <p className="mt-1 text-lg font-bold text-blue-900">
+              {formatarMoeda(stats.contasReceberMes || 0)}
+            </p>
+          </Link>
+          <Link
+            href={DEEP_DIVE.contasPagar}
+            className="rounded-xl border border-red-200 bg-red-50/40 p-4 shadow-sm hover:shadow-md hover:border-red-300 transition cursor-pointer block"
+          >
+            <p className="text-xs font-medium text-red-800">A Pagar no Mês</p>
+            <p className="mt-1 text-lg font-bold text-red-900">
+              {formatarMoeda(stats.contasPagarMes || 0)}
+            </p>
+          </Link>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
@@ -590,7 +650,10 @@ export default function PaginaDashboard(): React.JSX.Element {
           )}
 
           {topClientes.length > 0 && (
-            <CardGrafico titulo="Top Clientes" href={DEEP_DIVE.clientes}>
+            <CardGrafico
+              titulo="Top Clientes (compradores)"
+              href={DEEP_DIVE.clientes}
+            >
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart
                   data={topClientes.slice(0, 6)}
@@ -633,7 +696,10 @@ export default function PaginaDashboard(): React.JSX.Element {
           )}
 
           {topProdutos.length > 0 && (
-            <CardGrafico titulo="Top Produtos" href={DEEP_DIVE.produtos}>
+            <CardGrafico
+              titulo="Top Produtos (faturamento)"
+              href={DEEP_DIVE.produtos}
+            >
               <div className="space-y-2 max-h-40 overflow-y-auto">
                 {topProdutos.slice(0, 6).map((p, i) => (
                   <Link
@@ -646,7 +712,7 @@ export default function PaginaDashboard(): React.JSX.Element {
                     className="flex justify-between text-xs hover:bg-slate-50 rounded px-2 py-1 -mx-2 transition"
                   >
                     <span
-                      className="truncate max-w-[140px] text-slate-700"
+                      className="truncate text-slate-700"
                       title={p.descricao}
                     >
                       {p.descricao}
@@ -657,6 +723,44 @@ export default function PaginaDashboard(): React.JSX.Element {
                   </Link>
                 ))}
               </div>
+            </CardGrafico>
+          )}
+
+          {topVendedores.length > 0 && (
+            <CardGrafico titulo="Top Representantes" href="/dashboard/vendas">
+              <ResponsiveContainer width="100%" height={200}>
+                <BarChart
+                  data={topVendedores.slice(0, 6)}
+                  layout="vertical"
+                  margin={{ top: 5, right: 40, left: 0, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                  <XAxis
+                    type="number"
+                    tickFormatter={(v) =>
+                      formatarMoeda(v).replace(/\s/g, "").slice(0, 8)
+                    }
+                    tick={{ fontSize: 9 }}
+                  />
+                  <YAxis
+                    type="category"
+                    dataKey="nome"
+                    width={100}
+                    tick={{ fontSize: 9 }}
+                    tickFormatter={(v) =>
+                      v?.length > 15 ? v.slice(0, 14) + "…" : v
+                    }
+                  />
+                  <Tooltip formatter={(v) => formatarMoeda(Number(v ?? 0))} />
+                  <Bar
+                    dataKey="valorTotal"
+                    fill={coresGraficos.sucesso}
+                    radius={[0, 4, 4, 0]}
+                    name="Valor"
+                    style={{ cursor: "pointer" }}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
             </CardGrafico>
           )}
 
@@ -694,28 +798,73 @@ export default function PaginaDashboard(): React.JSX.Element {
           )}
 
           <div className="rounded-xl border border-amber-200 bg-amber-50 shadow-sm overflow-hidden">
-            <Link
-              href={DEEP_DIVE.contasReceber}
-              className="block px-4 py-3 border-b border-amber-100 hover:bg-amber-50/50 transition"
-            >
-              <h3 className="text-sm font-semibold text-slate-800">Alertas</h3>
-            </Link>
+            <div className="flex items-center justify-between px-4 py-3 border-b border-amber-100">
+              <h3 className="text-sm font-semibold text-slate-800">
+                Alertas do Gestor
+              </h3>
+            </div>
             <div className="p-3 space-y-2">
-              {contasVencendo.slice(0, 4).map((c) => (
-                <Link
-                  key={c.id}
-                  href={obterUrlTitulo(c)}
-                  className="block border-l-4 border-amber-400 pl-3 py-1 hover:bg-amber-100/50 rounded-r transition"
-                >
-                  <p className="text-xs font-medium text-slate-800 truncate">
-                    {c.descricao}
+              {alertasGestor.map((a, idx) => {
+                let href: string | null = null;
+                if (a.tipo === "inadimplencia") {
+                  href = DEEP_DIVE.contasReceber;
+                } else if (a.tipo === "despesas_centro_custo") {
+                  href = DEEP_DIVE.contasPagar;
+                } else if (a.tipo === "produtos_prejuizo") {
+                  href = "/dashboard/metricas/produtos";
+                }
+
+                const inner = (
+                  <p className="font-medium text-slate-800 truncate">
+                    {a.mensagem}
                   </p>
-                  <p className="text-xs text-slate-600">
-                    {formatarData(c.dataVencimento)} · {formatarMoeda(c.valor)}
-                  </p>
-                </Link>
-              ))}
-              {contasVencendo.length === 0 && (
+                );
+
+                const baseClasses = `border-l-4 pl-3 py-1 rounded-r text-xs ${
+                  a.severidade === "error"
+                    ? "border-red-500 bg-red-50"
+                    : a.severidade === "warning"
+                      ? "border-amber-500 bg-amber-50"
+                      : "border-blue-500 bg-blue-50"
+                }`;
+
+                if (href) {
+                  return (
+                    <Link
+                      key={`${a.tipo}-${idx}`}
+                      href={href}
+                      className={`${baseClasses} block hover:opacity-90 transition`}
+                    >
+                      {inner}
+                    </Link>
+                  );
+                }
+
+                return (
+                  <div key={`${a.tipo}-${idx}`} className={baseClasses}>
+                    {inner}
+                  </div>
+                );
+              })}
+
+              {alertasGestor.length === 0 &&
+                contasVencendo.slice(0, 4).map((c) => (
+                  <Link
+                    key={c.id}
+                    href={obterUrlTitulo(c)}
+                    className="block border-l-4 border-amber-400 pl-3 py-1 hover:bg-amber-100/50 rounded-r transition"
+                  >
+                    <p className="text-xs font-medium text-slate-800 truncate">
+                      {c.descricao}
+                    </p>
+                    <p className="text-xs text-slate-600">
+                      {formatarData(c.dataVencimento)} ·{" "}
+                      {formatarMoeda(c.valor)}
+                    </p>
+                  </Link>
+                ))}
+
+              {alertasGestor.length === 0 && contasVencendo.length === 0 && (
                 <p className="text-xs text-slate-500">Nenhum alerta</p>
               )}
             </div>

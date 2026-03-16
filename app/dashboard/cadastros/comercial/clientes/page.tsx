@@ -157,7 +157,7 @@ export default function PaginaClientes(): React.JSX.Element {
             colunas={colunasClientes}
             endpoint="/dashboard/cadastros/clientes"
             filtros={filtrosClientes}
-            ordenacaoPadrao={{ campo: "RAZ_CLI_FOR", ordem: "asc" }}
+            ordenacaoPadrao={{ campo: "COD_CLI_FOR", ordem: "desc" }}
             onRowClick={(cliente) => {
               router.push(
                 `/dashboard/cadastros/clientes/${cliente.COD_CLI_FOR}`

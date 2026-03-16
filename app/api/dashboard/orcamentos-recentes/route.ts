@@ -17,12 +17,16 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       ? parseInt(searchParams.get("limite")!, 10)
       : DASHBOARD_PADRAO.LIMITE_ORCAMENTOS;
     const limite = Math.min(limiteRaw, 100);
+    const dataInicio = searchParams.get("dataInicio") ?? undefined;
+    const dataFim = searchParams.get("dataFim") ?? undefined;
 
     const codEmpresa = obterCodEmpresaDoCookie(request) ?? payload.codEmpresa;
     const orcamentos = await dashboardService.listarOrcamentosRecentes(
       codEmpresa,
       limite,
-      empresaConfig
+      empresaConfig,
+      dataInicio,
+      dataFim
     );
 
     return NextResponse.json({

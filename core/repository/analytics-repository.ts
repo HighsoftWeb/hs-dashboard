@@ -17,6 +17,9 @@ import type {
   IndicadoresCaixa,
   IndicadoresInadimplencia,
   FluxoRecebimentoMensal,
+  DespesaPorCentroCusto,
+  TopVendedor,
+  AlertaGestor,
 } from "../tipos/analytics-db";
 
 function formatarDataSql(data: Date): string {
@@ -956,14 +959,36 @@ export class AnalyticsRepository {
     codEmpresa: number,
     empresaConfig: EmpresaConfig
   ): Promise<IndicadoresInadimplencia> {
+    const hoje = new Date();
+    const inicioMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1)
+      .toISOString()
+      .slice(0, 10);
+    const fimMes = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0)
+      .toISOString()
+      .slice(0, 10);
     const query = `
       SELECT
         ISNULL(SUM(VLR_ABERTO), 0) AS valorTotalReceber,
         ISNULL(SUM(CASE WHEN VCT_ORIGINAL < GETDATE() THEN VLR_ABERTO ELSE 0 END), 0) AS valorVencido,
+        ISNULL(SUM(CASE WHEN VCT_ORIGINAL >= GETDATE() THEN VLR_ABERTO ELSE 0 END), 0) AS valorEmDia,
         SUM(CASE WHEN VCT_ORIGINAL < GETDATE() AND VLR_ABERTO > 0 THEN 1 ELSE 0 END) AS quantidadeTitulosVencidos,
         (SELECT COUNT(DISTINCT COD_CLI_FOR) FROM dbo.TITULOS_RECEBER
           WHERE COD_EMPRESA = @codEmpresa AND SIT_TITULO = 'AB'
-          AND VCT_ORIGINAL < GETDATE() AND VLR_ABERTO > 0) AS quantidadeClientesInadimplentes
+          AND VCT_ORIGINAL < GETDATE() AND VLR_ABERTO > 0) AS quantidadeClientesInadimplentes,
+        (SELECT ISNULL(SUM(ISNULL(VLR_ORIGINAL, VLR_ABERTO)), 0)
+           FROM dbo.TITULOS_RECEBER
+           WHERE COD_EMPRESA = @codEmpresa
+             AND CAST(DAT_EMISSAO AS DATE) >= CAST(@dataInicioMes AS DATE)
+             AND CAST(DAT_EMISSAO AS DATE) <= CAST(@dataFimMes AS DATE)
+        ) AS valorTotalMes,
+        (SELECT ISNULL(SUM(VLR_ABERTO), 0)
+           FROM dbo.TITULOS_RECEBER
+           WHERE COD_EMPRESA = @codEmpresa
+             AND SIT_TITULO = 'AB'
+             AND VCT_ORIGINAL < GETDATE()
+             AND CAST(DAT_EMISSAO AS DATE) >= CAST(@dataInicioMes AS DATE)
+             AND CAST(DAT_EMISSAO AS DATE) <= CAST(@dataFimMes AS DATE)
+        ) AS valorVencidoMes
       FROM dbo.TITULOS_RECEBER
       WHERE COD_EMPRESA = @codEmpresa AND SIT_TITULO = 'AB' AND VLR_ABERTO > 0
     `;
@@ -971,13 +996,30 @@ export class AnalyticsRepository {
       const r = await poolBanco.executarConsulta<{
         valorTotalReceber: number;
         valorVencido: number;
+        valorEmDia: number;
         quantidadeTitulosVencidos: number;
         quantidadeClientesInadimplentes: number;
-      }>(query, { codEmpresa }, empresaConfig);
+        valorTotalMes: number;
+        valorVencidoMes: number;
+      }>(
+        query,
+        { codEmpresa, dataInicioMes: inicioMes, dataFimMes: fimMes },
+        empresaConfig
+      );
       const row = r?.[0];
       const valorTotal = Number(row?.valorTotalReceber) || 0;
       const valorVencido = Number(row?.valorVencido) || 0;
-      const percentual = valorTotal > 0 ? (valorVencido / valorTotal) * 100 : 0;
+      const valorEmDia = Number(row?.valorEmDia) || 0;
+      const valorTotalMes = Number(row?.valorTotalMes) || 0;
+      const valorVencidoMes = Number(row?.valorVencidoMes) || 0;
+      const basePercentual =
+        valorTotalMes > 0
+          ? valorTotalMes
+          : valorEmDia > 0
+            ? valorEmDia
+            : valorTotal;
+      const percentual =
+        basePercentual > 0 ? (valorVencidoMes / basePercentual) * 100 : 0;
       return {
         valorTotalReceber: valorTotal,
         valorVencido,
@@ -1073,6 +1115,294 @@ export class AnalyticsRepository {
     } catch {
       return [];
     }
+  }
+
+  async obterIndicadoresProduto(
+    codEmpresa: number,
+    codProduto: number,
+    dataInicio: string,
+    dataFim: string,
+    empresaConfig: EmpresaConfig
+  ): Promise<{
+    faturamento: number;
+    quantidadeVendida: number;
+    custoTotal: number;
+    lucroTotal: number;
+    margemPercentual: number;
+  }> {
+    const query = `
+      SELECT
+        ISNULL(SUM(i.QTD_FATURADA), 0) AS quantidadeVendida,
+        ISNULL(SUM(ISNULL(i.VLR_LIQUIDO, 0)), 0) AS faturamento,
+        ISNULL(SUM(i.QTD_FATURADA * ISNULL(COALESCE(i.VLR_CUSTO_ULT_ENT, i.VLR_PRECO_CUSTO_MEDIO, d.VLR_PRECO_CUSTO_ULT_ENT, d.VLR_CUSTO_REAL), 0)), 0) AS custoTotal
+      FROM dbo.ITENS_NF_VENDA i
+      INNER JOIN dbo.NOTAS_FISCAIS_VENDA n ON n.COD_EMPRESA = i.COD_EMPRESA
+        AND n.COD_SERIE_NF_VENDA = i.COD_SERIE_NF_VENDA AND n.NUM_NF_VENDA = i.NUM_NF_VENDA
+      LEFT JOIN dbo.DERIVACOES d ON d.COD_EMPRESA = i.COD_EMPRESA
+        AND d.COD_PRODUTO = i.COD_PRODUTO AND d.COD_DERIVACAO = ISNULL(i.COD_DERIVACAO, ' ')
+      WHERE
+        i.COD_EMPRESA = @codEmpresa
+        AND i.COD_PRODUTO = @codProduto
+        AND CAST(n.DAT_EMISSAO AS DATE) >= @dataInicio
+        AND CAST(n.DAT_EMISSAO AS DATE) <= @dataFim
+        AND n.SIT_NF = @sitNfProcessada
+    `;
+    try {
+      const rows = await poolBanco.executarConsulta<{
+        quantidadeVendida: number;
+        faturamento: number;
+        custoTotal: number;
+      }>(
+        query,
+        {
+          codEmpresa,
+          codProduto,
+          dataInicio,
+          dataFim,
+          sitNfProcessada: SIT_NF.PROCESSADA,
+        },
+        empresaConfig
+      );
+      const r = rows?.[0];
+      const faturamento = Number(r?.faturamento) || 0;
+      const custoTotal = Number(r?.custoTotal) || 0;
+      const quantidadeVendida = Number(r?.quantidadeVendida) || 0;
+      const lucroTotal = faturamento - custoTotal;
+      const margemPercentual =
+        faturamento > 0
+          ? Math.round((lucroTotal / faturamento) * 100 * 100) / 100
+          : 0;
+      return {
+        faturamento,
+        quantidadeVendida,
+        custoTotal,
+        lucroTotal,
+        margemPercentual,
+      };
+    } catch {
+      return {
+        faturamento: 0,
+        quantidadeVendida: 0,
+        custoTotal: 0,
+        lucroTotal: 0,
+        margemPercentual: 0,
+      };
+    }
+  }
+
+  async obterHistoricoComprasMateriasProduto(
+    codEmpresa: number,
+    codProduto: number,
+    dataInicio: string,
+    dataFim: string,
+    empresaConfig: EmpresaConfig
+  ): Promise<
+    {
+      codMateriaPrima: number;
+      descricao: string;
+      historico: { data: string; precoUnitario: number }[];
+    }[]
+  > {
+    const query = `
+      SELECT
+        mp.COD_PRODUTO_MATERIA AS codMateriaPrima,
+        ISNULL(p.DES_PRODUTO, 'Matéria-prima') AS descricao,
+        CAST(n.DAT_EMISSAO AS DATE) AS dataCompra,
+        ISNULL(i.VLR_LIQUIDO, 0) / NULLIF(i.QTD_ENTRADA, 0) AS precoUnitario
+      FROM dbo.MATERIAS_PRIMAS_PRODUTO mp
+      INNER JOIN dbo.ITENS_NF_COMPRA i
+        ON i.COD_EMPRESA = mp.COD_EMPRESA
+        AND i.COD_PRODUTO = mp.COD_PRODUTO_MATERIA
+      INNER JOIN dbo.NOTAS_FISCAIS_COMPRA n
+        ON n.COD_EMPRESA = i.COD_EMPRESA
+        AND n.COD_SERIE_NF_COMPRA = i.COD_SERIE_NF_COMPRA
+        AND n.NUM_NF_COMPRA = i.NUM_NF_COMPRA
+      LEFT JOIN dbo.PRODUTOS_SERVICOS p
+        ON p.COD_EMPRESA = mp.COD_EMPRESA AND p.COD_PRODUTO = mp.COD_PRODUTO_MATERIA
+      WHERE
+        mp.COD_EMPRESA = @codEmpresa
+        AND mp.COD_PRODUTO = @codProduto
+        AND CAST(n.DAT_EMISSAO AS DATE) >= @dataInicio
+        AND CAST(n.DAT_EMISSAO AS DATE) <= @dataFim
+        AND i.QTD_ENTRADA > 0
+    `;
+    try {
+      const rows = await poolBanco.executarConsulta<{
+        codMateriaPrima: number;
+        descricao: string;
+        dataCompra: string;
+        precoUnitario: number;
+      }>(query, { codEmpresa, codProduto, dataInicio, dataFim }, empresaConfig);
+      const agrupado = new Map<
+        number,
+        {
+          codMateriaPrima: number;
+          descricao: string;
+          historico: { data: string; precoUnitario: number }[];
+        }
+      >();
+      for (const r of rows || []) {
+        const cod = Number(r.codMateriaPrima);
+        const existente = agrupado.get(cod) ?? {
+          codMateriaPrima: cod,
+          descricao: r.descricao || "Matéria-prima",
+          historico: [],
+        };
+        existente.historico.push({
+          data: r.dataCompra,
+          precoUnitario: Number(r.precoUnitario) || 0,
+        });
+        agrupado.set(cod, existente);
+      }
+      return Array.from(agrupado.values()).map((m) => ({
+        ...m,
+        historico: m.historico.sort((a, b) => a.data.localeCompare(b.data)),
+      }));
+    } catch {
+      return [];
+    }
+  }
+
+  async obterDespesasPorCentroCusto(
+    codEmpresa: number,
+    dataInicio: string,
+    dataFim: string,
+    empresaConfig: EmpresaConfig
+  ): Promise<DespesaPorCentroCusto[]> {
+    const query = `
+      SELECT 
+        ISNULL(CC.DES_CENTRO_CUSTO, 'Outros') AS centroCusto,
+        ISNULL(SUM(T.VLR_ABERTO), 0) AS valor
+      FROM dbo.TITULOS_PAGAR T
+      LEFT JOIN dbo.CENTROS_CUSTO CC 
+        ON CC.COD_CENTRO_CUSTO = T.COD_CENTRO_CUSTO
+      WHERE 
+        T.COD_EMPRESA = @codEmpresa
+        AND T.SIT_TITULO IN ('AB', 'LI')
+        AND CAST(T.VCT_ORIGINAL AS DATE) >= CAST(@dataInicio AS DATE)
+        AND CAST(T.VCT_ORIGINAL AS DATE) <= CAST(@dataFim AS DATE)
+      GROUP BY ISNULL(CC.DES_CENTRO_CUSTO, 'Outros')
+      ORDER BY valor DESC
+    `;
+    try {
+      const rows = await poolBanco.executarConsulta<{
+        centroCusto: string;
+        valor: number;
+      }>(query, { codEmpresa, dataInicio, dataFim }, empresaConfig);
+      return (rows || []).map((r) => ({
+        centroCusto: r.centroCusto || "Outros",
+        valor: Number(r.valor) || 0,
+      }));
+    } catch {
+      return [];
+    }
+  }
+
+  async obterTopVendedores(
+    codEmpresa: number,
+    limite: number,
+    dataInicio: string,
+    dataFim: string,
+    empresaConfig: EmpresaConfig
+  ): Promise<TopVendedor[]> {
+    const query = `
+      SELECT TOP (@limite)
+        n.COD_REPRESENTANTE AS codRepresentante,
+        ISNULL(r.RAZ_REPRESENTANTE, 'Representante') AS nome,
+        SUM(ISNULL(n.VLR_LIQUIDO, 0)) AS valorTotal,
+        COUNT(*) AS quantidade
+      FROM dbo.NOTAS_FISCAIS_VENDA n
+      LEFT JOIN dbo.REPRESENTANTES r 
+        ON r.COD_REPRESENTANTE = n.COD_REPRESENTANTE
+      WHERE 
+        n.COD_EMPRESA = @codEmpresa
+        AND CAST(n.DAT_EMISSAO AS DATE) >= @dataInicio
+        AND CAST(n.DAT_EMISSAO AS DATE) <= @dataFim
+        AND (n.SIT_NF IS NULL OR n.SIT_NF != 'CA')
+        AND n.COD_REPRESENTANTE IS NOT NULL
+      GROUP BY n.COD_REPRESENTANTE, r.RAZ_REPRESENTANTE
+      ORDER BY valorTotal DESC
+    `;
+    try {
+      const rows = await poolBanco.executarConsulta<{
+        codRepresentante: number;
+        nome: string;
+        valorTotal: number;
+        quantidade: number;
+      }>(
+        query,
+        {
+          codEmpresa,
+          limite,
+          dataInicio,
+          dataFim,
+        },
+        empresaConfig
+      );
+
+      return (rows || []).map((r) => ({
+        codRepresentante: Number(r.codRepresentante),
+        nome: r.nome || "Representante",
+        valorTotal: Number(r.valorTotal) || 0,
+        quantidade: Number(r.quantidade) || 0,
+      }));
+    } catch {
+      return [];
+    }
+  }
+
+  derivarAlertasGestor(params: {
+    indicadoresInadimplencia?: IndicadoresInadimplencia;
+    despesasPorCentroCusto?: DespesaPorCentroCusto[];
+    produtosPrejuizo?: ProdutoLucro[];
+  }): AlertaGestor[] {
+    const alertas: AlertaGestor[] = [];
+
+    const inad = params.indicadoresInadimplencia;
+    if (inad && inad.percentualInadimplencia > 0) {
+      const severidade: "info" | "warning" | "error" =
+        inad.percentualInadimplencia > 20
+          ? "error"
+          : inad.percentualInadimplencia > 10
+            ? "warning"
+            : "info";
+      alertas.push({
+        tipo: "inadimplencia",
+        mensagem: `Inadimplência em ${inad.percentualInadimplencia.toFixed(
+          1
+        )}% com ${inad.quantidadeClientesInadimplentes} clientes inadimplentes`,
+        severidade,
+      });
+    }
+
+    const despesas = params.despesasPorCentroCusto || [];
+    const totalDespesas = despesas.reduce((acc, d) => acc + d.valor, 0);
+    if (totalDespesas > 0 && despesas.length > 0) {
+      const maior = despesas[0];
+      const perc = (maior.valor / totalDespesas) * 100;
+      if (perc > 60) {
+        alertas.push({
+          tipo: "despesas_centro_custo",
+          mensagem: `Despesas concentradas em ${
+            maior.centroCusto
+          } (${perc.toFixed(1)}% do total)`,
+          severidade: perc > 75 ? "error" : "warning",
+        });
+      }
+    }
+
+    const produtosPrejuizo = (params.produtosPrejuizo || []).filter(
+      (p) => p.lucro < 0
+    );
+    if (produtosPrejuizo.length > 0) {
+      alertas.push({
+        tipo: "produtos_prejuizo",
+        mensagem: `${produtosPrejuizo.length} produtos com prejuízo no período`,
+        severidade: "warning",
+      });
+    }
+
+    return alertas;
   }
 }
 

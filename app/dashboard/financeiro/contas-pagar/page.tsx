@@ -161,7 +161,7 @@ function ConteudoContasPagar(): React.JSX.Element {
             endpoint="/dashboard/financeiro/titulos-pagar"
             filtros={filtrosTitulos}
             valoresFiltrosIniciais={valoresFiltrosIniciais}
-            ordenacaoPadrao={{ campo: "VCT_ORIGINAL", ordem: "asc" }}
+            ordenacaoPadrao={{ campo: "DAT_EMISSAO", ordem: "desc" }}
             colunasTotalizar={["VLR_ORIGINAL", "VLR_ABERTO"]}
             onRowClick={(titulo) => {
               router.push(

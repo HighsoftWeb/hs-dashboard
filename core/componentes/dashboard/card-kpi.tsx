@@ -11,7 +11,6 @@ interface CardKpiProps {
   };
   variante?: "padrao" | "destaque";
   negativo?: boolean;
-  /** Receita=azul, Despesa=vermelho, Lucro=verde (positivo) ou vermelho (negativo). */
   tipoFinanceiro?: "receita" | "despesa" | "lucro";
   href?: string;
   className?: string;
@@ -62,7 +61,7 @@ export function CardKpi({
         <div className="min-w-0 flex-1">
           <p className="text-sm font-medium text-slate-500">{titulo}</p>
           <p
-            className={`mt-1 text-2xl font-bold whitespace-nowrap overflow-hidden text-ellipsis ${corValor}`}
+            className={`mt-1 text-xl sm:text-2xl font-bold break-words ${corValor}`}
           >
             {valor}
           </p>

@@ -34,7 +34,8 @@ function formatarMoeda(v: number): string {
   return new Intl.NumberFormat("pt-BR", {
     style: "currency",
     currency: "BRL",
-    maximumFractionDigits: 0,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   }).format(v);
 }
 
@@ -68,6 +69,12 @@ export default function DashboardVendas(): React.JSX.Element {
       quantidade: number;
       valorTotal: number;
     }[];
+    topVendedores?: {
+      codRepresentante?: number;
+      nome: string;
+      valorTotal: number;
+      quantidade: number;
+    }[];
     metaRealizado?: {
       meta: number;
       realizado: number;
@@ -82,7 +89,10 @@ export default function DashboardVendas(): React.JSX.Element {
     try {
       setCarregando(true);
       const [orcs, anal] = await Promise.all([
-        servicoDashboard.listarOrcamentosRecentes(50),
+        servicoDashboard.listarOrcamentosRecentes(50, {
+          dataInicio,
+          dataFim,
+        }),
         servicoDashboard.obterAnalytics({ dataInicio, dataFim, tipo: "geral" }),
       ]);
       setOrcamentos(orcs);
@@ -142,13 +152,26 @@ export default function DashboardVendas(): React.JSX.Element {
     quantidade: valor,
   }));
 
-  const graficoValores = orcamentos
+  const graficoValores = [...orcamentos]
+    .filter((o) => {
+      const s = (o.status || "").toUpperCase();
+      return ["APROVADO", "PROCESSADO", "FATURADO PARCIAL", "ROMANEIO"].some(
+        (palavra) => s.includes(palavra.toUpperCase())
+      );
+    })
+    .sort((a, b) => b.valorTotal - a.valorTotal)
     .slice(0, 10)
-    .map((o) => ({ nome: o.numero, valor: o.valorTotal, id: o.id }));
+    .map((o, index) => ({
+      nome: `#${index + 1}`,
+      valor: o.valorTotal,
+      id: o.id,
+      numero: o.numero,
+    }));
 
   const funil = analytics?.funilVendas ?? [];
   const topClientes = analytics?.topClientes ?? [];
   const topProdutos = analytics?.topProdutos ?? [];
+  const topVendedores = analytics?.topVendedores ?? [];
   const meta = analytics?.metaRealizado;
 
   return (
@@ -333,7 +356,7 @@ export default function DashboardVendas(): React.JSX.Element {
               className="block px-4 py-3 border-b border-slate-100 hover:bg-slate-50 transition"
             >
               <h3 className="text-sm font-semibold text-slate-800">
-                Top Clientes
+                Top Clientes (faturamento)
               </h3>
             </Link>
             <ResponsiveContainer width="100%" height={220}>
@@ -384,7 +407,7 @@ export default function DashboardVendas(): React.JSX.Element {
               className="block px-4 py-3 border-b border-slate-100 hover:bg-slate-50 transition"
             >
               <h3 className="text-sm font-semibold text-slate-800">
-                Top Produtos
+                Top Produtos (itens mais vendidos)
               </h3>
             </Link>
             <ResponsiveContainer width="100%" height={220}>
@@ -418,6 +441,48 @@ export default function DashboardVendas(): React.JSX.Element {
                     else router.push(DEEP_DIVE.produtos);
                   }}
                   style={{ cursor: "pointer" }}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        )}
+
+        {topVendedores.length > 0 && (
+          <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+            <div className="block px-4 py-3 border-b border-slate-100">
+              <h3 className="text-sm font-semibold text-slate-800">
+                Top Vendedores (faturamento)
+              </h3>
+            </div>
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart
+                data={topVendedores.slice(0, 8)}
+                layout="vertical"
+                margin={{ top: 5, right: 50, left: 0, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis
+                  type="number"
+                  tick={{ fontSize: 9 }}
+                  tickFormatter={(v) =>
+                    formatarMoeda(v).replace(/\s/g, "").slice(0, 8)
+                  }
+                />
+                <YAxis
+                  type="category"
+                  dataKey="nome"
+                  width={100}
+                  tick={{ fontSize: 9 }}
+                  tickFormatter={(v) =>
+                    v?.length > 14 ? v.slice(0, 13) + "…" : v
+                  }
+                />
+                <Tooltip formatter={(v) => formatarMoeda(Number(v ?? 0))} />
+                <Bar
+                  dataKey="valorTotal"
+                  fill={coresGraficos.sucesso}
+                  radius={[0, 4, 4, 0]}
+                  name="Faturamento"
                 />
               </BarChart>
             </ResponsiveContainer>

@@ -32,12 +32,16 @@ export class DashboardService {
   async listarOrcamentosRecentes(
     codEmpresa: number,
     limite: number,
-    empresaConfig: EmpresaConfig
+    empresaConfig: EmpresaConfig,
+    dataInicio?: string,
+    dataFim?: string
   ): Promise<OrcamentoOSDB[]> {
     const orcamentos = await dashboardRepository.listarOrcamentosRecentes(
       codEmpresa,
       limite,
-      empresaConfig
+      empresaConfig,
+      dataInicio,
+      dataFim
     );
     return orcamentos.map((orc) => OrcamentoOSSchema.parse(orc));
   }

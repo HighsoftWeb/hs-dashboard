@@ -34,6 +34,13 @@ export interface TopProduto {
   valorTotal: number;
 }
 
+export interface TopVendedor {
+  codRepresentante: number;
+  nome: string;
+  valorTotal: number;
+  quantidade: number;
+}
+
 export interface FunilVendas {
   status: string;
   quantidade: number;
@@ -71,6 +78,7 @@ export interface AnalyticsGeral {
   tendenciaMensal: TendenciaMensal[];
   topClientes: TopCliente[];
   topProdutos: TopProduto[];
+  topVendedores?: TopVendedor[];
   funilVendas: FunilVendas[];
   metaRealizado: MetaRealizado | null;
 }
@@ -126,4 +134,17 @@ export interface FluxoRecebimentoMensal {
   mesAno: string;
   valor: number;
   quantidade: number;
+}
+
+export interface DespesaPorCentroCusto {
+  centroCusto: string;
+  valor: number;
+}
+
+export type SeveridadeAlertaGestor = "info" | "warning" | "error";
+
+export interface AlertaGestor {
+  tipo: string;
+  mensagem: string;
+  severidade: SeveridadeAlertaGestor;
 }

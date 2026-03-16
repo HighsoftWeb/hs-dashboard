@@ -111,7 +111,7 @@ export default function PaginaProdutos(): React.JSX.Element {
             colunas={colunasProdutos}
             endpoint="/dashboard/cadastros/produtos"
             filtros={filtrosProdutos}
-            ordenacaoPadrao={{ campo: "DES_PRODUTO", ordem: "asc" }}
+            ordenacaoPadrao={{ campo: "COD_PRODUTO", ordem: "desc" }}
             onRowClick={(produto) => {
               router.push(
                 `/dashboard/cadastros/produtos/${produto.COD_PRODUTO}`
