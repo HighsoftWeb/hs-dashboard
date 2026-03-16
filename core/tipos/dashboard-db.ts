@@ -44,4 +44,8 @@ export interface EstatisticasDashboard {
   receitasMes: number;
   despesasMes: number;
   lucroMes: number;
+  contasReceberHoje?: number;
+  contasPagarHoje?: number;
+  contasReceberMes?: number;
+  contasPagarMes?: number;
 }

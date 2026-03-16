@@ -32,6 +32,8 @@ import {
   Tooltip,
   ResponsiveContainer,
   Cell,
+  PieChart,
+  Pie,
 } from "recharts";
 import {
   obterCorPorNomeGrafico,
@@ -41,7 +43,8 @@ function formatarMoeda(v: number): string {
   return new Intl.NumberFormat("pt-BR", {
     style: "currency",
     currency: "BRL",
-    maximumFractionDigits: 0,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   }).format(v);
 }
 
@@ -67,6 +70,7 @@ export default function DashboardFinanceiro(): React.JSX.Element {
       quantidadeClientesInadimplentes: number;
     };
     fluxoRecebimento?: { mesAno: string; valor: number; quantidade: number }[];
+    despesasPorCentroCusto?: { centroCusto: string; valor: number }[];
   } | null>(null);
   const [dataInicio, setDataInicio] = useState(padrao.dataInicio);
   const [dataFim, setDataFim] = useState(padrao.dataFim);
@@ -94,6 +98,10 @@ export default function DashboardFinanceiro(): React.JSX.Element {
       const geral = analGeral as {
         agingReceber?: { faixa: string; quantidade: number; valor: number }[];
         agingPagar?: { faixa: string; quantidade: number; valor: number }[];
+        despesasPorCentroCusto?: {
+          centroCusto: string;
+          valor: number;
+        }[];
       };
       const metricas = analMetricas as {
         indicadoresInadimplencia?: {
@@ -113,6 +121,7 @@ export default function DashboardFinanceiro(): React.JSX.Element {
         agingPagar: geral.agingPagar,
         indicadoresInadimplencia: metricas.indicadoresInadimplencia,
         fluxoRecebimento: metricas.fluxoRecebimento,
+        despesasPorCentroCusto: geral.despesasPorCentroCusto,
       });
     } finally {
       setCarregando(false);
@@ -156,7 +165,7 @@ export default function DashboardFinanceiro(): React.JSX.Element {
 
   const s = stats!;
   const dadosGrafico = [
-    { nome: "Receitas", valor: s.receitasMes },
+    { nome: "Faturamento", valor: s.receitasMes },
     { nome: "Despesas", valor: s.despesasMes },
     { nome: "Lucro", valor: s.lucroMes },
   ].filter((d) => d.valor > 0);
@@ -169,6 +178,7 @@ export default function DashboardFinanceiro(): React.JSX.Element {
   const agingPagar = analytics?.agingPagar ?? [];
   const inadimplencia = analytics?.indicadoresInadimplencia;
   const fluxo = analytics?.fluxoRecebimento ?? [];
+  const despesasCentro = analytics?.despesasPorCentroCusto ?? [];
 
   return (
     <PaginaBI
@@ -180,9 +190,9 @@ export default function DashboardFinanceiro(): React.JSX.Element {
         setDataFim(f);
       }}
     >
-      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         <CardKpi
-          titulo="Receitas"
+          titulo="Faturamento (mês)"
           valor={formatarMoeda(s.receitasMes)}
           icone={<TrendingUp className="w-5 h-5" />}
           tipoFinanceiro="receita"
@@ -200,12 +210,6 @@ export default function DashboardFinanceiro(): React.JSX.Element {
           tipoFinanceiro="lucro"
           negativo={s.lucroMes < 0}
         />
-        <CardKpi
-          titulo="A Vencer"
-          valor={contasVencendo.length}
-          icone={<AlertTriangle className="w-5 h-5" />}
-          href={DEEP_DIVE.contasReceber}
-        />
         {inadimplencia && (
           <>
             <CardKpi
@@ -216,8 +220,8 @@ export default function DashboardFinanceiro(): React.JSX.Element {
               href={DEEP_DIVE.contasReceber}
             />
             <CardKpi
-              titulo="Inadimplência"
-              valor={`${inadimplencia.percentualInadimplencia.toFixed(1)}%`}
+              titulo="Inadimplência hoje"
+              valor={formatarMoeda(inadimplencia.valorVencido)}
               icone={<AlertTriangle className="w-5 h-5" />}
               tipoFinanceiro={
                 inadimplencia.percentualInadimplencia > 10
@@ -336,6 +340,43 @@ export default function DashboardFinanceiro(): React.JSX.Element {
                   style={{ cursor: "pointer" }}
                 />
               </BarChart>
+            </ResponsiveContainer>
+          </CardGrafico>
+        )}
+
+        {despesasCentro.length > 0 && (
+          <CardGrafico
+            titulo="Despesas por Centro de Custo"
+            href={DEEP_DIVE.contasPagar}
+          >
+            <ResponsiveContainer width="100%" height={220}>
+              <PieChart>
+                <Pie
+                  data={despesasCentro}
+                  dataKey="valor"
+                  nameKey="centroCusto"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={70}
+                  label={(e: { name?: string; value?: number }) =>
+                    `${e.name ?? ""}: ${formatarMoeda(e.value ?? 0)}`
+                  }
+                >
+                  {despesasCentro.map((_, i) => (
+                    <Cell
+                      key={i}
+                      fill={CORES_FINANCEIRAS.despesa}
+                      opacity={0.6 + (i / despesasCentro.length) * 0.4}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip
+                  formatter={(v, name) => [
+                    formatarMoeda(Number(v ?? 0)),
+                    String(name ?? ""),
+                  ]}
+                />
+              </PieChart>
             </ResponsiveContainer>
           </CardGrafico>
         )}
@@ -492,7 +533,7 @@ export default function DashboardFinanceiro(): React.JSX.Element {
                           </span>
                         </Link>
                       </td>
-                      <td className="px-3 py-2 text-xs truncate max-w-[180px]">
+                      <td className="px-3 py-2 text-xs truncate">
                         <Link
                           href={obterUrlTitulo(c)}
                           className="hover:text-highsoft-primario hover:underline"

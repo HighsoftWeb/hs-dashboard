@@ -103,7 +103,7 @@ export default function PaginaEmpresas(): React.JSX.Element {
           <DataTable<EmpresaDB>
             colunas={colunasEmpresas}
             endpoint="/dashboard/cadastros/empresas"
-            ordenacaoPadrao={{ campo: "NOM_EMPRESA", ordem: "asc" }}
+            ordenacaoPadrao={{ campo: "COD_EMPRESA", ordem: "desc" }}
             onRowClick={(empresa) => {
               router.push(
                 `/dashboard/cadastros/empresas/${empresa.COD_EMPRESA}`

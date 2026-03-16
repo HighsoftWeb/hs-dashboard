@@ -19,6 +19,8 @@ import {
 } from "recharts";
 import { obterCoresGraficos } from "@/core/constants/cores-graficos";
 import { useEmpresa } from "@/core/context/empresa-context";
+import { PaginaBI } from "@/core/componentes/dashboard/pagina-bi";
+import { obterIntervaloPadrao } from "@/core/componentes/dashboard/filtro-periodo";
 
 interface MetricasProdutos {
   produtosMaisVendidos?: {
@@ -54,21 +56,29 @@ export default function PaginaMetricasProdutos(): React.JSX.Element {
   const router = useRouter();
   const { cores } = useEmpresa();
   const coresGraficos = obterCoresGraficos(cores);
+  const padrao = obterIntervaloPadrao();
   const [dados, setDados] = useState<MetricasProdutos | null>(null);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
+  const [busca, setBusca] = useState("");
+  const [dataInicio, setDataInicio] = useState(padrao.dataInicio);
+  const [dataFim, setDataFim] = useState(padrao.dataFim);
 
   const carregar = useCallback(async () => {
     try {
       setCarregando(true);
-      const resp = await servicoDashboard.obterAnalytics({ tipo: "metricas" });
+      const resp = await servicoDashboard.obterAnalytics({
+        tipo: "metricas",
+        dataInicio,
+        dataFim,
+      });
       setDados(resp as MetricasProdutos);
     } catch (err) {
       setErro(err instanceof Error ? err.message : "Erro ao carregar");
     } finally {
       setCarregando(false);
     }
-  }, []);
+  }, [dataInicio, dataFim]);
 
   useEffect(() => {
     carregar();
@@ -76,48 +86,100 @@ export default function PaginaMetricasProdutos(): React.JSX.Element {
 
   if (carregando) {
     return (
-      <div className="space-y-6">
-        <div className="flex items-center gap-4">
-          <div className="h-10 w-10 rounded-lg bg-slate-200 animate-pulse" />
-          <div className="h-8 w-48 rounded bg-slate-200 animate-pulse" />
+      <PaginaBI
+        titulo="Métricas Produtos"
+        dataInicio={dataInicio}
+        dataFim={dataFim}
+        onPeriodoChange={(i, f) => {
+          setDataInicio(i);
+          setDataFim(f);
+        }}
+      >
+        <div className="space-y-6">
+          <div className="flex items-center gap-4">
+            <div className="h-10 w-10 rounded-lg bg-slate-200 animate-pulse" />
+            <div className="h-8 w-48 rounded bg-slate-200 animate-pulse" />
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="h-72 rounded-xl bg-slate-200 animate-pulse" />
+            <div className="h-72 rounded-xl bg-slate-200 animate-pulse" />
+            <div className="h-64 rounded-xl bg-slate-200 animate-pulse" />
+            <div className="h-64 rounded-xl bg-slate-200 animate-pulse" />
+          </div>
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="h-72 rounded-xl bg-slate-200 animate-pulse" />
-          <div className="h-72 rounded-xl bg-slate-200 animate-pulse" />
-          <div className="h-64 rounded-xl bg-slate-200 animate-pulse" />
-          <div className="h-64 rounded-xl bg-slate-200 animate-pulse" />
-        </div>
-      </div>
+      </PaginaBI>
     );
   }
 
   if (erro) {
     return (
-      <div className="rounded-xl bg-red-50 border border-red-200 p-4">
-        <p className="text-sm text-red-800">{erro}</p>
-      </div>
+      <PaginaBI
+        titulo="Métricas Produtos"
+        dataInicio={dataInicio}
+        dataFim={dataFim}
+        onPeriodoChange={(i, f) => {
+          setDataInicio(i);
+          setDataFim(f);
+        }}
+      >
+        <div className="rounded-xl bg-red-50 border border-red-200 p-4">
+          <p className="text-sm text-red-800">{erro}</p>
+        </div>
+      </PaginaBI>
     );
   }
 
-  const maisVendidos = dados?.produtosMaisVendidos ?? [];
-  const maisLucro = dados?.produtosMaisLucro ?? [];
-  const prejuizo = dados?.produtosPrejuizo ?? [];
-  const parados = dados?.produtosParados ?? [];
+  const filtro = (descricao: string) =>
+    !busca ||
+    descricao.toLowerCase().includes(busca.trim().toLowerCase());
+
+  const maisVendidos = (dados?.produtosMaisVendidos ?? []).filter((p) =>
+    filtro(p.descricao)
+  );
+  const maisLucro = (dados?.produtosMaisLucro ?? []).filter((p) =>
+    filtro(p.descricao)
+  );
+  const prejuizo = (dados?.produtosPrejuizo ?? []).filter((p) =>
+    filtro(p.descricao)
+  );
+  const parados = (dados?.produtosParados ?? []).filter((p) =>
+    filtro(p.descricao)
+  );
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Link
-          href="/dashboard/estoque"
-          className="p-2 rounded-lg hover:bg-slate-100 text-slate-600"
-          title="Voltar"
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </Link>
-        <h1 className="text-xl font-bold text-slate-900">Métricas Produtos</h1>
-      </div>
+    <PaginaBI
+      titulo="Métricas Produtos"
+      dataInicio={dataInicio}
+      dataFim={dataFim}
+      onPeriodoChange={(i, f) => {
+        setDataInicio(i);
+        setDataFim(f);
+      }}
+    >
+      <div className="space-y-6">
+        <div className="flex items-center gap-4">
+          <Link
+            href="/dashboard/estoque"
+            className="p-2 rounded-lg hover:bg-slate-100 text-slate-600"
+            title="Voltar"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </Link>
+          <div className="flex-1 flex items-center justify-between gap-4">
+            <h1 className="text-xl font-bold text-slate-900">
+              Métricas Produtos
+            </h1>
+            <input
+              type="text"
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+              placeholder="Buscar produto..."
+              className="w-48 sm:w-64 text-xs rounded-lg border border-slate-200 px-2 py-1 focus:outline-none focus:ring-1 focus:ring-highsoft-primario"
+            />
+          </div>
+        </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {maisVendidos.length > 0 && (
           <CardGrafico titulo="Mais Vendidos" href={DEEP_DIVE.produtos}>
             <ResponsiveContainer width="100%" height={220}>
@@ -291,6 +353,7 @@ export default function PaginaMetricasProdutos(): React.JSX.Element {
             </p>
           )}
       </div>
-    </div>
+      </div>
+    </PaginaBI>
   );
 }

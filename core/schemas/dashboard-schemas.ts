@@ -10,6 +10,10 @@ export const EstatisticasDashboardSchema = z.object({
   receitasMes: z.number().nonnegative(),
   despesasMes: z.number().nonnegative(),
   lucroMes: z.number(),
+  contasReceberHoje: z.number().nonnegative().optional(),
+  contasPagarHoje: z.number().nonnegative().optional(),
+  contasReceberMes: z.number().nonnegative().optional(),
+  contasPagarMes: z.number().nonnegative().optional(),
 });
 
 export const OrcamentoOSSchema = z.object({

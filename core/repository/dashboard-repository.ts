@@ -25,12 +25,16 @@ export class DashboardRepository {
   async listarOrcamentosRecentes(
     codEmpresa: number,
     limite: number,
-    empresaConfig: EmpresaConfig
+    empresaConfig: EmpresaConfig,
+    dataInicio?: string,
+    dataFim?: string
   ): Promise<OrcamentoOSDB[]> {
     return dashboardRepositoryORM.listarOrcamentosRecentes(
       codEmpresa,
       limite,
-      empresaConfig
+      empresaConfig,
+      dataInicio,
+      dataFim
     );
   }
 

@@ -56,6 +56,10 @@ export class DashboardRepositoryORM {
         orcamentosMes,
         receitasMes,
         despesasMes,
+        receitasMesHoje,
+        despesasMesHoje,
+        receitasMesVencimento,
+        despesasMesVencimento,
         totalEmpresasResult,
       ] = await Promise.all([
         usuarioRepo.count({ where: { SIT_USUARIO: "A" } }),
@@ -81,6 +85,7 @@ export class DashboardRepositoryORM {
             DAT_EMISSAO: Between(inicioPeriodo, fimPeriodo),
           },
         }),
+        // contas a receber hoje (vcto hoje)
         tituloReceberRepo
           .createQueryBuilder("titulo")
           .select(
@@ -100,6 +105,7 @@ export class DashboardRepositoryORM {
             { fim: fimPeriodo }
           )
           .getRawOne(),
+        // contas a pagar hoje (vcto hoje)
         tituloPagarRepo
           .createQueryBuilder("titulo")
           .select(
@@ -119,6 +125,54 @@ export class DashboardRepositoryORM {
             { fim: fimPeriodo }
           )
           .getRawOne(),
+        // contas a receber no período (por vencimento)
+        tituloReceberRepo
+          .createQueryBuilder("titulo")
+          .select(
+            "SUM(COALESCE(titulo.VLR_ORIGINAL, titulo.VLR_ABERTO))",
+            "total"
+          )
+          .where("titulo.COD_EMPRESA = :codEmpresa", { codEmpresa })
+          .andWhere("titulo.SIT_TITULO = :ab", { ab: "AB" })
+          .andWhere("CAST(titulo.VCT_ORIGINAL AS DATE) = CAST(:hoje AS DATE)", {
+            hoje,
+          })
+          .getRawOne(),
+        // contas a pagar no período (por vencimento)
+        tituloPagarRepo
+          .createQueryBuilder("titulo")
+          .select(
+            "SUM(COALESCE(titulo.VLR_ORIGINAL, titulo.VLR_ABERTO))",
+            "total"
+          )
+          .where("titulo.COD_EMPRESA = :codEmpresa", { codEmpresa })
+          .andWhere("titulo.SIT_TITULO = :ab", { ab: "AB" })
+          .andWhere("CAST(titulo.VCT_ORIGINAL AS DATE) = CAST(:hoje AS DATE)", {
+            hoje,
+          })
+          .getRawOne(),
+        tituloReceberRepo
+          .createQueryBuilder("titulo")
+          .select(
+            "SUM(COALESCE(titulo.VLR_ORIGINAL, titulo.VLR_ABERTO))",
+            "total"
+          )
+          .where("titulo.COD_EMPRESA = :codEmpresa", { codEmpresa })
+          .andWhere("titulo.SIT_TITULO = :ab", { ab: "AB" })
+          .andWhere("titulo.VCT_ORIGINAL >= :inicio", { inicio: inicioPeriodo })
+          .andWhere("titulo.VCT_ORIGINAL <= :fim", { fim: fimPeriodo })
+          .getRawOne(),
+        tituloPagarRepo
+          .createQueryBuilder("titulo")
+          .select(
+            "SUM(COALESCE(titulo.VLR_ORIGINAL, titulo.VLR_ABERTO))",
+            "total"
+          )
+          .where("titulo.COD_EMPRESA = :codEmpresa", { codEmpresa })
+          .andWhere("titulo.SIT_TITULO = :ab", { ab: "AB" })
+          .andWhere("titulo.VCT_ORIGINAL >= :inicio", { inicio: inicioPeriodo })
+          .andWhere("titulo.VCT_ORIGINAL <= :fim", { fim: fimPeriodo })
+          .getRawOne(),
         produtoRepo
           .createQueryBuilder("produto")
           .select("COUNT(DISTINCT produto.COD_EMPRESA)", "total")
@@ -126,6 +180,16 @@ export class DashboardRepositoryORM {
       ]);
 
       const totalEmpresas = parseInt(totalEmpresasResult?.total || "1", 10);
+      const contasReceberHoje =
+        parseFloat((receitasMesHoje as { total?: string })?.total || "0") || 0;
+      const contasPagarHoje =
+        parseFloat((despesasMesHoje as { total?: string })?.total || "0") || 0;
+      const contasReceberMes =
+        parseFloat((receitasMesVencimento as { total?: string })?.total || "0") ||
+        0;
+      const contasPagarMes =
+        parseFloat((despesasMesVencimento as { total?: string })?.total || "0") ||
+        0;
 
       return {
         totalUsuarios,
@@ -139,6 +203,10 @@ export class DashboardRepositoryORM {
         lucroMes:
           parseFloat(receitasMes?.total || "0") -
           parseFloat(despesasMes?.total || "0"),
+        contasReceberHoje,
+        contasPagarHoje,
+        contasReceberMes,
+        contasPagarMes,
       };
     } catch (erro) {
       logger.warn("Erro ao obter estatísticas com TypeORM, usando SQL raw", {
@@ -169,7 +237,11 @@ export class DashboardRepositoryORM {
           (SELECT COUNT(*) FROM dbo.ORCAMENTOS_OS WHERE COD_EMPRESA = @codEmpresa AND CAST(DAT_EMISSAO AS DATE) = CAST(GETDATE() AS DATE)) as orcamentosHoje,
           (SELECT COUNT(*) FROM dbo.ORCAMENTOS_OS WHERE COD_EMPRESA = @codEmpresa AND CAST(DAT_EMISSAO AS DATE) >= CAST(@dataInicio AS DATE) AND CAST(DAT_EMISSAO AS DATE) <= CAST(@dataFim AS DATE)) as orcamentosMes,
           (SELECT ISNULL(SUM(ISNULL(VLR_ORIGINAL, VLR_ABERTO)), 0) FROM dbo.TITULOS_RECEBER WHERE COD_EMPRESA = @codEmpresa AND (SIT_TITULO IS NULL OR SIT_TITULO != 'CA') AND CAST(COALESCE(DAT_EMISSAO, VCT_ORIGINAL) AS DATE) >= CAST(@dataInicio AS DATE) AND CAST(COALESCE(DAT_EMISSAO, VCT_ORIGINAL) AS DATE) <= CAST(@dataFim AS DATE)) as receitasMes,
-          (SELECT ISNULL(SUM(ISNULL(VLR_ORIGINAL, VLR_ABERTO)), 0) FROM dbo.TITULOS_PAGAR WHERE COD_EMPRESA = @codEmpresa AND (SIT_TITULO IS NULL OR SIT_TITULO != 'CA') AND CAST(COALESCE(DAT_EMISSAO, VCT_ORIGINAL) AS DATE) >= CAST(@dataInicio AS DATE) AND CAST(COALESCE(DAT_EMISSAO, VCT_ORIGINAL) AS DATE) <= CAST(@dataFim AS DATE)) as despesasMes
+          (SELECT ISNULL(SUM(ISNULL(VLR_ORIGINAL, VLR_ABERTO)), 0) FROM dbo.TITULOS_PAGAR WHERE COD_EMPRESA = @codEmpresa AND (SIT_TITULO IS NULL OR SIT_TITULO != 'CA') AND CAST(COALESCE(DAT_EMISSAO, VCT_ORIGINAL) AS DATE) >= CAST(@dataInicio AS DATE) AND CAST(COALESCE(DAT_EMISSAO, VCT_ORIGINAL) AS DATE) <= CAST(@dataFim AS DATE)) as despesasMes,
+          (SELECT ISNULL(SUM(ISNULL(VLR_ORIGINAL, VLR_ABERTO)), 0) FROM dbo.TITULOS_RECEBER WHERE COD_EMPRESA = @codEmpresa AND SIT_TITULO = 'AB' AND CAST(VCT_ORIGINAL AS DATE) = CAST(GETDATE() AS DATE)) as contasReceberHoje,
+          (SELECT ISNULL(SUM(ISNULL(VLR_ORIGINAL, VLR_ABERTO)), 0) FROM dbo.TITULOS_PAGAR WHERE COD_EMPRESA = @codEmpresa AND SIT_TITULO = 'AB' AND CAST(VCT_ORIGINAL AS DATE) = CAST(GETDATE() AS DATE)) as contasPagarHoje,
+          (SELECT ISNULL(SUM(ISNULL(VLR_ORIGINAL, VLR_ABERTO)), 0) FROM dbo.TITULOS_RECEBER WHERE COD_EMPRESA = @codEmpresa AND SIT_TITULO = 'AB' AND CAST(VCT_ORIGINAL AS DATE) >= CAST(@dataInicio AS DATE) AND CAST(VCT_ORIGINAL AS DATE) <= CAST(@dataFim AS DATE)) as contasReceberMes,
+          (SELECT ISNULL(SUM(ISNULL(VLR_ORIGINAL, VLR_ABERTO)), 0) FROM dbo.TITULOS_PAGAR WHERE COD_EMPRESA = @codEmpresa AND SIT_TITULO = 'AB' AND CAST(VCT_ORIGINAL AS DATE) >= CAST(@dataInicio AS DATE) AND CAST(VCT_ORIGINAL AS DATE) <= CAST(@dataFim AS DATE)) as contasPagarMes
       `;
 
       const resultado = await poolBanco.executarConsulta<{
@@ -181,6 +253,10 @@ export class DashboardRepositoryORM {
         orcamentosMes: number;
         receitasMes: number;
         despesasMes: number;
+        contasReceberHoje: number;
+        contasPagarHoje: number;
+        contasReceberMes: number;
+        contasPagarMes: number;
       }>(
         query,
         { codEmpresa, dataInicio: dataInicioUsar, dataFim: dataFimUsar },
@@ -196,6 +272,10 @@ export class DashboardRepositoryORM {
         orcamentosMes: 0,
         receitasMes: 0,
         despesasMes: 0,
+        contasReceberHoje: 0,
+        contasPagarHoje: 0,
+        contasReceberMes: 0,
+        contasPagarMes: 0,
       };
 
       return {
@@ -208,15 +288,30 @@ export class DashboardRepositoryORM {
   async listarOrcamentosRecentes(
     codEmpresa: number,
     limite: number,
-    empresaConfig: EmpresaConfig
+    empresaConfig: EmpresaConfig,
+    dataInicio?: string,
+    dataFim?: string
   ): Promise<OrcamentoOSDB[]> {
     try {
       await inicializarDataSource(empresaConfig);
       const dataSource = getAppDataSource();
       const repository = dataSource.getRepository(OrcamentoOS);
 
+      const hoje = new Date();
+      const inicioPeriodo =
+        dataInicio && !isNaN(new Date(dataInicio).getTime())
+          ? new Date(dataInicio + "T00:00:00")
+          : new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+      const fimPeriodo =
+        dataFim && !isNaN(new Date(dataFim).getTime())
+          ? new Date(dataFim + "T23:59:59")
+          : new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0, 23, 59, 59);
+
       const orcamentos = await repository.find({
-        where: { COD_EMPRESA: codEmpresa },
+        where: {
+          COD_EMPRESA: codEmpresa,
+          DAT_EMISSAO: Between(inicioPeriodo, fimPeriodo),
+        },
         order: { DAT_EMISSAO: "DESC" },
         take: limite,
       });
@@ -270,12 +365,34 @@ export class DashboardRepositoryORM {
         FROM dbo.ORCAMENTOS_OS O
         LEFT JOIN dbo.CLIENTES_FORNECEDORES C ON C.COD_CLI_FOR = O.COD_CLI_FOR
         WHERE O.COD_EMPRESA = @codEmpresa
+          AND O.DAT_EMISSAO >= @dataInicio AND O.DAT_EMISSAO <= @dataFim
         ORDER BY O.DAT_EMISSAO DESC
       `;
 
+      const hoje = new Date();
+      const inicioPeriodoFallback = new Date(
+        hoje.getFullYear(),
+        hoje.getMonth(),
+        1
+      )
+        .toISOString()
+        .slice(0, 10);
+      const fimPeriodoFallback = new Date(
+        hoje.getFullYear(),
+        hoje.getMonth() + 1,
+        0
+      )
+        .toISOString()
+        .slice(0, 10);
+
       return poolBanco.executarConsulta<OrcamentoOSDB>(
         query,
-        { codEmpresa, limite },
+        {
+          codEmpresa,
+          limite,
+          dataInicio: inicioPeriodoFallback,
+          dataFim: fimPeriodoFallback,
+        },
         empresaConfig
       );
     }
@@ -302,7 +419,7 @@ export class DashboardRepositoryORM {
           SIT_TITULO: "AB",
           VCT_ORIGINAL: Between(hoje, dataLimite),
         },
-        order: { VCT_ORIGINAL: "ASC" },
+        order: { VCT_ORIGINAL: "DESC" },
         take: 25,
       });
 
@@ -356,7 +473,7 @@ export class DashboardRepositoryORM {
         WHERE T.COD_EMPRESA = @codEmpresa
           AND T.SIT_TITULO = 'AB'
           AND T.VCT_ORIGINAL BETWEEN GETDATE() AND DATEADD(DAY, @dias, GETDATE())
-        ORDER BY T.VCT_ORIGINAL ASC
+        ORDER BY T.VCT_ORIGINAL DESC
       `;
 
       return poolBanco.executarConsulta<TituloReceberDB>(
@@ -388,7 +505,7 @@ export class DashboardRepositoryORM {
           SIT_TITULO: "AB",
           VCT_ORIGINAL: Between(hoje, dataLimite),
         },
-        order: { VCT_ORIGINAL: "ASC" },
+        order: { VCT_ORIGINAL: "DESC" },
         take: 25,
       });
 
@@ -437,7 +554,7 @@ export class DashboardRepositoryORM {
         WHERE T.COD_EMPRESA = @codEmpresa
           AND T.SIT_TITULO = 'AB'
           AND T.VCT_ORIGINAL BETWEEN GETDATE() AND DATEADD(DAY, @dias, GETDATE())
-        ORDER BY T.VCT_ORIGINAL ASC
+        ORDER BY T.VCT_ORIGINAL DESC
       `;
 
       return poolBanco.executarConsulta<TituloPagarDB>(

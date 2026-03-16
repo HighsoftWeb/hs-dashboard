@@ -48,6 +48,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const tipo = searchParams.get("tipo") || "geral";
 
     if (tipo === "geral") {
+      const intervalo12Meses = obterUltimos12Meses();
       const [
         agingReceber,
         agingPagar,
@@ -56,23 +57,27 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         topProdutos,
         funilVendas,
         metaRealizado,
+        topVendedores,
+        despesasPorCentroCusto,
+        indicadoresInadimplencia,
+        produtosPrejuizoParaAlertas,
       ] = await Promise.all([
         analyticsRepository.obterAgingReceber(codEmpresa, empresaConfig),
         analyticsRepository.obterAgingPagar(codEmpresa, empresaConfig),
         analyticsRepository.obterTendenciaMensal(
           codEmpresa,
-          obterUltimos12Meses().dataInicio,
-          obterUltimos12Meses().dataFim,
+          intervalo12Meses.dataInicio,
+          intervalo12Meses.dataFim,
           empresaConfig
         ),
-        analyticsRepository.obterTopClientes(
+        analyticsRepository.obterTopClientesPorFaturamento(
           codEmpresa,
           10,
           dataInicio,
           dataFim,
           empresaConfig
         ),
-        analyticsRepository.obterTopProdutosOrcamento(
+        analyticsRepository.obterTopProdutosVenda(
           codEmpresa,
           10,
           dataInicio,
@@ -91,7 +96,38 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           dataFim,
           empresaConfig
         ),
+        analyticsRepository.obterTopVendedores(
+          codEmpresa,
+          10,
+          dataInicio,
+          dataFim,
+          empresaConfig
+        ),
+        analyticsRepository.obterDespesasPorCentroCusto(
+          codEmpresa,
+          dataInicio,
+          dataFim,
+          empresaConfig
+        ),
+        analyticsRepository.obterIndicadoresInadimplencia(
+          codEmpresa,
+          empresaConfig
+        ),
+        analyticsRepository.obterProdutosPorLucro(
+          codEmpresa,
+          dataInicio,
+          dataFim,
+          10,
+          "menor",
+          empresaConfig
+        ),
       ]);
+
+      const alertasGestor = analyticsRepository.derivarAlertasGestor({
+        indicadoresInadimplencia,
+        despesasPorCentroCusto,
+        produtosPrejuizo: produtosPrejuizoParaAlertas,
+      });
 
       return NextResponse.json(
         criarRespostaSucesso({
@@ -102,6 +138,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           topProdutos,
           funilVendas,
           metaRealizado,
+          topVendedores,
+          despesasPorCentroCusto,
+          indicadoresInadimplencia,
+          alertasGestor,
         })
       );
     }

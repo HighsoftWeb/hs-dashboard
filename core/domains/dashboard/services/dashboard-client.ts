@@ -48,11 +48,20 @@ class ServicoDashboard {
     return resposta.data;
   }
 
-  async listarOrcamentosRecentes(limite?: number): Promise<Orcamento[]> {
+  async listarOrcamentosRecentes(
+    limite?: number,
+    paramsPeriodo?: { dataInicio?: string; dataFim?: string }
+  ): Promise<Orcamento[]> {
     const limiteFinal = limite || DASHBOARD_PADRAO.LIMITE_ORCAMENTOS;
-    const params = `?limite=${limiteFinal}`;
+    const searchParams = new URLSearchParams({ limite: String(limiteFinal) });
+    if (paramsPeriodo?.dataInicio) {
+      searchParams.set("dataInicio", paramsPeriodo.dataInicio);
+    }
+    if (paramsPeriodo?.dataFim) {
+      searchParams.set("dataFim", paramsPeriodo.dataFim);
+    }
     const resposta = await clienteHttp.get<OrcamentoOSDB[]>(
-      `/dashboard/orcamentos-recentes${params}`
+      `/dashboard/orcamentos-recentes?${searchParams.toString()}`
     );
 
     if (!resposta.success || !resposta.data) {
