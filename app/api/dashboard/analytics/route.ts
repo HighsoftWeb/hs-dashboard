@@ -243,9 +243,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         ),
       ]);
 
-      const produtosPrejuizo = produtosPrejuizoBruto.filter(
-        (p) => p.lucro < 0
-      );
+      const produtosPrejuizo = produtosPrejuizoBruto.filter((p) => p.lucro < 0);
 
       return NextResponse.json(
         criarRespostaSucesso({
